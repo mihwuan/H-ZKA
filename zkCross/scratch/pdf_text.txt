@@ -1,0 +1,123 @@
+B1: Khắc phục lỗi toán học  về ràng buộc mật mã 
+Lỗi lớn nhất của bài báo nằm ở nhận định rằng việc xác minh đệ quy Groth16 thông qua 
+xjsnark chỉ tốn khoảng 40.000 ràng buộc 
+• Các hệ thống chứng minh như Groth16 yêu cầu tính toán ghép cặp trên các đường 
+cong elliptic. Khi thực hiện xác minh đệ quy mà không sử dụng chu kỳ đường cong, 
+mạch phải giả lập số học trường không tự nhiên . Thực tế, quá trình giả lập này tiêu 
+tốn hàng chục triệu ràng buộc, thay vì vài chục ngàn. Việc đánh giá sai lệch hơn 250 
+lần này khiến toàn bộ kết quả về thời gian chạy và chi phí Gas trở nên vô giá trị. 
+• Cần làm: 
+1. Từ bỏ xjsnark cho phần đệ quy: Chuyển sang sử dụng các framework hỗ trợ 
+chu kỳ đường cong (như Pasta curves) hoặc các cơ chế folding schemes hiện 
+đại (như Nova, Halo2) để thực sự đạt được hiệu năng đệ quy tốt. 
+2. Nếu vẫn muốn giữ Groth16, các em phải sử dụng thư viện như gnark với thiết 
+kế 2-chain và trình bày lại con số ràng buộc thực tế (khoảng 20 triệu). 
+3. Tính toán lại toàn bộ chi phí Prover time và Gas on-chain dựa trên con số 
+thực tế này. 
+B2: Cấu trúc lại Cluster Consensus 
+Cách nhóm thiết kế đồng thuận cho Global Audit Chain đang cho phép sự kiểm duyệt hợp 
+lệ. 
+• Chúng ta đang chia 𝑘 chuỗi thành 𝑀 =  ⌈√(𝑘) ⌉ cụm rời rạc, sau đó yêu cầu Global 
+Chain đạt đồng thuận khi có =  2𝑀/3 chữ ký. Do dữ liệu các cụm là không chia sẻ 
+(disjoint), một Cluster Head độc hại hoàn toàn có thể cố tình giấu dữ liệu của cụm 
+mình (censorship), và Global Chain vẫn cập nhật trạng thái vì số cụm còn lại vẫn lớn 
+hơn ngưỡng ⌈2𝑀/3 ⌉. Hệ thống lúc này bị mất tính khả dụng của dữ liệu (Data 
+Availability). 
+• Cần làm: 
+1. Đổi mới cơ chế chọn Cụm. Bỏ phương pháp chia cụm tĩnh theo địa lý/độ 
+tương quan. Thay vào đó, sử dụng VRF (Verifiable Random Function) toàn cục 
+để xáo trộn ngẫu nhiên việc gán Chuỗi (Chain) vào Cụm (Cluster) ở mỗi 
+epoch. Điều này chống lại việc một nhóm thao túng một tập hợp chuỗi cụ 
+thể. 
+2. Sửa điều kiện Global Root. Global Chain không thể bỏ qua dữ liệu của bất kỳ 
+chuỗi nào. Các em phải bổ sung cơ chế Đảm bảo Khả dụng Dữ liệu (DA layer) 
+hoặc thêm thời gian cửa sổ thử thách (challenge window) cùng Fraud Proofs 
+để các Node bình thường có thể tố cáo Cluster Head giấu dữ liệu. 
+B3: Vá Lỗ hổng Lý thuyết Trò chơi trong Hệ thống Danh tiếng (MF-POP) 
+Công thức tính toán điểm danh tiếng hiện tại quá nhân nhượng với attacker. 
+• Vấn đề: Với trọng số EMA lịch sử γ =  0.7 và hệ số suy giảm β =  0.3 cho các Node 
+điểm cao, một kẻ tấn công thông minh có thể thực hiện “Oscillating Byzantine 
+Attack” (tấn công dao động). Chúng chỉ cần gửi 5 bằng chứng đúng, sau đó chèn 1 
+bằng chứng sai, và điểm số của chúng sẽ không bao giờ tụt xuống mức bị cách ly 
+𝑅𝑚𝑖𝑛 = 0.01. 
+• Cần làm: 
+1. Tích hợp Slashing (phạt kinh tế): Bắt buộc các Committer phải thế chấp 
+(stake) token. Một khi 𝐶𝑖
+𝑡 = 0 (tức là nộp bằng chứng sai), không chỉ điểm 
+danh tiếng bị trừ mạnh tay (non-linear drop) mà token thế chấp cũng bị tịch 
+thu. 
+2. Bảo vệ Committer Trung thực: Cluster Head là người chấm điểm 𝐶𝑖
+𝑡. Nếu 
+Cluster Head độc hại cố tình chấm điểm 0 cho một bằng chứng đúng, phải 
+có cơ chế trọng tài on-chain (On-chain Arbitration) để Committer gửi khiếu 
+nại (appeal) kèm theo bằng chứng của mình lên Global Chain. 
+B4: Thiết kế và chạy lại toàn bộ thực nghiệm 
+Mô phỏng mạng thực tế, mạng đa chuỗi thực tế có độ trễ cực cao. Các em không thể chỉ 
+chạy trên AWS cục bộ. Cần sử dụng các công cụ mô phỏng mạng để bơm độ trễ (latency 
+injection) và băng thông giới hạn vào mô hình. 
+1. Bảng VII khẳng định độ chính xác (Accuracy) đạt 100% ngay từ đầu dù đang bị 
+tấn công Byzantine là một sai lầm logic. Các em đã chứng minh mất 46 round 
+để cách ly kẻ xấu. Vậy trong 46 round đó, độ chính xác phải bị suy giảm. Hãy 
+vẽ biểu đồ đường (line graph) thể hiện độ chính xác khôi phục dần từ round 1 
+đến round 50 khi hệ thống danh tiếng bắt đầu phát huy tác dụng. 
+2. Cần triển khai Smart Contract xác minh đệ quy lên một EVM Testnet (ví dụ: 
+Sepolia) để đo lường lượng Gas thực tế thay vì dự đoán. 
+Các bài báo thuộc top đầu như zkCross hay VeCroToken cũng chỉ sử dụng các cụm máy 
+chủ ảo trên AWS hoặc cloud server để chạy thực nghiệm. 
+Tuy nhiên, Reviewer không từ chối bài của các em vì máy chủ đắt hay rẻ tiền. Họ từ chối vì 
+mô hình chạy trên máy chủ đó “quá hoàn hảo” và không phản ánh các điều kiện khắc 
+nghiệt của mạng phi tập trung, đặc biệt là khi các em đưa ra con số ràng buộc (constraints) 
+cho thuật toán đệ quy sai lệch quá lớn so với thực tế. CáC em phải thực hiện lại thực 
+nghiệm theo 4 kịch bản sau: 
+Kịch bản 1: Giả lập mạng lưới Heterogeneous Network Thay vì thuê hàng chục server đắt 
+tiền ở các quốc gia khác nhau, các em vẫn có thể dùng các máy AWS hiện tại chạy Docker. 
+Tuy nhiên, các em phải “bơm” các điều kiện mạng thực tế vào các container này: 
+• Công cụ: Sử dụng công cụ tc (Traffic Control) kết hợp với netem có sẵn trên Linux. 
+• Cách làm: Viết script để cấu hình ngẫu nhiên độ trễ (latency) từ 50ms đến 500ms, 
+giới hạn băng thông, và thiết lập tỷ lệ rớt gói tin (packet loss) khoảng 1-5% giữa các 
+node Docker. 
+• Mục đích: Khi đo thời gian Audit Latency, số liệu của các em sẽ bao gồm cả thời gian 
+đồng thuận mạng bị trễ, giúp mô hình tiệm cận với môi trường thực tế chứ không 
+phải tốc độ truyền tải lý tưởng của mạng nội bộ AWS. 
+Kịch bản 2: Đo lường chi phí Gas on-chain thực tế 
+Đừng ngồi tính vo số lượng gas dựa trên các phép toán lý thuyết, vì reviewer sẽ bắt lỗi ngay 
+nếu tham số đầu vào sai. 
+• Cách làm: Code phần Global Audit Chain bằng Solidity và triển khai trực tiếp lên các 
+Public Testnet của Ethereum (như mạng Sepolia hoặc Holesky). 
+• Thực thi: Các em có thể xin ETH thử nghiệm (Testnet ETH) miễn phí từ các Faucet. 
+Chạy thuật toán xác minh aggregated proof trên Testnet và chụp lại chính xác lượng 
+Gas tiêu thụ cho giao dịch đó từ block explorer (như Etherscan). Việc chứng minh 
+bằng dữ liệu thực tế trên Testnet có sức thuyết phục tuyệt đối. 
+Kịch bản 3: Micro-benchmarking – Tối ưu RAM AWS 
+Nếu chạy đệ quy Groth16 trên trường không tự nhiên (non-native field) thực sự tốn tới 20 
+triệu ràng buộc (constraints), máy AWS cấu hình thấp của các em có thể bị tràn RAM và 
+treo máy nếu chạy cho cả cụm. 
+• Cách làm: Các em không cần chạy cho toàn bộ 100 chuỗi cùng lúc. Hãy cô lập và 
+chạy đúng 1 quá trình tạo và xác minh bằng chứng đệ quy duy nhất với tham số 
+chuẩn (đủ 20 triệu ràng buộc). 
+• Thực thi: Ghi nhận chính xác Prover Time và lượng RAM tiêu thụ cho một tác vụ đó. 
+Sau đó, trong bài báo, các em sử dụng phép ngoại suy toán học (extrapolation) để 
+tính toán thời gian chạy cho √(𝑘) chuỗi. Reviewer của các tạp chí lớn chấp nhận 
+cách tiếp cận này, miễn là điểm cơ sở (baseline benchmark) của các em là trung 
+thực và có thể tái tạo. 
+Kịch bản 4: Giả lập Lý thuyết Trò chơi  cho thuật toán danh tiếng 
+Bài này có 1 lỗ hổng tấn công dao động (Oscillating Attack). Để chứng minh thuật toán MF-
+POP đã được sửa lỗi, các em không cần chạy toàn bộ hệ thống blockchain nặng nề. 
+• Cách làm: Tách riêng logic toán học của hệ thống danh tiếng và viết một đoạn mã 
+Python (chạy thẳng trên laptop của các em). 
+• Thực thi: Tạo các “agent” ảo đại diện cho các Node. Lập trình cho một nhóm agent 
+đóng vai trò “Kẻ tấn công thông minh”, chúng sẽ liên tục thay đổi chiến thuật: gửi 5 
+bằng chứng đúng, sau đó gửi 1 bằng chứng sai để thao túng điểm. Chạy vòng lặp 
+qua 200 round và dùng thư viện Matplotlib để vẽ biểu đồ đường đi của điểm danh 
+tiếng. 
+• Mục đích: Biểu đồ này sẽ chứng minh bằng thực nghiệm rằng cơ chế phạt mới 
+(slashing/progressive tax) sẽ dìm điểm của kẻ tấn công xuống đáy (𝑅𝑚𝑖𝑛) bất chấp 
+chiến thuật tinh vi của chúng. 
+Điểm mấu chốt ở đây là: Reviewer tìm kiếm sự khắt khe trong phương pháp luận 
+(methodology), chứ không phải sự hoành tráng của phần cứng. 
+B5: Cập nhật Related Work 
+• Bổ sung so sánh cơ chế Mở rộng theo Cấp bậc (Hierarchical scaling) của nhóm với 
+các hướng tiếp cận mở rộng theo chiều ngang (Horizontally-scalable) gần đây như 
+Hekaton hoặc zkBridge. Các em phải biện luận rõ ràng tại sao kiến trúc phân cụm 
+cấp bậc lại phù hợp và tối ưu hơn kiến trúc ngang hàng trong ngữ cảnh kiểm toán 
+xuyên chuỗi (cross-chain auditing) này. 

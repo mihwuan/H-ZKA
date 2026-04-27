@@ -1,0 +1,124 @@
+mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$ node scripts/deploy_sepolia.cjs
+======================================================================
+  Kịch Bản 2: Deploy to Sepolia Testnet
+  Measuring REAL gas consumption on Sepolia
+======================================================================
+
+  RPC: https://ethereum-sepolia-rpc.publicnode.com/
+
+  Deployer: 0xF5F414e107F24DFAa48F7f8506ecFe5bEfC348a1
+
+  Balance: 0.030473998011562448 ETH
+
+[1/3] Deploying ReputationRegistry...
+  (MF-PoP reputation mechanism)
+  Deploying ReputationRegistry...
+    Address: 0xEe2559828b9C26DdAB486828BaA32d961F54A5b3
+    Gas Used: 2,285,162
+    Gas Price: 0.004907963 gwei
+    Deploy Cost: 0.000011215490545006 ETH
+    Deploy Time: 14925ms
+    Calling authorizeUpdater...
+      Gas Used: 26,272
+      Tx Cost: 0.00000012958900448 ETH
+    Calling bootstrapRegister...
+      Gas Used: 26,857
+      Tx Cost: 0.00000013203572625 ETH
+
+[2/3] Deploying ClusterManager...
+  (Hierarchical clustering with VRF)
+  Deploying ClusterManager...
+    Address: 0x6482A13dc1d312188B60E3b2fA205347F12659dE
+    Gas Used: 2,471,762
+    Gas Price: 0.005065911 gwei
+    Deploy Cost: 0.000012521726305182 ETH
+    Deploy Time: 8199ms
+    Calling authorizeUpdater...
+      Gas Used: 46,172
+      Tx Cost: 0.000000237686160824 ETH
+
+[3/3] Deploying AuditContractV2...
+  (Enhanced Protocol Ψ with weighted audit)
+  Deploying AuditContractV2...
+    Address: 0x212cf16E53356DA0f9ff4c99617313729eDd45f2
+    Gas Used: 3,066,732
+    Gas Price: 0.00527327 gwei
+    Deploy Cost: 0.00001617170585364 ETH
+    Deploy Time: 10731ms
+    Calling addAuditor...
+      Gas Used: 26,146
+      Tx Cost: 0.000000140332013916 ETH
+    Funding contract...
+      Funded: 0.01 ETH
+    Calling enableMockVerifier...
+      Gas Used: 45,539
+      Tx Cost: 0.000000238075478433 ETH
+
+[Bonus] Registering chains and measuring gas...
+  (10 chains for 200-node system simulation)
+    Calling registerChain...
+      Gas Used: 160,965
+      Tx Cost: 0.000000829431236655 ETH
+    Calling registerChain...
+      Gas Used: 143,865
+      Tx Cost: 0.000000749503417185 ETH
+    Calling registerChain...
+      Gas Used: 143,865
+      Tx Cost: 0.000000674434660185 ETH
+    Calling registerChain...
+      Gas Used: 143,865
+      Tx Cost: 0.000000733085255655 ETH
+    Calling registerChain...
+      Gas Used: 143,865
+      Tx Cost: 0.00000072474381909 ETH
+    Calling registerChain...
+      Gas Used: 143,865
+      Tx Cost: 0.000000626928135345 ETH
+    Calling registerChain...
+      Gas Used: 143,865
+      Tx Cost: 0.00000066282691266 ETH
+    Calling registerChain...
+      Gas Used: 143,865
+      Tx Cost: 0.000000634721590125 ETH
+    Calling registerChain...
+      Gas Used: 143,865
+      Tx Cost: 0.000000641291616945 ETH
+    Calling registerChain...
+      Gas Used: 143,865
+      Tx Cost: 0.00000060308553276 ETH
+
+[Bonus] Creating cluster and measuring gas...
+    Calling createCluster...
+      Gas Used: 694,180
+      Tx Cost: 0.0000029576961969 ETH
+
+======================================================================
+  SUMMARY: Real Gas on Sepolia
+======================================================================
+
+Deployments:
+  ReputationRegistry: 2,285,162 gas (0.000011215490545006 ETH)
+  ClusterManager: 2,471,762 gas (0.000012521726305182 ETH)
+  AuditContractV2: 3,066,732 gas (0.00001617170585364 ETH)
+
+  TOTAL Deployment Gas: 7,823,656
+  TOTAL Deployment Cost: 0.000040 ETH
+
+  TOTAL Transaction Gas: 2,341,956
+  TOTAL Transaction Cost: 0.000011 ETH
+
+  GRAND TOTAL Gas: 10,165,612
+  GRAND TOTAL Cost: 0.000051 ETH
+
+Contract Addresses:
+  ReputationRegistry: 0xEe2559828b9C26DdAB486828BaA32d961F54A5b3
+  ClusterManager: 0x6482A13dc1d312188B60E3b2fA205347F12659dE
+  AuditContractV2: 0x212cf16E53356DA0f9ff4c99617313729eDd45f2
+
+Results saved to: /home/mihwuan/Project/zkCross/results/sepolia/sepolia_gas_report.json
+Deployment addresses saved to: /home/mihwuan/Project/zkCross/deployment_sepolia.json
+
+======================================================================
+  Deploy Complete!
+======================================================================
+mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$

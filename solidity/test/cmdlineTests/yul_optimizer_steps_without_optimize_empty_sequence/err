@@ -1,0 +1,11 @@
+Warning: Unused local variable.
+  --> input.sol:13:9:
+   |
+13 |         uint b = a;
+   |         ^^^^^^
+
+Warning: Unused local variable.
+  --> input.sol:14:9:
+   |
+14 |         uint c = a;
+   |         ^^^^^^

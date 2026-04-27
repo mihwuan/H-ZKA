@@ -1,0 +1,11 @@
+{
+    "experiment": "latency_injection",
+    "latency_ms": 300,
+    "jitter_ms": 10,
+    "duration_sec": 55,
+    "blocks_mined": 0,
+    "transactions_per_block": 10,
+    "estimated_tps": 0,
+    "latency_penalty_sec": .60,
+    "measured_at": "2026-04-26T10:05:35+00:00"
+}

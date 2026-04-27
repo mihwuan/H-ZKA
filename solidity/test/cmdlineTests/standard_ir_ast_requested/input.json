@@ -1,0 +1,10 @@
+{
+	"language": "Solidity",
+	"sources": {
+		"C": {"urls": ["in.sol"]}
+	},
+	"settings": {
+		"experimental": true,
+		"outputSelection": {"*": {"*": ["irAst"]}}
+	}
+}

@@ -1,0 +1,70 @@
+========================================================
+  zkCross v2 — Azure VM Experiments (VM3)
+  10 chains × 2 nodes per VM
+  2026-04-25 10:26:15
+========================================================
+
+  VM: VM3
+  CPU: 4 cores
+  RAM: 31Gi
+  Swap: 8.0Gi
+
+========================================================
+  PHASE 1: Docker Blockchain Status
+========================================================
+
+  Running containers: 20 (expected: 20)
+
+  Checking RPC connectivity...
+    Chain 1 (port 8545): ✓
+    Chain 2 (port 8547): ✓
+    Chain 3 (port 8549): ✓
+    Chain 4 (port 8551): ✓
+    Chain 5 (port 8553): ✓
+    Chain 6 (port 8555): ✗
+    Chain 7 (port 8557): ✓
+    Chain 8 (port 8559): ✓
+    Chain 9 (port 8561): ✓
+    Chain 10 (port 8563): ✓
+
+========================================================
+  PHASE 2: Deploy Contracts
+========================================================
+
+  ⚠ deployment_v2.json already exists
+  Skipping deployment (delete to re-deploy)
+
+========================================================
+  PHASE 3: Experiments
+========================================================
+
+[3.1] TN2: Workload Reduction...
+scripts/run_azure_experiments.sh: line 105: node: command not found
+  ✓ Saved: results/workload/
+
+[3.2] TN3: Latency & Throughput...
+scripts/run_azure_experiments.sh: line 110: node: command not found
+  ✓ Saved: results/latency/
+
+[3.3] TN4: Gas Consumption...
+scripts/run_azure_experiments.sh: line 115: node: command not found
+  ✓ Saved: results/gas/
+
+========================================================
+  PHASE 4: Results Summary
+========================================================
+
+  Results saved to: /home/azureuser/zkCross/scripts/../results/
+
+  Files:
+/home/azureuser/zkCross/scripts/../results/experiment_summary.json
+/home/azureuser/zkCross/scripts/../results/network_info.json
+
+========================================================
+  ALL EXPERIMENTS COMPLETE!
+========================================================
+
+  Copy results to local machine:
+    scp -r -i VM_key.pem azureuser@<IP>:~/zkCross/results/ ./results_vm3/
+
+========================================================

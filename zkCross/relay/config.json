@@ -1,0 +1,55 @@
+{
+    "private_key": "YOUR_PRIVATE_KEY_HEX_HERE",
+    "ordinary_chains": [
+        {
+            "chain_id": 1001,
+            "rpc_url": "http://localhost:8545",
+            "name": "Chain_I",
+            "chain_type": "permissionless"
+        },
+        {
+            "chain_id": 1002,
+            "rpc_url": "http://localhost:8546",
+            "name": "Chain_II",
+            "chain_type": "permissionless"
+        },
+        {
+            "chain_id": 1003,
+            "rpc_url": "http://localhost:8547",
+            "name": "Chain_III",
+            "chain_type": "permissionless"
+        },
+        {
+            "chain_id": 1004,
+            "rpc_url": "",
+            "name": "Chain_IV_Permissioned",
+            "chain_type": "permissioned",
+            "gateway_url": "http://gateway.example.com:9000"
+        }
+    ],
+    "audit_chain": {
+        "chain_id": 2000,
+        "rpc_url": "http://localhost:8548",
+        "name": "Audit_Chain"
+    },
+    "audit_contract_addr": "0x0000000000000000000000000000000000000000",
+    "poll_interval": 5,
+    "circuit_dir": "./circuits/psi",
+    "blacklist": [
+        "0x0000000000000000000000000000000000000BAD",
+        "0x0000000000000000000000000000000000BADBAD"
+    ],
+    "tree_node_id": 0,
+    "child_committers": [
+        {
+            "node_id": 1,
+            "rpc_url": "http://localhost:9001",
+            "chain_ids": [1001, 1002]
+        },
+        {
+            "node_id": 2,
+            "rpc_url": "http://localhost:9002",
+            "chain_ids": [1003, 1004]
+        }
+    ]
+}

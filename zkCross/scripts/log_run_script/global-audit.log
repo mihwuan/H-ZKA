@@ -1,0 +1,216 @@
+mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$ GLOBAL_AUDIT_ROUNDS=10 bash scripts/run_global_audit.sh
+========================================================
+  zkCross - Global Audit Runner
+  VM1: 20.243.120.13
+  Rounds: 10
+========================================================
+
+[1/5] Checking VM1 SSH and audit RPC...
+  ✓ VM1 reachable and audit RPC is healthy
+
+[2/5] Syncing global audit scripts to VM1...
+  ✓ Scripts synced
+
+[3/5] Deploying global audit stack on VM1...
+  Compiling global audit contracts with solc evmVersion=paris...
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WARN] Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> contracts/audit_chain/ReputationRegistry.sol:589:35:
+    |
+589 |     function _computeAdaptiveBeta(uint256 r) internal pure returns (uint256) {
+    |                                   ^^^^^^^^^
+  Wrote build_global/ReputationRegistry.bin
+  Wrote build_global/ClusterManager.bin
+  Wrote build_global/AuditContractV2.bin
+Compatible global audit build saved to build_global
+========================================================
+  zkCross Global Audit Deployment
+  RPC: http://localhost:8545
+  Chains: 100, Clusters: 10
+========================================================
+
+[1/4] Deploying contracts...
+  ✓ ReputationRegistry: 0x134f3A0057b17F15c6477355afDc4250B31df4e6
+  ✓ ClusterManager: 0x14bED6A489b57BBc470FffD76DC76711b2d01F59
+  ✓ AuditContractV2: 0xdF13ecFe399f4cA9b5F4C50158E4A05ECb8f640D
+
+[2/4] Authorizing contracts and accounts...
+  ✓ Reputation updaters, auditor, mock verifier, reward fund configured
+
+[3/4] Registering 100 ordinary chain IDs on global audit...
+  ✓ Registered 100 chains
+
+[4/4] Creating global clusters...
+  ✓ Cluster 1: 10 chains
+  ✓ Cluster 2: 10 chains
+  ✓ Cluster 3: 10 chains
+  ✓ Cluster 4: 10 chains
+  ✓ Cluster 5: 10 chains
+  ✓ Cluster 6: 10 chains
+  ✓ Cluster 7: 10 chains
+  ✓ Cluster 8: 10 chains
+  ✓ Cluster 9: 10 chains
+  ✓ Cluster 10: 10 chains
+
+Saved: /home/azureuser/zkCross/deployment_global_audit.json
+
+[4/5] Running global audit experiment...
+========================================================
+  zkCross Global Audit Experiment
+  RPC: http://localhost:8545
+  Chains: 100, Nodes: 200, Clusters: 10
+  Rounds: 10
+========================================================
+  Staking committer1 on global audit...
+  Staking committer2 on global audit...
+
+[Round 1/10] Global audit with 10 cluster proofs...
+  Cluster 1: chain 101, submit 358349 gas, accept 77264 gas, 8259ms
+  Cluster 2: chain 102, submit 341249 gas, accept 77264 gas, 8248ms
+  Cluster 3: chain 103, submit 341249 gas, accept 77264 gas, 8243ms
+  Cluster 4: chain 104, submit 341249 gas, accept 77264 gas, 8245ms
+  Cluster 5: chain 105, submit 341249 gas, accept 77264 gas, 8244ms
+  Cluster 6: chain 106, submit 341249 gas, accept 77264 gas, 8254ms
+  Cluster 7: chain 107, submit 341249 gas, accept 77264 gas, 8249ms
+  Cluster 8: chain 108, submit 341249 gas, accept 77264 gas, 8244ms
+  Cluster 9: chain 109, submit 341249 gas, accept 77264 gas, 8243ms
+  Cluster 10: chain 110, submit 341237 gas, accept 77264 gas, 8245ms
+  Round 1 summary: 82607ms, 0.12 proofs/s, gas=4202218
+
+[Round 2/10] Global audit with 10 cluster proofs...
+  Cluster 1: chain 101, submit 324149 gas, accept 77264 gas, 8246ms
+  Cluster 2: chain 102, submit 324149 gas, accept 77252 gas, 8246ms
+  Cluster 3: chain 103, submit 324149 gas, accept 77264 gas, 8243ms
+  Cluster 4: chain 104, submit 324149 gas, accept 77264 gas, 8241ms
+  Cluster 5: chain 105, submit 324149 gas, accept 77264 gas, 8245ms
+  Cluster 6: chain 106, submit 324149 gas, accept 77264 gas, 8238ms
+  Cluster 7: chain 107, submit 324149 gas, accept 77264 gas, 8244ms
+  Cluster 8: chain 108, submit 324137 gas, accept 77264 gas, 8245ms
+  Cluster 9: chain 109, submit 324149 gas, accept 77264 gas, 8242ms
+  Cluster 10: chain 110, submit 324137 gas, accept 77264 gas, 8239ms
+  Round 2 summary: 82557ms, 0.12 proofs/s, gas=4014094
+
+[Round 3/10] Global audit with 10 cluster proofs...
+  Cluster 1: chain 101, submit 324149 gas, accept 77252 gas, 8250ms
+  Cluster 2: chain 102, submit 324149 gas, accept 77264 gas, 8242ms
+  Cluster 3: chain 103, submit 324149 gas, accept 77264 gas, 8248ms
+  Cluster 4: chain 104, submit 324149 gas, accept 77264 gas, 8249ms
+  Cluster 5: chain 105, submit 324149 gas, accept 77264 gas, 8236ms
+  Cluster 6: chain 106, submit 324137 gas, accept 77264 gas, 8239ms
+  Cluster 7: chain 107, submit 324149 gas, accept 77264 gas, 8244ms
+  Cluster 8: chain 108, submit 324137 gas, accept 77264 gas, 8236ms
+  Cluster 9: chain 109, submit 324149 gas, accept 77264 gas, 8248ms
+  Cluster 10: chain 110, submit 324149 gas, accept 77264 gas, 8239ms
+  Round 3 summary: 82563ms, 0.12 proofs/s, gas=4014094
+
+[Round 4/10] Global audit with 10 cluster proofs...
+  Cluster 1: chain 101, submit 324137 gas, accept 77264 gas, 8245ms
+  Cluster 2: chain 102, submit 324149 gas, accept 77264 gas, 8242ms
+  Cluster 3: chain 103, submit 324149 gas, accept 77252 gas, 8245ms
+  Cluster 4: chain 104, submit 324137 gas, accept 77264 gas, 8240ms
+  Cluster 5: chain 105, submit 324149 gas, accept 77252 gas, 8246ms
+  Cluster 6: chain 106, submit 324137 gas, accept 77264 gas, 8244ms
+  Cluster 7: chain 107, submit 324149 gas, accept 77264 gas, 8241ms
+  Cluster 8: chain 108, submit 324149 gas, accept 77264 gas, 8242ms
+  Cluster 9: chain 109, submit 324149 gas, accept 77264 gas, 8240ms
+  Cluster 10: chain 110, submit 324149 gas, accept 77264 gas, 8234ms
+  Round 4 summary: 82547ms, 0.12 proofs/s, gas=4014070
+
+[Round 5/10] Global audit with 10 cluster proofs...
+  Cluster 1: chain 101, submit 324137 gas, accept 77264 gas, 8244ms
+  Cluster 2: chain 102, submit 324149 gas, accept 77264 gas, 8243ms
+  Cluster 3: chain 103, submit 324149 gas, accept 77252 gas, 8239ms
+  Cluster 4: chain 104, submit 324137 gas, accept 77264 gas, 8240ms
+  Cluster 5: chain 105, submit 324149 gas, accept 77264 gas, 8239ms
+  Cluster 6: chain 106, submit 324149 gas, accept 77264 gas, 8244ms
+  Cluster 7: chain 107, submit 324149 gas, accept 77264 gas, 8247ms
+  Cluster 8: chain 108, submit 324149 gas, accept 77252 gas, 8236ms
+  Cluster 9: chain 109, submit 324149 gas, accept 77264 gas, 8235ms
+  Cluster 10: chain 110, submit 324149 gas, accept 77264 gas, 8236ms
+  Round 5 summary: 82533ms, 0.12 proofs/s, gas=4014082
+
+[Round 6/10] Global audit with 10 cluster proofs...
+  Cluster 1: chain 101, submit 324149 gas, accept 77252 gas, 8238ms
+  Cluster 2: chain 102, submit 324149 gas, accept 77264 gas, 8234ms
+  Cluster 3: chain 103, submit 324149 gas, accept 77264 gas, 8237ms
+  Cluster 4: chain 104, submit 324149 gas, accept 77264 gas, 8235ms
+  Cluster 5: chain 105, submit 324149 gas, accept 77264 gas, 8240ms
+  Cluster 6: chain 106, submit 324149 gas, accept 77264 gas, 8241ms
+  Cluster 7: chain 107, submit 324149 gas, accept 77264 gas, 8236ms
+  Cluster 8: chain 108, submit 324149 gas, accept 77264 gas, 8240ms
+  Cluster 9: chain 109, submit 324137 gas, accept 77264 gas, 8239ms
+  Cluster 10: chain 110, submit 324149 gas, accept 77264 gas, 8241ms
+  Round 6 summary: 82511ms, 0.12 proofs/s, gas=4014106
+
+[Round 7/10] Global audit with 10 cluster proofs...
+  Cluster 1: chain 101, submit 324149 gas, accept 77264 gas, 8237ms
+  Cluster 2: chain 102, submit 324149 gas, accept 77264 gas, 8249ms
+  Cluster 3: chain 103, submit 324149 gas, accept 77264 gas, 8236ms
+  Cluster 4: chain 104, submit 324149 gas, accept 77264 gas, 8248ms
+  Cluster 5: chain 105, submit 324149 gas, accept 77264 gas, 8244ms
+  Cluster 6: chain 106, submit 324149 gas, accept 77264 gas, 8240ms
+  Cluster 7: chain 107, submit 324149 gas, accept 77252 gas, 8233ms
+  Cluster 8: chain 108, submit 324149 gas, accept 77252 gas, 8239ms
+  Cluster 9: chain 109, submit 324137 gas, accept 77264 gas, 8239ms
+  Cluster 10: chain 110, submit 324149 gas, accept 77264 gas, 8240ms
+  Round 7 summary: 82532ms, 0.12 proofs/s, gas=4014094
+
+[Round 8/10] Global audit with 10 cluster proofs...
+  Cluster 1: chain 101, submit 324149 gas, accept 77252 gas, 8240ms
+  Cluster 2: chain 102, submit 324149 gas, accept 77264 gas, 8236ms
+  Cluster 3: chain 103, submit 324149 gas, accept 77264 gas, 8233ms
+  Cluster 4: chain 104, submit 324149 gas, accept 77264 gas, 8243ms
+  Cluster 5: chain 105, submit 324149 gas, accept 77252 gas, 8243ms
+  Cluster 6: chain 106, submit 324149 gas, accept 77252 gas, 8244ms
+  Cluster 7: chain 107, submit 324149 gas, accept 77264 gas, 8238ms
+  Cluster 8: chain 108, submit 324149 gas, accept 77264 gas, 8240ms
+  Cluster 9: chain 109, submit 324149 gas, accept 77264 gas, 8240ms
+  Cluster 10: chain 110, submit 324149 gas, accept 77264 gas, 8235ms
+  Round 8 summary: 82520ms, 0.12 proofs/s, gas=4014094
+
+[Round 9/10] Global audit with 10 cluster proofs...
+  Cluster 1: chain 101, submit 324149 gas, accept 77264 gas, 8238ms
+  Cluster 2: chain 102, submit 324149 gas, accept 77264 gas, 8242ms
+  Cluster 3: chain 103, submit 324149 gas, accept 77264 gas, 8239ms
+  Cluster 4: chain 104, submit 324125 gas, accept 77264 gas, 8243ms
+  Cluster 5: chain 105, submit 324149 gas, accept 77264 gas, 8241ms
+  Cluster 6: chain 106, submit 324137 gas, accept 77264 gas, 8244ms
+  Cluster 7: chain 107, submit 324149 gas, accept 77264 gas, 8238ms
+  Cluster 8: chain 108, submit 324137 gas, accept 77264 gas, 8246ms
+  Cluster 9: chain 109, submit 324149 gas, accept 77264 gas, 8231ms
+  Cluster 10: chain 110, submit 324137 gas, accept 77252 gas, 8247ms
+  Round 9 summary: 82543ms, 0.12 proofs/s, gas=4014058
+
+[Round 10/10] Global audit with 10 cluster proofs...
+  Cluster 1: chain 101, submit 324149 gas, accept 77264 gas, 8235ms
+  Cluster 2: chain 102, submit 324149 gas, accept 77264 gas, 8231ms
+  Cluster 3: chain 103, submit 324137 gas, accept 77264 gas, 8238ms
+  Cluster 4: chain 104, submit 324125 gas, accept 77264 gas, 8237ms
+  Cluster 5: chain 105, submit 324137 gas, accept 77264 gas, 8241ms
+  Cluster 6: chain 106, submit 324137 gas, accept 77264 gas, 8241ms
+  Cluster 7: chain 107, submit 324149 gas, accept 77252 gas, 8238ms
+  Cluster 8: chain 108, submit 324125 gas, accept 77264 gas, 8239ms
+  Cluster 9: chain 109, submit 324149 gas, accept 77264 gas, 8247ms
+  Cluster 10: chain 110, submit 324137 gas, accept 77264 gas, 8241ms
+  Round 10 summary: 82521ms, 0.12 proofs/s, gas=4014022
+
+========================================================
+  GLOBAL AUDIT COMPLETE
+========================================================
+  Reduction: 10.00x
+  Avg round latency: 82543ms
+  Avg throughput: 0.12 proofs/s
+  Avg gas/round: 4032893
+  JSON: /home/azureuser/zkCross/results/global_audit/global_audit_report.json
+  CSV:  /home/azureuser/zkCross/results/global_audit/global_audit_rounds.csv
+
+[5/5] Copying global audit results back to local...
+  ✓ Results copied to /home/mihwuan/Project/zkCross/scripts/../results/global_audit
+
+========================================================
+  GLOBAL AUDIT DONE
+========================================================
+  JSON: /home/mihwuan/Project/zkCross/scripts/../results/global_audit/global_audit_report.json
+  CSV:  /home/mihwuan/Project/zkCross/scripts/../results/global_audit/global_audit_rounds.csv
+========================================================
+mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$ 

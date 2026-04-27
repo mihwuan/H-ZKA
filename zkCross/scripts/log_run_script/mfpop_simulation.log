@@ -1,0 +1,40 @@
+mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$ python3 scripts/mfpop_simulation.py
+======================================================================
+  MF-PoP Reputation System Simulation
+  Scenario 4: Prove B3 Fix - Against Oscillating Attack
+======================================================================
+
+Simulation Parameters:
+  - Honest nodes: 10
+  - Attacker nodes: 1
+  - Rounds: 200
+  - Seeds: 10 (for statistical significance)
+  - Attack pattern: 5 correct + 1 incorrect (oscillating)
+
+Running 10 simulations WITH B3 fix (SLASH_MULTIPLIER=5)...
+
+Results WITH B3 fix (mean ± std, 95% CI):
+  Attacker reputation: 0.0109 ± 0.0000 (CI: ±0.0000)
+  Honest reputation: 1.0000 ± 0.0000
+  Final accuracy: 100.0% ± 0.0%
+
+Results WITHOUT B3 fix (mean ± std, 95% CI):
+  Attacker reputation: 0.8401 ± 0.0000
+  Honest reputation: 1.0000 ± 0.0000
+
+======================================================================
+  VERIFICATION
+======================================================================
+  ✓ PASS: Attacker isolated at R_MIN=0.01
+    Final reputation: 0.010903 (mean across 10 seeds)
+
+Generating plots (using seed 0 as representative)...
+Chart saved to: results/mfpop_reputation_recovery.png
+PDF saved to: results/mfpop_reputation_recovery.pdf
+Chart saved to: results/mfpop_stake_slashing.png
+Data saved to: results/mfpop_simulation_data.json
+
+======================================================================
+  Simulation Complete!
+======================================================================
+mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$

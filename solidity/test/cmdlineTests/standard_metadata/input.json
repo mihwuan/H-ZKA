@@ -1,0 +1,11 @@
+{
+	"language": "Solidity",
+	"sources": {
+		"C": {"urls": ["in.sol"]}
+	},
+	"settings": {
+		"outputSelection": {
+			"*": {"*": ["metadata"]}
+		}
+	}
+}

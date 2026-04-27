@@ -1,0 +1,17 @@
+{
+  "vm": {
+    "id": 3,
+    "type": "Standard_E4s_v3",
+    "vcpus": 4,
+    "ram_gb": 31,
+    "chain_count": 10,
+    "nodes_per_chain": 2,
+    "total_nodes": 20,
+    "date": "2026-04-25T10:26:15+00:00"
+  },
+  "experiments": {
+    "tn2_workload": "results/workload/",
+    "tn3_latency": "results/latency/",
+    "tn4_gas": "results/gas/"
+  }
+}

@@ -1,0 +1,108 @@
+========================================================
+  zkCross v2 — Cross-VM Experiments
+  Total: 10 VMs × 10 chains × 2 nodes = 200 nodes
+  2026-04-25 10:24:56
+========================================================
+
+[Step 1] Checking SSH connectivity to all VMs...
+  VM #1 (20.243.120.13): ✓ Connected
+  VM #2 (20.92.252.112): ✓ Connected
+  VM #3 (20.116.219.110): ✓ Connected
+  VM #4 (20.67.233.108): ✓ Connected
+  VM #5 (20.197.48.113): ✓ Connected
+  VM #6 (102.37.222.0): ✓ Connected
+  VM #7 (51.107.9.211): ✓ Connected
+  VM #8 (74.163.241.42): ✓ Connected
+  VM #9 (40.82.159.250): ✓ Connected
+  VM #10 (20.66.73.64): ✓ Connected
+
+[Step 2] Checking Docker status on all VMs...
+  VM #1 (20.243.120.13): ✓ 20 containers running
+  VM #2 (20.92.252.112): ✓ 20 containers running
+  VM #3 (20.116.219.110): ✓ 20 containers running
+  VM #4 (20.67.233.108): ✓ 20 containers running
+  VM #5 (20.197.48.113): ✓ 20 containers running
+  VM #6 (102.37.222.0): ✓ 20 containers running
+  VM #7 (51.107.9.211): ✓ 20 containers running
+  VM #8 (74.163.241.42): ✓ 20 containers running
+  VM #9 (40.82.159.250): ✓ 20 containers running
+  VM #10 (20.66.73.64): ✓ 20 containers running
+
+[Step 3] Checking contract deployment on all VMs...
+  VM #1 (20.243.120.13): ✓ deployment_v2.json exists
+  VM #2 (20.92.252.112): ✓ deployment_v2.json exists
+  VM #3 (20.116.219.110): ✓ deployment_v2.json exists
+  VM #4 (20.67.233.108): ✓ deployment_v2.json exists
+  VM #5 (20.197.48.113): ✓ deployment_v2.json exists
+  VM #6 (102.37.222.0): ✓ deployment_v2.json exists
+  VM #7 (51.107.9.211): ✓ deployment_v2.json exists
+  VM #8 (74.163.241.42): ✓ deployment_v2.json exists
+  VM #9 (40.82.159.250): ✓ deployment_v2.json exists
+  VM #10 (20.66.73.64): ✓ deployment_v2.json exists
+
+[Step 4] Running experiments on all VMs in parallel...
+  This will take several minutes...
+  Starting experiments on VM #1 (20.243.120.13)...
+  Starting experiments on VM #2 (20.92.252.112)...
+  Starting experiments on VM #3 (20.116.219.110)...
+  Starting experiments on VM #4 (20.67.233.108)...
+  Starting experiments on VM #5 (20.197.48.113)...
+  Starting experiments on VM #6 (102.37.222.0)...
+  Starting experiments on VM #7 (51.107.9.211)...
+  Starting experiments on VM #8 (74.163.241.42)...
+  Starting experiments on VM #9 (40.82.159.250)...
+  Starting experiments on VM #10 (20.66.73.64)...
+
+[Step 5] Monitoring experiment progress...
+  Completed: 0 / 10
+  Completed: 10 / 10
+
+  All VMs completed experiments.
+
+[Step 6] Collecting results from all VMs...
+  VM #1 (20.243.120.13): 
+    ✓ Results copied
+  VM #2 (20.92.252.112): 
+    ✓ Results copied
+  VM #3 (20.116.219.110): 
+    ✓ Results copied
+  VM #4 (20.67.233.108): 
+    ✓ Results copied
+  VM #5 (20.197.48.113): 
+    ✓ Results copied
+  VM #6 (102.37.222.0): 
+    ✓ Results copied
+  VM #7 (51.107.9.211): 
+    ✓ Results copied
+  VM #8 (74.163.241.42): 
+    ✓ Results copied
+  VM #9 (40.82.159.250): 
+    ✓ Results copied
+  VM #10 (20.66.73.64): 
+    ✓ Results copied
+
+[Step 7] Aggregating results...
+
+  Summary saved to: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/summary.json
+
+========================================================
+  ALL CROSS-VM EXPERIMENTS COMPLETE!
+========================================================
+
+  Results saved to: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/
+
+  VM Results:
+    VM #1: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/vm1/
+    VM #2: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/vm2/
+    VM #3: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/vm3/
+    VM #4: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/vm4/
+    VM #5: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/vm5/
+    VM #6: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/vm6/
+    VM #7: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/vm7/
+    VM #8: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/vm8/
+    VM #9: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/vm9/
+    VM #10: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/vm10/
+
+  Summary: /home/mihwuan/Project/zkCross/scripts/../results/all_vms/summary.json
+
+========================================================

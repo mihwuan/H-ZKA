@@ -1,0 +1,17 @@
+Warning: 'transfer' is deprecated and scheduled for removal. Use 'call{value: <amount>}("")' instead.
+  --> input.sol:10:3:
+   |
+10 | 		a.transfer(x);
+   | 		^^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+  --> input.sol:11:3:
+   |
+11 | 		assert(x > 0);
+   | 		^^^^^^^^^^^^^
+Note: Counterexample:
+  a = 0
+  x = 0
+
+Note: Callstack:
+Note:

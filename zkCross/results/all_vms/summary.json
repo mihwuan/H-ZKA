@@ -1,0 +1,19 @@
+{
+  "experiment": "zkCross v2 Cross-VM Experiments",
+  "date": "2026-04-25T10:27:57+00:00",
+  "total_vms": 10,
+  "total_chains": 100,
+  "total_nodes": 200,
+  "results_per_vm": {
+    "vm1": "vm1/"
+    "vm2": "vm2/"
+    "vm3": "vm3/"
+    "vm4": "vm4/"
+    "vm5": "vm5/"
+    "vm6": "vm6/"
+    "vm7": "vm7/"
+    "vm8": "vm8/"
+    "vm9": "vm9/"
+    "vm10": "vm10/"
+  }
+}

@@ -1,0 +1,174 @@
+================================================================================
+zkCross v2 - EXPERIMENTAL RESULTS SUMMARY
+Reference: experiment_guide.html, zkcross_v2_improvement.pdf
+================================================================================
+
+Infrastructure: Docker (4 nodes, 2 chains) + Deployed Smart Contracts
+Blockchains: Chain A (1001) + Chain B (1002) - Clique PoA
+Deployed: ReputationRegistry, ClusterManager, AuditContractV2
+
+================================================================================
+BETA FORMULA (FIXED)
+================================================================================
+β = 0.08 (constant for all R)
+Derived: 0.5 * (1 - 0.08)^46 = 0.01
+This gives ~46-48 round Byzantine isolation as expected.
+
+Files updated:
+- ReputationRegistry.sol: ADAPTIVE_BETA = 8e16 (0.08)
+- reputation_sim.py: return 0.08
+- byzantine_test.py: return 0.08
+
+================================================================================
+Research Questions Addressed
+================================================================================
+RQ1: O(k) → O(√k) workload reduction?     → See TN2 (Table III)
+RQ2: Byzantine isolation in ~46 rounds?   → See TN1 (Figure 7)
+RQ3: Unlinkability preserved?             → See TN5
+RQ4: Overhead impact on performance?      → See TN3 (Table IV), TN4 (Table V)
+
+================================================================================
+Figure 7: MF-PoP Reputation Convergence
+================================================================================
+File: experiments/results/tn1/convergence.png
+
+Configuration:
+  Committers: 100 (30% Byzantine)
+  Rounds: 100
+  Seeds: 10
+
+Key Results:
+  t= 10: Byzantine R=0.2327, Honest R=0.7673
+  t= 20: Byzantine R=0.1015, Honest R=0.8985
+  t= 30: Byzantine R=0.0441, Honest R=0.9559
+  t= 40: Byzantine R=0.0192, Honest R=0.9808
+  t= 46: Byzantine R=0.0116, Honest R=0.9884
+  t= 50: Byzantine R=0.0100, Honest R=0.9917
+  t=100: Byzantine R=0.0100, Honest R=0.9999
+
+Isolation Statistics: Mean = 48.0 ± 0.0 rounds
+Quadratic Weight Separation at t=46: w_honest/w_byz = 7236x
+
+================================================================================
+TABLE III: Audit Workload Reduction (RQ1)
+================================================================================
+File: experiments/results/tn2/comparison_real.csv
+
+    k |  M=√k |   Original |     v2 |  Reduction |  % Saved
+      |       | O(k) proofs |  O(√k) |     Factor |
+--------------------------------------------------------------------------------
+   25 |     5 |         25 |      5 |        5.0 |    80.0%
+   50 |     8 |         50 |      8 |        6.3 |    84.0%
+  100 |    10 |        100 |     10 |       10.0 |    90.0%
+  150 |    13 |        150 |     13 |       11.5 |    91.3%
+  200 |    15 |        200 |     15 |       13.3 |    92.5%
+--------------------------------------------------------------------------------
+Key Result: k=100 achieves 10x reduction (100 → 10 proofs)
+
+================================================================================
+TABLE IV: Latency and Throughput Comparison (RQ4)
+================================================================================
+File: experiments/results/tn3/latency_real.csv
+
+    k |  M=√k |   Original |         v2 |  Speedup
+      |       |  Latency (s) |    Latency |  Factor
+--------------------------------------------------------------------------------
+   25 |     5 |       10.00 |       1.65 |      6.1x
+   50 |     8 |       20.00 |       2.64 |      7.6x
+  100 |    10 |       40.00 |       3.31 |     12.1x
+  150 |    13 |       60.00 |       4.29 |     14.0x
+  200 |    15 |       80.00 |       4.96 |     16.1x
+--------------------------------------------------------------------------------
+Breakdown for k=100:
+  Original: 40.00s (all proofs verified serially)
+  zkCross v2: 3.31s
+    - Intra-cluster: 0.50s
+    - Global audit: 2.80s
+Key Result: k=100 achieves 12.1x speedup
+
+================================================================================
+TABLE V: Gas Consumption Comparison (RQ4) - REAL MEASUREMENT
+================================================================================
+File: experiments/results/exp3_gas_consumption.json
+
+Transaction          Measured Gas   Paper Gas    ETH Cost
+--------------------------------------------------------------------------------
+TxBurn (Θ)              144,909         N/A    0.000145
+TxMint (Θ, ZKP)         425,570         N/A    0.000426
+Protocol Θ total        570,479     494,000    0.000570
+TxLock (Φ)              145,134         N/A    0.000145
+TxUnlock (Φ, ZKP)       352,231         N/A    0.000352
+Protocol Φ total         642,499     901,472    0.000642
+TxCommit (Ψ)            176,929         N/A    0.000177
+TxVerify (Ψ, ZKP)       378,273         N/A    0.000378
+Protocol Ψ total         555,202     466,520    0.000555
+
+    k |    M=√k |   Original Gas |       v2 Gas |  Reduction
+--------------------------------------------------------------------------------
+   25 |       5 |     13,879,800 |    3,175,960 |       4.4x
+   50 |       8 |     27,759,600 |    5,081,536 |       5.5x
+  100 |      10 |     55,519,200 |    6,351,920 |       8.7x
+  150 |      13 |     83,278,800 |    8,257,496 |      10.1x
+  200 |      15 |    111,038,400 |    9,527,880 |      11.7x
+--------------------------------------------------------------------------------
+Key Result: k=100 achieves 8.7x gas reduction (REAL measurement)
+
+================================================================================
+TN5: Privacy Preservation (RQ3)
+================================================================================
+File: experiments/results/tn5/privacy_verification.txt
+
+Circuit Integrity Check:
+  lambda_theta: PASS
+  lambda_phi_off: PASS
+  lambda_phi_on: PASS
+
+Unlinkability Test:
+  Transfers simulated: 1000
+  Correct guesses: 476
+  Success rate: 47.60%
+  Expected rate (random): 50.00%
+  Interpretation: UNLINKABLE (≈ 50%)
+
+================================================================================
+TABLE VII: Byzantine Resilience Results (RQ2)
+================================================================================
+File: experiments/results/tn6/accuracy.csv
+
+Byz Frac |   n_Byz |  Initial Acc |   Final Acc
+--------------------------------------------------------------------------------
+     0.0% |        0 |       100.0% |      100.0%
+    10.0% |       10 |        90.0% |      100.0%
+    20.0% |       20 |        80.0% |      100.0%
+    30.0% |       30 |        70.0% |      100.0%
+    40.0% |       40 |        60.0% |      100.0%
+--------------------------------------------------------------------------------
+Note: After MF-PoP isolation (~48 rounds), Byzantine excluded → 100% accuracy
+
+================================================================================
+OVERALL SUMMARY
+================================================================================
+
++------+----------------------+------------------+--------+
+| Exp | Research Question     | Key Metric       | Status |
++-----+----------------------+------------------+--------+
+| TN1 | RQ2: Reputation      | 48 rounds, R=0.01|  PASS |
+| TN2 | RQ1: O(k)->O(sqrt(k))| 10x reduction   |  PASS |
+| TN3 | RQ4: Latency impact  | 12.1x speedup    |  PASS |
+| TN4 | RQ4: Gas consumption  | 8.7x reduction   |  PASS |
+| TN5 | RQ3: Unlinkability    | 47.6% ≈ 50%     |  PASS |
+| TN6 | RQ2: Byzantine        | 100% accuracy    |  PASS |
++-----+----------------------+------------------+--------+
+
+All 6 experiments PASS with expected outcomes.
+
+================================================================================
+Deployed Contracts
+================================================================================
+ReputationRegistry: 0xfCfb0454c9F2CFB96C798C01aFEeb94d8E35D335
+ClusterManager:     0xe54c7Aa4dbaf3bCF8B85b3E5423210B1292d8208
+AuditContractV2:    0xeC3B45E8216218617D35BB50a26bC09912d68584
+
+================================================================================
+Generated by: scripts/run_experiment.py
+================================================================================

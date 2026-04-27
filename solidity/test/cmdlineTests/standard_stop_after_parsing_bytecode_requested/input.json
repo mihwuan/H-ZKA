@@ -1,0 +1,12 @@
+{
+	"language": "Solidity",
+	"sources": {
+		"C": {"urls": ["in.sol"]}
+	},
+	"settings": {
+		"stopAfter": "parsing",
+		"outputSelection": {
+			"*": {"*": ["evm.bytecode.object"]}
+		}
+	}
+}

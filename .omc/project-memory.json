@@ -1,0 +1,191 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1777038877443,
+  "projectRoot": "D:\\Study\\NT547\\Project\\Project",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "circuits": {
+      "path": "circuits",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1777038877413,
+      "keyFiles": []
+    },
+    "figures": {
+      "path": "figures",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1777038877414,
+      "keyFiles": [
+        "convergence.png",
+        "tn2_workload_comparison.png",
+        "tn3_latency_comparison.png"
+      ]
+    },
+    "go-ethereum": {
+      "path": "go-ethereum",
+      "purpose": null,
+      "fileCount": 21,
+      "lastAccessed": 1777038877423,
+      "keyFiles": [
+        "AGENTS.md",
+        "appveyor.yml",
+        "AUTHORS",
+        "COPYING",
+        "COPYING.LESSER"
+      ]
+    },
+    "Papers": {
+      "path": "Papers",
+      "purpose": null,
+      "fileCount": 44,
+      "lastAccessed": 1777038877423,
+      "keyFiles": [
+        "10_Zendoo A zk-snark verifiable cross-chain.pdf",
+        "11_Accio Variable-amount, optimized￾unlinkable and nizk-free off-chain payments via hubs.pdf",
+        "12_Foundations of coin mixing services.pdf",
+        "13_On the size of pairing-based non-interactive.pdf",
+        "14_Vehicloak A blockchain-enabled.pdf"
+      ]
+    },
+    "solidity": {
+      "path": "solidity",
+      "purpose": null,
+      "fileCount": 19,
+      "lastAccessed": 1777038877424,
+      "keyFiles": [
+        "Changelog.md",
+        "CMakeLists.txt",
+        "CODE_OF_CONDUCT.md",
+        "CODING_STYLE.md",
+        "CONTRIBUTING.md"
+      ]
+    },
+    "venv": {
+      "path": "venv",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1777038877424,
+      "keyFiles": [
+        "lib64",
+        "pyvenv.cfg"
+      ]
+    },
+    "xjsnark": {
+      "path": "xjsnark",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1777038877424,
+      "keyFiles": [
+        "LICENSE",
+        "README.md"
+      ]
+    },
+    "zkCross": {
+      "path": "zkCross",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1777038877425,
+      "keyFiles": [
+        "deployment_v2.json",
+        "hardhat.config.js",
+        "package-lock.json",
+        "package.json",
+        "README.md"
+      ]
+    },
+    "venv\\bin": {
+      "path": "venv\\bin",
+      "purpose": "Executable scripts",
+      "fileCount": 18,
+      "lastAccessed": 1777038877427,
+      "keyFiles": [
+        "activate",
+        "activate.csh",
+        "activate.fish"
+      ]
+    },
+    "venv\\lib": {
+      "path": "venv\\lib",
+      "purpose": "Library code",
+      "fileCount": 0,
+      "lastAccessed": 1777038877427,
+      "keyFiles": []
+    },
+    "zkCross\\build": {
+      "path": "zkCross\\build",
+      "purpose": "Build output",
+      "fileCount": 16,
+      "lastAccessed": 1777038877428,
+      "keyFiles": [
+        "AuditContract.abi",
+        "AuditContract.bin",
+        "AuditContractV2.abi"
+      ]
+    },
+    "zkCross\\docs": {
+      "path": "zkCross\\docs",
+      "purpose": "Documentation",
+      "fileCount": 1,
+      "lastAccessed": 1777038877428,
+      "keyFiles": [
+        "circuit_compilation_guide.md"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "zkCross\\scripts\\azure_vm_setup.sh",
+      "accessCount": 6,
+      "lastAccessed": 1776842261998,
+      "type": "file"
+    },
+    {
+      "path": "zkCross\\scripts\\deploy_to_10vm.sh",
+      "accessCount": 3,
+      "lastAccessed": 1776840531844,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\phung\\AppData\\Local\\Temp\\claude\\d--Study-NT547-Project-Project\\c7205641-f7a0-46e0-ac47-88b829850415\\tasks\\b5m1liisj.output",
+      "accessCount": 1,
+      "lastAccessed": 1776840345936,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

@@ -1,0 +1,16 @@
+{
+    "errors": [
+        {
+            "component": "general",
+            "formattedMessage": "Cannot import url (\"non-existent-contract-1.sol\"): File not found. Searched the following locations: \"\".",
+            "message": "Cannot import url (\"non-existent-contract-1.sol\"): File not found. Searched the following locations: \"\".",
+            "severity": "warning",
+            "type": "Warning"
+        }
+    ],
+    "sources": {
+        "url_not_found.sol": {
+            "id": 0
+        }
+    }
+}

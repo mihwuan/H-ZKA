@@ -1,0 +1,84 @@
+
+======= input.yul (EVM) =======
+
+Pretty printed source:
+object "C_6" {
+    code {
+        {
+            mstore(64, 128)
+            if callvalue() { revert(0, 0) }
+            codecopy(0, dataoffset("C_6_deployed"), datasize("C_6_deployed"))
+            return(0, datasize("C_6_deployed"))
+        }
+    }
+    object "C_6_deployed" {
+        code {
+            {
+                mstore(64, 128)
+                sstore(0, iszero(calldatasize()))
+                revert(0, 0)
+            }
+        }
+    }
+}
+
+
+Binary representation:
+608060405234601357600c60185f39600c5ff35b5f80fdfe608060405236155f555f80fd
+
+Text representation:
+    /* "input.yul":59:62   */
+  0x80
+    /* "input.yul":55:57   */
+  0x40
+    /* "input.yul":48:63   */
+  mstore
+    /* "input.yul":79:90   */
+  callvalue
+    /* "input.yul":76:107   */
+  tag_1
+  jumpi
+    /* "input.yul":160:184   */
+  dataSize(sub_0)
+    /* "input.yul":132:158   */
+  dataOffset(sub_0)
+    /* "input.yul":129:130   */
+  0x00
+    /* "input.yul":120:185   */
+  codecopy
+    /* "input.yul":208:232   */
+  dataSize(sub_0)
+    /* "input.yul":205:206   */
+  0x00
+    /* "input.yul":198:233   */
+  return
+    /* "input.yul":91:107   */
+tag_1:
+    /* "input.yul":103:104   */
+  0x00
+    /* "input.yul":93:105   */
+  dup1
+  revert
+stop
+
+sub_0: assembly {
+        /* "input.yul":334:337   */
+      0x80
+        /* "input.yul":330:332   */
+      0x40
+        /* "input.yul":323:338   */
+      mstore
+        /* "input.yul":372:386   */
+      calldatasize
+        /* "input.yul":365:387   */
+      iszero
+        /* "input.yul":362:363   */
+      0x00
+        /* "input.yul":355:388   */
+      sstore
+        /* "input.yul":415:416   */
+      0x00
+        /* "input.yul":405:417   */
+      dup1
+      revert
+}

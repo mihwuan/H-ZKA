@@ -1,0 +1,13 @@
+{
+  "reputationRegistry": "0x31b7D6B4Bb70670A58CD639Beb4a4AD79A2D0E82",
+  "clusterManager": "0x35f33F3534eF53B45E2eddb32E726E51A657B497",
+  "auditContractV2": "0xD826A5e4f71cB01e1860e4e7B3b999fed5F26e2C",
+  "deployedAt": "2026-03-31T14:48:51.904Z",
+  "auditChainRpc": "http://localhost:8546",
+  "accounts": {
+    "deployer": "0x15B46da1D66D8B63a25284c12A415e128fb927e0",
+    "committer": "0x86165C4792c50858193186cd5328739E0e0e886F",
+    "committer2": "0x70ED6a895F781237b650691A3F2Bd49234da4254",
+    "auditor": "0xE1E6E442679A8FbAa80613B74b2C7c86297851bD"
+  }
+}

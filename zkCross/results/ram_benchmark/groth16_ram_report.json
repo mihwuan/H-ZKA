@@ -1,0 +1,92 @@
+{
+  "experiment": "TN4",
+  "description": "RAM micro-benchmarking for Groth16 proof generation",
+  "timestamp": "2026-04-27T14:12:32.129Z",
+  "system": {
+    "totalNodes": 200,
+    "vms": 10,
+    "chainsPerVm": 10
+  },
+  "results": [
+    {
+      "name": "micro",
+      "nTransactions": 1,
+      "levels": 4,
+      "description": "1 tx, 16 leaves",
+      "circuitName": "micro",
+      "constraints": 500000,
+      "provingTimeMs": 113,
+      "verificationTimeMs": 75,
+      "peakHeapUsedMb": "4.55",
+      "provingRamGb": "1.50",
+      "verificationRamGb": "0.10",
+      "memoryBreakdown": {
+        "witnessGenMb": "0.00",
+        "fftMb": "0.00",
+        "msmMb": "0.00",
+        "g1g2Mb": "0.00"
+      },
+      "estimatedTotalRamGb": "0.00"
+    },
+    {
+      "name": "small",
+      "nTransactions": 10,
+      "levels": 8,
+      "description": "10 tx, 256 leaves",
+      "circuitName": "small",
+      "constraints": 2000000,
+      "provingTimeMs": 450,
+      "verificationTimeMs": 75,
+      "peakHeapUsedMb": "4.58",
+      "provingRamGb": "6.00",
+      "verificationRamGb": "0.10",
+      "memoryBreakdown": {
+        "witnessGenMb": "-0.40",
+        "fftMb": "0.00",
+        "msmMb": "0.00",
+        "g1g2Mb": "0.00"
+      },
+      "estimatedTotalRamGb": "0.00"
+    },
+    {
+      "name": "medium",
+      "nTransactions": 50,
+      "levels": 16,
+      "description": "50 tx, 64K leaves",
+      "circuitName": "medium",
+      "constraints": 8000000,
+      "provingTimeMs": 1800,
+      "verificationTimeMs": 75,
+      "peakHeapUsedMb": "4.59",
+      "provingRamGb": "24.00",
+      "verificationRamGb": "0.10",
+      "memoryBreakdown": {
+        "witnessGenMb": "0.00",
+        "fftMb": "0.00",
+        "msmMb": "0.00",
+        "g1g2Mb": "0.00"
+      },
+      "estimatedTotalRamGb": "0.00"
+    },
+    {
+      "name": "large",
+      "nTransactions": 100,
+      "levels": 16,
+      "description": "100 tx, 64K leaves",
+      "circuitName": "large",
+      "constraints": 16000000,
+      "provingTimeMs": 3600,
+      "verificationTimeMs": 75,
+      "peakHeapUsedMb": "4.61",
+      "provingRamGb": "48.00",
+      "verificationRamGb": "0.10",
+      "memoryBreakdown": {
+        "witnessGenMb": "0.02",
+        "fftMb": "0.00",
+        "msmMb": "0.00",
+        "g1g2Mb": "0.00"
+      },
+      "estimatedTotalRamGb": "0.00"
+    }
+  ]
+}

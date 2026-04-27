@@ -1,0 +1,16 @@
+Warning: CHC: Out of bounds access happens here.
+Counterexample:
+arr = []
+a = 0x0
+x = 0
+success = true
+
+Transaction trace:
+test.constructor()
+State: arr = []
+test.f(0x0, 1)
+    a.call{value: x}("") -- untrusted external call
+  --> input.sol:14:3:
+   |
+14 | 		arr[x];
+   | 		^^^^^^

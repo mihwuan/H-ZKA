@@ -1,0 +1,9 @@
+{
+  "network": 11155111,
+  "contracts": {
+    "reputationRegistry": "0xEe2559828b9C26DdAB486828BaA32d961F54A5b3",
+    "clusterManager": "0x6482A13dc1d312188B60E3b2fA205347F12659dE",
+    "auditContractV2": "0x212cf16E53356DA0f9ff4c99617313729eDd45f2"
+  },
+  "deployedAt": "2026-04-25T15:01:50.662Z"
+}

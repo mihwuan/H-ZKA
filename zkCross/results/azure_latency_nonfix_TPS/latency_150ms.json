@@ -1,0 +1,9 @@
+{
+    "experiment": "azure_latency_injection",
+    "latency_ms": 150,
+    "duration_sec": 60,
+    "blocks_mined": 24,
+    "estimated_tps": 4.00,
+    "proof_times": [{"vm": 1, "proof_time_ms": 20041},{"vm": 2, "proof_time_ms": 21759},{"vm": 3, "proof_time_ms": 21078},{"vm": 4, "proof_time_ms": 19768},{"vm": 5, "proof_time_ms": 19803},{"vm": 6, "proof_time_ms": 20429},{"vm": 7, "proof_time_ms": 18897},{"vm": 8, "proof_time_ms": 19349},{"vm": 9, "proof_time_ms": 21848},{"vm": 10, "proof_time_ms": 21591}],
+    "measured_at": "2026-04-26T11:12:57+00:00"
+}

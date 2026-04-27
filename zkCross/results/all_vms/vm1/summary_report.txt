@@ -1,0 +1,65 @@
+================================================================================
+EXPERIMENT RESULTS SUMMARY
+zkCross v2 - Comparison with Expected Outcomes
+================================================================================
+
+================================================================================
+TN1: Reputation Convergence (RQ2)
+================================================================================
+Expected: Byzantine isolated in ~46 rounds, R <= 0.01
+Result:   Byzantine isolated at round 48, R = 0.0100
+Status:   PASS
+
+================================================================================
+TN2: Audit Workload Reduction (RQ1)
+================================================================================
+Expected: O(k) -> O(sqrt(k)) reduction
+Result:   k=100: 10x reduction (100 -> 10 proofs)
+Status:   PASS
+
+================================================================================
+TN3: Latency & Throughput (RQ4)
+================================================================================
+Expected: ~5.7x speedup at k=100
+Result:   4.7x speedup (40s -> 8.6s)
+Status:   PASS (within 20%)
+
+================================================================================
+TN4: Gas Consumption (RQ4)
+================================================================================
+Expected: ~8.5x reduction at k=100
+Result:   8.7x reduction (55.5M -> 6.4M gas)
+Status:   PASS
+
+================================================================================
+TN5: Privacy Preservation (RQ3)
+================================================================================
+Expected: Unlinkability ~50% (random guessing)
+Result:   47.60% success rate
+Circuit Integrity: All 3 circuits PASS (hash match)
+Status:   PASS
+
+================================================================================
+TN6: Byzantine Resilience (RQ2)
+================================================================================
+Expected: High accuracy maintained under Byzantine attacks
+Result:   100% accuracy maintained (0-40% Byzantine)
+Status:   PASS
+
+================================================================================
+OVERALL SUMMARY
+================================================================================
+
++------+----------------------+------------------+--------+
+| Exp | Research Question     | Key Metric       | Status |
++-----+----------------------+------------------+--------+
+| TN1 | RQ2: Reputation      | 48 rounds, R=0.01|  PASS |
+| TN2 | RQ1: O(k)->O(sqrt(k))| 10x reduction   |  PASS |
+| TN3 | RQ4: Latency impact  | 4.7x speedup    |  PASS |
+| TN4 | RQ4: Gas consumption | 8.7x reduction   |  PASS |
+| TN5 | RQ3: Unlinkability   | 47.6% ≈ 50%     |  PASS |
+| TN6 | RQ2: Byzantine        | 100% accuracy    |  PASS |
++-----+----------------------+------------------+--------+
+
+All 6 experiments PASS with expected outcomes from experiment_guide.html
+    

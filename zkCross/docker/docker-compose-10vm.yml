@@ -1,0 +1,488 @@
+# ================================================================
+# zkCross Docker Compose — 10 VMs × 20 Nodes = 200 Nodes
+# ================================================================
+#
+# Topology (per VM):
+#   10 chains × 2 sealers/chain = 20 Docker geth nodes
+#   ChainId = VM_ID * 100 + chain_index  (e.g. VM 1: 101-110, VM 2: 201-210)
+#
+# Deployment: 10 VMs × 10 chains = 100 chains, 200 nodes total
+#
+# Set VM_ID in .env file (VM 1-10)
+#
+# Ports (per VM, offset by VM_ID):
+#   Chain 1:  8545 + offset, 30301 + offset
+#   Chain 2:  8547 + offset, 30303 + offset
+#   ...
+#   Chain 10: 8563 + offset, 30319 + offset
+
+x-node-common: &node-common
+  build:
+    context: .
+    dockerfile: Dockerfile
+  restart: unless-stopped
+  stop_grace_period: 10s
+
+x-sealer-addrs: &sealer-addrs
+  SEALER_ADDRS: "15B46da1D66D8B63a25284c12A415e128fb927e0,d9F218cb21F479e82993f04450a50F15E6ad56aa"
+
+x-sealer1: &sealer1
+  SEALER_KEY: "4c0883a69102937d6231471b5dbb6204fe512961708279f22f1da1c87a3b8b4b"
+  SEALER_ADDR: "0x15B46da1D66D8B63a25284c12A415e128fb927e0"
+
+x-sealer2: &sealer2
+  SEALER_KEY: "7a12b6e4e3f8b2a1c9d0e5f6789abcdef0123456789abcdef0123456789abcd0"
+  SEALER_ADDR: "0xd9F218cb21F479e82993f04450a50F15E6ad56aa"
+
+x-healthcheck: &healthcheck
+  test: ["CMD", "curl", "-sf", "-X", "POST", "-H", "Content-Type: application/json",
+         "-d", "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"params\":[],\"id\":1}",
+         "http://localhost:8545"]
+  interval: 5s
+  timeout: 3s
+  retries: 30
+
+services:
+  # ============ Chain 1 (chainId = ${VM_ID}01) ============
+  node1-chain-1:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain1-node1
+    environment:
+      <<: [*sealer1, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}01"
+      NETWORK_ID: "${VM_ID:-1}01"
+    volumes:
+      - node1_chain1_data:/data
+    ports:
+      - "${RPC_BASE:-8545}:8545"
+      - "${P2P_BASE:-30301}:30303"
+    networks:
+      - chain_1_net
+    healthcheck:
+      <<: *healthcheck
+
+  node2-chain-1:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain1-node2
+    environment:
+      <<: [*sealer2, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}01"
+      NETWORK_ID: "${VM_ID:-1}01"
+      PEER_RPC: "http://node1-chain-1:8545"
+    volumes:
+      - node2_chain1_data:/data
+    ports:
+      - "${RPC_BASE_ADD1:-8546}:8545"
+      - "${P2P_BASE_ADD1:-30302}:30303"
+    networks:
+      - chain_1_net
+    depends_on:
+      node1-chain-1:
+        condition: service_healthy
+
+  # ============ Chain 2 (chainId = ${VM_ID}02) ============
+  node1-chain-2:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain2-node1
+    environment:
+      <<: [*sealer1, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}02"
+      NETWORK_ID: "${VM_ID:-1}02"
+    volumes:
+      - node1_chain2_data:/data
+    ports:
+      - "${RPC_BASE_ADD2:-8547}:8545"
+      - "${P2P_BASE_ADD2:-30303}:30303"
+    networks:
+      - chain_2_net
+    healthcheck:
+      <<: *healthcheck
+
+  node2-chain-2:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain2-node2
+    environment:
+      <<: [*sealer2, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}02"
+      NETWORK_ID: "${VM_ID:-1}02"
+      PEER_RPC: "http://node1-chain-2:8545"
+    volumes:
+      - node2_chain2_data:/data
+    ports:
+      - "${RPC_BASE_ADD3:-8548}:8545"
+      - "${P2P_BASE_ADD3:-30304}:30303"
+    networks:
+      - chain_2_net
+    depends_on:
+      node1-chain-2:
+        condition: service_healthy
+
+  # ============ Chain 3 (chainId = ${VM_ID}03) ============
+  node1-chain-3:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain3-node1
+    environment:
+      <<: [*sealer1, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}03"
+      NETWORK_ID: "${VM_ID:-1}03"
+    volumes:
+      - node1_chain3_data:/data
+    ports:
+      - "${RPC_BASE_ADD4:-8549}:8545"
+      - "${P2P_BASE_ADD4:-30305}:30303"
+    networks:
+      - chain_3_net
+    healthcheck:
+      <<: *healthcheck
+
+  node2-chain-3:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain3-node2
+    environment:
+      <<: [*sealer2, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}03"
+      NETWORK_ID: "${VM_ID:-1}03"
+      PEER_RPC: "http://node1-chain-3:8545"
+    volumes:
+      - node2_chain3_data:/data
+    ports:
+      - "${RPC_BASE_ADD5:-8550}:8545"
+      - "${P2P_BASE_ADD5:-30306}:30303"
+    networks:
+      - chain_3_net
+    depends_on:
+      node1-chain-3:
+        condition: service_healthy
+
+  # ============ Chain 4 (chainId = ${VM_ID}04) ============
+  node1-chain-4:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain4-node1
+    environment:
+      <<: [*sealer1, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}04"
+      NETWORK_ID: "${VM_ID:-1}04"
+    volumes:
+      - node1_chain4_data:/data
+    ports:
+      - "${RPC_BASE_ADD6:-8551}:8545"
+      - "${P2P_BASE_ADD6:-30307}:30303"
+    networks:
+      - chain_4_net
+    healthcheck:
+      <<: *healthcheck
+
+  node2-chain-4:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain4-node2
+    environment:
+      <<: [*sealer2, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}04"
+      NETWORK_ID: "${VM_ID:-1}04"
+      PEER_RPC: "http://node1-chain-4:8545"
+    volumes:
+      - node2_chain4_data:/data
+    ports:
+      - "${RPC_BASE_ADD7:-8552}:8545"
+      - "${P2P_BASE_ADD7:-30308}:30303"
+    networks:
+      - chain_4_net
+    depends_on:
+      node1-chain-4:
+        condition: service_healthy
+
+  # ============ Chain 5 (chainId = ${VM_ID}05) ============
+  node1-chain-5:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain5-node1
+    environment:
+      <<: [*sealer1, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}05"
+      NETWORK_ID: "${VM_ID:-1}05"
+    volumes:
+      - node1_chain5_data:/data
+    ports:
+      - "${RPC_BASE_ADD8:-8553}:8545"
+      - "${P2P_BASE_ADD8:-30309}:30303"
+    networks:
+      - chain_5_net
+    healthcheck:
+      <<: *healthcheck
+
+  node2-chain-5:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain5-node2
+    environment:
+      <<: [*sealer2, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}05"
+      NETWORK_ID: "${VM_ID:-1}05"
+      PEER_RPC: "http://node1-chain-5:8545"
+    volumes:
+      - node2_chain5_data:/data
+    ports:
+      - "${RPC_BASE_ADD9:-8554}:8545"
+      - "${P2P_BASE_ADD10:-30310}:30303"
+    networks:
+      - chain_5_net
+    depends_on:
+      node1-chain-5:
+        condition: service_healthy
+
+  # ============ Chain 6 (chainId = ${VM_ID}06) ============
+  node1-chain-6:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain6-node1
+    environment:
+      <<: [*sealer1, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}06"
+      NETWORK_ID: "${VM_ID:-1}06"
+    volumes:
+      - node1_chain6_data:/data
+    ports:
+      - "${RPC_BASE_ADD11:-8555}:8545"
+      - "${P2P_BASE_ADD11:-30311}:30303"
+    networks:
+      - chain_6_net
+    healthcheck:
+      <<: *healthcheck
+
+  node2-chain-6:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain6-node2
+    environment:
+      <<: [*sealer2, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}06"
+      NETWORK_ID: "${VM_ID:-1}06"
+      PEER_RPC: "http://node1-chain-6:8545"
+    volumes:
+      - node2_chain6_data:/data
+    ports:
+      - "${RPC_BASE_ADD12:-8556}:8545"
+      - "${P2P_BASE_ADD12:-30312}:30303"
+    networks:
+      - chain_6_net
+    depends_on:
+      node1-chain-6:
+        condition: service_healthy
+
+  # ============ Chain 7 (chainId = ${VM_ID}07) ============
+  node1-chain-7:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain7-node1
+    environment:
+      <<: [*sealer1, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}07"
+      NETWORK_ID: "${VM_ID:-1}07"
+    volumes:
+      - node1_chain7_data:/data
+    ports:
+      - "${RPC_BASE_ADD13:-8557}:8545"
+      - "${P2P_BASE_ADD13:-30313}:30303"
+    networks:
+      - chain_7_net
+    healthcheck:
+      <<: *healthcheck
+
+  node2-chain-7:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain7-node2
+    environment:
+      <<: [*sealer2, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}07"
+      NETWORK_ID: "${VM_ID:-1}07"
+      PEER_RPC: "http://node1-chain-7:8545"
+    volumes:
+      - node2_chain7_data:/data
+    ports:
+      - "${RPC_BASE_ADD14:-8558}:8545"
+      - "${P2P_BASE_ADD14:-30314}:30303"
+    networks:
+      - chain_7_net
+    depends_on:
+      node1-chain-7:
+        condition: service_healthy
+
+  # ============ Chain 8 (chainId = ${VM_ID}08) ============
+  node1-chain-8:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain8-node1
+    environment:
+      <<: [*sealer1, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}08"
+      NETWORK_ID: "${VM_ID:-1}08"
+    volumes:
+      - node1_chain8_data:/data
+    ports:
+      - "${RPC_BASE_ADD15:-8559}:8545"
+      - "${P2P_BASE_ADD15:-30315}:30303"
+    networks:
+      - chain_8_net
+    healthcheck:
+      <<: *healthcheck
+
+  node2-chain-8:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain8-node2
+    environment:
+      <<: [*sealer2, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}08"
+      NETWORK_ID: "${VM_ID:-1}08"
+      PEER_RPC: "http://node1-chain-8:8545"
+    volumes:
+      - node2_chain8_data:/data
+    ports:
+      - "${RPC_BASE_ADD16:-8560}:8545"
+      - "${P2P_BASE_ADD16:-30316}:30303"
+    networks:
+      - chain_8_net
+    depends_on:
+      node1-chain-8:
+        condition: service_healthy
+
+  # ============ Chain 9 (chainId = ${VM_ID}09) ============
+  node1-chain-9:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain9-node1
+    environment:
+      <<: [*sealer1, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}09"
+      NETWORK_ID: "${VM_ID:-1}09"
+    volumes:
+      - node1_chain9_data:/data
+    ports:
+      - "${RPC_BASE_ADD17:-8561}:8545"
+      - "${P2P_BASE_ADD17:-30317}:30303"
+    networks:
+      - chain_9_net
+    healthcheck:
+      <<: *healthcheck
+
+  node2-chain-9:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain9-node2
+    environment:
+      <<: [*sealer2, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}09"
+      NETWORK_ID: "${VM_ID:-1}09"
+      PEER_RPC: "http://node1-chain-9:8545"
+    volumes:
+      - node2_chain9_data:/data
+    ports:
+      - "${RPC_BASE_ADD18:-8562}:8545"
+      - "${P2P_BASE_ADD18:-30318}:30303"
+    networks:
+      - chain_9_net
+    depends_on:
+      node1-chain-9:
+        condition: service_healthy
+
+  # ============ Chain 10 (chainId = ${VM_ID}10) ============
+  node1-chain-10:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain10-node1
+    environment:
+      <<: [*sealer1, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}10"
+      NETWORK_ID: "${VM_ID:-1}10"
+    volumes:
+      - node1_chain10_data:/data
+    ports:
+      - "${RPC_BASE_ADD19:-8563}:8545"
+      - "${P2P_BASE_ADD19:-30319}:30303"
+    networks:
+      - chain_10_net
+    healthcheck:
+      <<: *healthcheck
+
+  node2-chain-10:
+    <<: *node-common
+    container_name: zkcross-vm${VM_ID:-1}-chain10-node2
+    environment:
+      <<: [*sealer2, *sealer-addrs]
+      CHAIN_ID: "${VM_ID:-1}10"
+      NETWORK_ID: "${VM_ID:-1}10"
+      PEER_RPC: "http://node1-chain-10:8545"
+    volumes:
+      - node2_chain10_data:/data
+    ports:
+      - "${RPC_BASE_ADD20:-8564}:8545"
+      - "${P2P_BASE_ADD20:-30320}:30303"
+    networks:
+      - chain_10_net
+    depends_on:
+      node1-chain-10:
+        condition: service_healthy
+
+networks:
+  chain_1_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24
+  chain_2_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.1.0/24
+  chain_3_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.2.0/24
+  chain_4_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.3.0/24
+  chain_5_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.4.0/24
+  chain_6_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.5.0/24
+  chain_7_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.6.0/24
+  chain_8_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.7.0/24
+  chain_9_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.8.0/24
+  chain_10_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.9.0/24
+
+volumes:
+  node1_chain1_data:
+  node2_chain1_data:
+  node1_chain2_data:
+  node2_chain2_data:
+  node1_chain3_data:
+  node2_chain3_data:
+  node1_chain4_data:
+  node2_chain4_data:
+  node1_chain5_data:
+  node2_chain5_data:
+  node1_chain6_data:
+  node2_chain6_data:
+  node1_chain7_data:
+  node2_chain7_data:
+  node1_chain8_data:
+  node2_chain8_data:
+  node1_chain9_data:
+  node2_chain9_data:
+  node1_chain10_data:
+  node2_chain10_data:

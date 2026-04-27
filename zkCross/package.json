@@ -1,0 +1,18 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@iden3/binfileutils": "^0.0.12",
+    "dotenv": "^17.3.1",
+    "ethers": "^6.16.0",
+    "ffjavascript": "^0.3.1",
+    "r1csfile": "^0.0.48",
+    "snarkjs": "^0.7.6"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^4.0.6",
+    "@nomicfoundation/hardhat-verify": "^3.0.12",
+    "hardhat": "^3.2.0",
+    "hardhat-deploy": "^1.0.4",
+    "solc": "^0.8.19"
+  }
+}

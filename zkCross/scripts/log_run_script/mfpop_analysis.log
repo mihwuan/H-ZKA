@@ -1,0 +1,94 @@
+mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$ python scripts/mfpop_analysis.py 
+======================================================================
+Detailed Round-by-Round Analysis
+======================================================================
+Initial attacker reputation: 0.500000
+Initial attacker history: 0.500000
+R_MIN threshold: 0.010000
+
+Round  R (rep)      History      ConsecFails  Consistent   Below R_MIN 
+----------------------------------------------------------------------
+1      0.517500     0.650000     0            True         False       
+6      0.297469     0.641175     1            False        False       
+12     0.221677     0.657785     1            False        False       
+18     0.192656     0.659739     1            False        False       
+24     0.097265     0.659969     1            False        False       
+30     0.049689     0.659996     1            False        False       
+36     0.025961     0.659999     1            False        False       
+42     0.014126     0.659999     1            False        False       
+46     0.014126     0.918366     0            True         False       
+50     0.010000     0.833400     0            True         True        
+100    0.010000     0.918366     0            True         True        
+150    0.010000     0.659999     1            False        True        
+200    0.010000     0.833400     0            True         True        
+
+======================================================================
+SUMMARY
+======================================================================
+Attacker reputation at round 46: 0.01412609
+Attacker reputation at round 200: 0.01000000
+R_MIN target: 0.01000000
+✓ SUCCESS: Attacker isolated!
+mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$ python scripts/mfpop_analysis.py 
+======================================================================
+Detailed Round-by-Round Analysis
+======================================================================
+Initial attacker reputation: 0.500000
+Initial attacker history: 0.500000
+R_MIN threshold: 0.010000
+
+Round  R (rep)      History      ConsecFails  Consistent   Below R_MIN 
+----------------------------------------------------------------------
+1      0.517500     0.650000     0            True         False       
+6      0.297469     0.641175     1            False        False       
+12     0.221677     0.657785     1            False        False       
+18     0.192656     0.659739     1            False        False       
+24     0.097265     0.659969     1            False        False       
+30     0.049689     0.659996     1            False        False       
+36     0.025961     0.659999     1            False        False       
+42     0.014126     0.659999     1            False        False       
+48     0.010000     0.659999     1            False        True        
+50     0.010000     0.833400     0            True         True        
+100    0.010000     0.918366     0            True         True        
+150    0.010000     0.659999     1            False        True        
+200    0.010000     0.833400     0            True         True        
+
+======================================================================
+SUMMARY
+======================================================================
+Attacker reputation at round 48: 0.01000000
+Attacker reputation at round 200: 0.01000000
+R_MIN target: 0.01000000
+✓ SUCCESS: Attacker isolated!
+mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$ python scripts/mfpop_analysis.py 
+======================================================================
+Detailed Round-by-Round Analysis
+======================================================================
+Initial attacker reputation: 0.500000
+Initial attacker history: 0.500000
+R_MIN threshold: 0.010000
+
+Round  R (rep)      History      ConsecFails  Consistent   Below R_MIN 
+----------------------------------------------------------------------
+1      0.517500     0.650000     0            True         False       
+6      0.297469     0.641175     1            False        False       
+12     0.221677     0.657785     1            False        False       
+18     0.192656     0.659739     1            False        False       
+24     0.097265     0.659969     1            False        False       
+30     0.049689     0.659996     1            False        False       
+36     0.025961     0.659999     1            False        False       
+42     0.014126     0.659999     1            False        False       
+47     0.014126     0.942856     0            True         False       
+50     0.010000     0.833400     0            True         True        
+100    0.010000     0.918366     0            True         True        
+150    0.010000     0.659999     1            False        True        
+200    0.010000     0.833400     0            True         True        
+
+======================================================================
+SUMMARY
+======================================================================
+Attacker reputation at round 47: 0.01412609
+Attacker reputation at round 200: 0.01000000
+R_MIN target: 0.01000000
+✓ SUCCESS: Attacker isolated!
+mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$ 

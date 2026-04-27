@@ -1,0 +1,13 @@
+{
+    "experiment": "network_latency_summary",
+    "description": "Network latency impact on 200-node zkCross system",
+    "topology": {
+        "vms": 10,
+        "chains_per_vm": 10,
+        "total_nodes": 200
+    },
+    "test_parameters": {
+        "test_duration_sec": TEST_DURATION,
+        "latency_levels_ms": [0, 50, 150, 300]
+    }
+}

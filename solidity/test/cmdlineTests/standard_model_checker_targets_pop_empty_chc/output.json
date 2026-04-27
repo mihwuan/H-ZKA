@@ -1,0 +1,50 @@
+{
+    "errors": [
+        {
+            "component": "general",
+            "errorCode": "2529",
+            "formattedMessage": "Warning: CHC: Empty array \"pop\" happens here.
+Counterexample:
+arr = []
+a = 0x0
+x = 0
+success = true
+
+Transaction trace:
+test.constructor()
+State: arr = []
+test.f(0x0, 1)
+    a.call{value: x}(\"\") -- untrusted external call
+  --> A:14:7:
+   |
+14 | \t\t\t\t\t\tarr.pop();
+   | \t\t\t\t\t\t^^^^^^^^^
+
+",
+            "message": "CHC: Empty array \"pop\" happens here.
+Counterexample:
+arr = []
+a = 0x0
+x = 0
+success = true
+
+Transaction trace:
+test.constructor()
+State: arr = []
+test.f(0x0, 1)
+    a.call{value: x}(\"\") -- untrusted external call",
+            "severity": "warning",
+            "sourceLocation": {
+                "end": 325,
+                "file": "A",
+                "start": 316
+            },
+            "type": "Warning"
+        }
+    ],
+    "sources": {
+        "A": {
+            "id": 0
+        }
+    }
+}

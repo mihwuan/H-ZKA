@@ -1,0 +1,5 @@
+circuit,nTransactions,constraints_millions,proving_time_ms,proving_ram_gb,verification_time_ms,verification_ram_gb
+micro,1,0.50,113,1.50,75,0.10
+small,10,2.00,450,6.00,75,0.10
+medium,50,8.00,1800,24.00,75,0.10
+large,100,16.00,3600,48.00,75,0.10

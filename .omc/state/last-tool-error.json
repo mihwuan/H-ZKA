@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"sleep 120 && cat \\\"C:\\\\Users\\\\phung\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--Study-NT547-Project-Project\\\\c7205641-f7a0-46e0-ac47-88b829850415\\\\tasks\\\\b5m1liisj.output\\\" 2>&1 | tail -80\"}",
+  "error": "Exit code 143",
+  "timestamp": "2026-04-22T06:45:38.749Z",
+  "retry_count": 1
+}

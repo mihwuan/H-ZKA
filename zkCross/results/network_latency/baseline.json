@@ -1,0 +1,9 @@
+{
+    "experiment": "baseline",
+    "latency_ms": 0,
+    "duration_sec": 55,
+    "blocks_mined": 0,
+    "transactions_per_block": 10,
+    "estimated_tps": 0,
+    "measured_at": "2026-04-26T10:01:09+00:00"
+}

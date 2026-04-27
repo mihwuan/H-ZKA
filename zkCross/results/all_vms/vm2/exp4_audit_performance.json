@@ -1,0 +1,108 @@
+{
+  "figure11a": [
+    {
+      "nTransactions": 50,
+      "nProofs": 1,
+      "avgProveTimeMs": 366.72,
+      "avgVerifyTimeMs": 18.51,
+      "proofSizeBytes": 128
+    },
+    {
+      "nTransactions": 100,
+      "nProofs": 2,
+      "avgProveTimeMs": 164.72,
+      "avgVerifyTimeMs": 17.47,
+      "proofSizeBytes": 128
+    },
+    {
+      "nTransactions": 150,
+      "nProofs": 3,
+      "avgProveTimeMs": 161.98,
+      "avgVerifyTimeMs": 17.78,
+      "proofSizeBytes": 128
+    },
+    {
+      "nTransactions": 200,
+      "nProofs": 4,
+      "avgProveTimeMs": 150.96,
+      "avgVerifyTimeMs": 16.54,
+      "proofSizeBytes": 128
+    },
+    {
+      "nTransactions": 250,
+      "nProofs": 5,
+      "avgProveTimeMs": 154.15,
+      "avgVerifyTimeMs": 16.27,
+      "proofSizeBytes": 128
+    }
+  ],
+  "figure11b": [
+    {
+      "nTransactions": 100,
+      "nBatches": 2,
+      "auditWithoutPsi_ms": 6694,
+      "auditWithoutPsi_s": 6.694,
+      "auditWithPsi_ms": 281,
+      "auditWithPsi_s": 0.281,
+      "speedup": 0.04
+    },
+    {
+      "nTransactions": 500,
+      "nBatches": 10,
+      "auditWithoutPsi_ms": 17329,
+      "auditWithoutPsi_s": 17.329,
+      "auditWithPsi_ms": 1509,
+      "auditWithPsi_s": 1.509,
+      "speedup": 0.09
+    },
+    {
+      "nTransactions": 1000,
+      "nBatches": 20,
+      "auditWithoutPsi_ms": 30983,
+      "auditWithoutPsi_s": 30.983,
+      "auditWithPsi_ms": 3053,
+      "auditWithPsi_s": 3.053,
+      "speedup": 0.1
+    },
+    {
+      "nTransactions": 1500,
+      "nBatches": 30,
+      "auditWithoutPsi_ms": 44259,
+      "auditWithoutPsi_s": 44.259,
+      "auditWithPsi_ms": 4599,
+      "auditWithPsi_s": 4.599,
+      "speedup": 0.1
+    },
+    {
+      "nTransactions": 10000,
+      "nBatches": 200,
+      "auditWithoutPsi_ms": 295675,
+      "auditWithoutPsi_s": 295.675,
+      "auditWithPsi_ms": 30280,
+      "auditWithPsi_s": 30.28,
+      "speedup": 0.1
+    }
+  ],
+  "table4": {
+    "ourScheme": {
+      "publicInputsKB": 0.13,
+      "verifyKeyKB": 0.63,
+      "proofSizeBytes": 128,
+      "nTransactions": 100
+    },
+    "zkRollup": {
+      "constraints": 11466073,
+      "publicInputsKB": 10.21,
+      "verifyKeyKB": 12.2
+    },
+    "paper": {
+      "ourConstraints": 11763593,
+      "ourPublicInputsKB": 6.83,
+      "ourVerifyKeyKB": 0.24
+    },
+    "savings": {
+      "publicInputsSavedKB": 10.09,
+      "verifyKeySavedKB": 11.57
+    }
+  }
+}

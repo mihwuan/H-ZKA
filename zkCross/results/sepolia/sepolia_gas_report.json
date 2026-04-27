@@ -1,0 +1,167 @@
+{
+  "network": {
+    "chainId": 11155111,
+    "rpc": "https://ethereum-sepolia-rpc.publicnode.com/",
+    "deployer": "0xF5F414e107F24DFAa48F7f8506ecFe5bEfC348a1",
+    "balance": "0.030473998011562448",
+    "timestamp": "2026-04-25T15:01:50.662Z"
+  },
+  "deployments": [
+    {
+      "name": "ReputationRegistry",
+      "address": "0xEe2559828b9C26DdAB486828BaA32d961F54A5b3",
+      "gasUsed": "2285162",
+      "gasPrice": "4907963",
+      "deployCostEth": "0.000011215490545006",
+      "deployTimeMs": 14925,
+      "blockNumber": 10730192
+    },
+    {
+      "name": "ClusterManager",
+      "address": "0x6482A13dc1d312188B60E3b2fA205347F12659dE",
+      "gasUsed": "2471762",
+      "gasPrice": "5065911",
+      "deployCostEth": "0.000012521726305182",
+      "deployTimeMs": 8199,
+      "blockNumber": 10730195
+    },
+    {
+      "name": "AuditContractV2",
+      "address": "0x212cf16E53356DA0f9ff4c99617313729eDd45f2",
+      "gasUsed": "3066732",
+      "gasPrice": "5273270",
+      "deployCostEth": "0.00001617170585364",
+      "deployTimeMs": 10731,
+      "blockNumber": 10730197
+    }
+  ],
+  "transactions": [
+    {
+      "method": "authorizeUpdater",
+      "gasUsed": "26272",
+      "gasPrice": "4932590",
+      "txCostEth": "0.00000012958900448",
+      "blockNumber": 10730193
+    },
+    {
+      "method": "bootstrapRegister",
+      "gasUsed": "26857",
+      "gasPrice": "4916250",
+      "txCostEth": "0.00000013203572625",
+      "blockNumber": 10730194
+    },
+    {
+      "method": "authorizeUpdater",
+      "gasUsed": "46172",
+      "gasPrice": "5147842",
+      "txCostEth": "0.000000237686160824",
+      "blockNumber": 10730196
+    },
+    {
+      "method": "addAuditor",
+      "gasUsed": "26146",
+      "gasPrice": "5367246",
+      "txCostEth": "0.000000140332013916",
+      "blockNumber": 10730198
+    },
+    {
+      "method": "fund",
+      "gasUsed": "21040",
+      "gasPrice": "5123101",
+      "txCostEth": "0.00000010779004504",
+      "blockNumber": 10730199
+    },
+    {
+      "method": "enableMockVerifier",
+      "gasUsed": "45539",
+      "gasPrice": "5227947",
+      "txCostEth": "0.000000238075478433",
+      "blockNumber": 10730200
+    },
+    {
+      "method": "registerChain",
+      "gasUsed": "160965",
+      "gasPrice": "5152867",
+      "txCostEth": "0.000000829431236655",
+      "blockNumber": 10730201
+    },
+    {
+      "method": "registerChain",
+      "gasUsed": "143865",
+      "gasPrice": "5209769",
+      "txCostEth": "0.000000749503417185",
+      "blockNumber": 10730202
+    },
+    {
+      "method": "registerChain",
+      "gasUsed": "143865",
+      "gasPrice": "4687969",
+      "txCostEth": "0.000000674434660185",
+      "blockNumber": 10730205
+    },
+    {
+      "method": "registerChain",
+      "gasUsed": "143865",
+      "gasPrice": "5095647",
+      "txCostEth": "0.000000733085255655",
+      "blockNumber": 10730206
+    },
+    {
+      "method": "registerChain",
+      "gasUsed": "143865",
+      "gasPrice": "5037666",
+      "txCostEth": "0.00000072474381909",
+      "blockNumber": 10730207
+    },
+    {
+      "method": "registerChain",
+      "gasUsed": "143865",
+      "gasPrice": "4357753",
+      "txCostEth": "0.000000626928135345",
+      "blockNumber": 10730211
+    },
+    {
+      "method": "registerChain",
+      "gasUsed": "143865",
+      "gasPrice": "4607284",
+      "txCostEth": "0.00000066282691266",
+      "blockNumber": 10730212
+    },
+    {
+      "method": "registerChain",
+      "gasUsed": "143865",
+      "gasPrice": "4411925",
+      "txCostEth": "0.000000634721590125",
+      "blockNumber": 10730214
+    },
+    {
+      "method": "registerChain",
+      "gasUsed": "143865",
+      "gasPrice": "4457593",
+      "txCostEth": "0.000000641291616945",
+      "blockNumber": 10730215
+    },
+    {
+      "method": "registerChain",
+      "gasUsed": "143865",
+      "gasPrice": "4192024",
+      "txCostEth": "0.00000060308553276",
+      "blockNumber": 10730217
+    },
+    {
+      "method": "createCluster",
+      "gasUsed": "694180",
+      "gasPrice": "4260705",
+      "txCostEth": "0.0000029576961969",
+      "blockNumber": 10730218
+    }
+  ],
+  "summary": {
+    "totalDeployGas": "7823656",
+    "totalTxGas": "2341956",
+    "totalGas": "10165612",
+    "totalDeployCostEth": "0.000040",
+    "totalTxCostEth": "0.000011",
+    "totalCostEth": "0.000051"
+  }
+}

@@ -1,0 +1,19 @@
+{
+	"language": "Solidity",
+	"sources": {
+		"C": {"urls": ["in.sol"]}
+	},
+	"settings": {
+		"stopAfter": "parsing",
+		"outputSelection": {
+			"*": {"*": [
+				"abi",
+				"devdoc",
+				"userdoc",
+				"metadata",
+				"storageLayout",
+				"evm.methodIdentifiers"
+			]}
+		}
+	}
+}

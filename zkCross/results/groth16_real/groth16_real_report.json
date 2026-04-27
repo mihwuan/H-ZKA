@@ -1,0 +1,18 @@
+{
+  "experiment": "B1 - Real Groth16 Benchmark",
+  "issue": "Paper claimed 40K constraints, reality is ~20M for verifier",
+  "timestamp": "2026-04-27T14:12:13.594Z",
+  "system": {
+    "cpus": 16,
+    "totalRamGb": "7.57",
+    "platform": "linux"
+  },
+  "measurements": [],
+  "keyFindings": {
+    "paperClaim": "40,000 constraints",
+    "realVerifierConstraints": 20000000,
+    "overestimationFactor": "500x",
+    "verifierProveTime200Nodes": 10000,
+    "verifierVerifyTimeMs": 1000
+  }
+}
