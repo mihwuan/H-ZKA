@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"ssh -i \\\"/d/Study/NT547/Project/Project/VM2_key.pem\\\" -o StrictHostKeyChecking=no -o ConnectTimeout=10 azureuser@20.116.219.110 \\\"echo connected\\\" 2>&1\"}",
-  "error": "Exit code 255\nssh: connect to host 20.116.219.110 port 22: Connection timed out",
-  "timestamp": "2026-04-22T06:34:42.557Z",
-  "retry_count": 1
-}

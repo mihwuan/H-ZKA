@@ -1,0 +1,9 @@
+node_modules/
+venv/
+
+.claude/
+.omc/
+.grapuco/
+claude.md
+Papers/
+zkCross_filemd/
