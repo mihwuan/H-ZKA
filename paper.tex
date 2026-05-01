@@ -208,7 +208,7 @@ We inherit the network model of zkCross~\cite{guo2024zkcross} and extend it with
 \begin{figure*}[h!]
     \centering
     \includegraphics[width=.8\textwidth]{architecture.jpg} 
-    \caption{Three-layer H-ZKA architecture. Layer 0 groups ordinary chains into regional clusters, Layer 1 contains cluster heads that aggregate proofs, and Layer 2 is the global audit chain that verifies $O(\sqrt{k})$ aggregated proofs per round.}
+    \caption{Three-layer H-ZKA architecture. Layer 0 groups ordinary chains into regional clusters, Layer 1 contains cluster heads that aggregate proofs, and Layer 2 is the global audit chain that verifies $O(\sqrt{k})$ aggregated proofs per round. Solid vertical arrows denote proof/data submission from ordinary chains to cluster heads and then to the global audit chain; dashed horizontal lines denote layer boundaries rather than protocol messages.}
     \label{fig:architecture}
 \end{figure*}
 
