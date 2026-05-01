@@ -180,8 +180,8 @@ $k$ & Number of ordinary chains in the network \\
 $m$ & Average block production rate (blocks/second) \\
 $n$ & Average number of transactions per block \\
 $M$ & Number of regional clusters, $M = \lceil \sqrt{k} \rceil$ \\
-$\mathcal{C}_m$ & The $m$-th regional cluster, $m \in [1, M]$ \\
-$\text{CH}_m$ & Cluster head of $\mathcal{C}_m$ \\
+$\mathcal{C}_\ell$ & The $\ell$-th regional cluster, $\ell \in [1, M]$ \\
+$\text{CH}_\ell$ & Cluster head of $\mathcal{C}_\ell$ \\
 $\text{CT}_i$ & Committer $i$ submitting proofs for a chain \\
 $R_i$ & Reputation score of node $i$, $R_i \in [0.01, 10.0]$ \\
 $C_i^t$ & Consistency score of $\text{CT}_i$ at round $t$ \\
@@ -202,7 +202,7 @@ $\lambda$ & Security parameter \\
 
 \subsection{System Model}
 
-We inherit the network model of zkCross~\cite{guo2024zkcross} and extend it with a three-layer architecture. The system consists of the following entities. \textit{Ordinary chains} ($\text{Chain}_1, \text{Chain}_2, \ldots, \text{Chain}_k$) are independent blockchains where cross-chain transactions (transfers and exchanges) occur, each maintaining its own consensus and state. \textit{Committers} ($\text{CT}_i$) are nodes responsible for generating zk-SNARK proofs that attest to the correctness of state transitions within their assigned chain; unlike the original zkCross, committers in H-ZKA are not assumed to be honest. \textit{Regional clusters} ($\mathcal{C}_1, \mathcal{C}_2, \ldots, \mathcal{C}_M$) are groups of approximately $\sqrt{k}$ chains, each managed by a cluster head $\text{CH}_m$ elected through reputation-weighted verifiable random functions. The \textit{global audit chain} is the top-layer chain where aggregated proofs from cluster heads are verified by auditors, maintaining a global state root $\text{root}_{\text{global}} = \text{MerkleTree}(\{\text{cluster\_root}_m\}_{m=1}^{M})$. Finally, \textit{auditors} ($\text{AD}$) are nodes on the global audit chain that verify aggregated proofs and maintain the global audit state.
+We inherit the network model of zkCross~\cite{guo2024zkcross} and extend it with a three-layer architecture. The system consists of the following entities. \textit{Ordinary chains} ($\text{Chain}_1, \text{Chain}_2, \ldots, \text{Chain}_k$) are independent blockchains where cross-chain transactions (transfers and exchanges) occur, each maintaining its own consensus and state. \textit{Committers} ($\text{CT}_i$) are nodes responsible for generating zk-SNARK proofs that attest to the correctness of state transitions within their assigned chain; unlike the original zkCross, committers in H-ZKA are not assumed to be honest. \textit{Regional clusters} ($\mathcal{C}_1, \mathcal{C}_2, \ldots, \mathcal{C}_M$) are groups of approximately $\sqrt{k}$ chains, each managed by a cluster head $\text{CH}_\ell$ elected through reputation-weighted verifiable random functions. The \textit{global audit chain} is the top-layer chain where aggregated proofs from cluster heads are verified by auditors, maintaining a global state root $\text{root}_{\text{global}} = \text{MerkleTree}(\{\text{cluster\_root}_\ell\}_{\ell=1}^{M})$. Finally, \textit{auditors} ($\text{AD}$) are nodes on the global audit chain that verify aggregated proofs and maintain the global audit state.
 
 \begin{figure*}[h!]
     \centering
@@ -213,7 +213,7 @@ We inherit the network model of zkCross~\cite{guo2024zkcross} and extend it with
 
 \subsection{Threat Model}
 
-We adopt a stronger threat model than the original zkCross to reflect realistic multi-chain environments. Committers may exhibit Byzantine behavior, including submitting invalid proofs, withholding proofs, or colluding with other malicious committers; we assume that the fraction of Byzantine committers within any cluster satisfies $f < |\mathcal{C}_m|/3$. This bound is not asserted independently but inherited from the classical Byzantine-agreement impossibility result of Lamport et al.~\cite{lamport1982byzantine} and the partial-synchrony lower bound of Dwork, Lynch, and Stockmeyer~\cite{dwork1988consensus}: any $\sqrt{k}$-sized cluster running an internal HotStuff-style consensus~\cite{yin2019hotstuff} for committer-state agreement requires at most $\lfloor (|\mathcal{C}_m|-1)/3 \rfloor$ Byzantine participants for safety and liveness; H-ZKA inherits this bound directly. Cluster heads may also behave maliciously, but the reputation-weighted election mechanism and VRF-based rotation ensure that Byzantine cluster heads are replaced within a bounded number of rounds (formalized in Theorem~\ref{thm:isolation}). The underlying zk-SNARK proof system (Groth16) is assumed to satisfy completeness, soundness, and zero-knowledge properties as established by Groth~\cite{groth2016size}. The collision-resistant hash function used inside the circuits is instantiated as Poseidon-128~\cite{poseidon} for in-circuit efficiency; outside circuits we use SHA3-256. The verifiable random function is instantiated as the EC-VRF construction of Algorand~\cite{chen2017algorand}, seeded by a drand-style threshold-BLS public randomness beacon~\cite{drand} so that no single party (including miners or validators of any participating chain) can grind the seed. Network communication is partially synchronous in the sense of Dwork et al.~\cite{dwork1988consensus} with bounded delay $\Delta$; for our deployment scenario we set $\Delta = 2\,$s, which empirically covers $99.9\%$ of inter-region message latencies in our $50$--$500\,$ms heterogeneous network experiments. Under this assumption, any proof submission that arrives after the protocol deadline ($T_{\mathrm{round}} = 4\Delta = 8\,$s) is treated as a \emph{liveness} fault, not a safety fault; honest nodes that miss the deadline because of network jitter therefore lose election advantage but are not slashed (see Equations~\ref{eq:stake_penalty}--\ref{eq:liveness_penalty}). We further assume an adaptive but computationally bounded adversary that can corrupt up to $\lfloor M/3 \rfloor$ cluster heads and observe all public messages, but cannot break the underlying cryptographic primitives (Groth16, EC-VRF, Poseidon, threshold BLS) within the security parameter $\lambda = 128$.
+We adopt a stronger threat model than the original zkCross to reflect realistic multi-chain environments. Committers may exhibit Byzantine behavior, including submitting invalid proofs, withholding proofs, or colluding with other malicious committers; we assume that the fraction of Byzantine committers within any cluster satisfies $f < |\mathcal{C}_\ell|/3$. This bound is not asserted independently but inherited from the classical Byzantine-agreement impossibility result of Lamport et al.~\cite{lamport1982byzantine} and the partial-synchrony lower bound of Dwork, Lynch, and Stockmeyer~\cite{dwork1988consensus}: any $\sqrt{k}$-sized cluster running an internal HotStuff-style consensus~\cite{yin2019hotstuff} for committer-state agreement requires at most $\lfloor (|\mathcal{C}_\ell|-1)/3 \rfloor$ Byzantine participants for safety and liveness; H-ZKA inherits this bound directly. Cluster heads may also behave maliciously, but the reputation-weighted election mechanism and VRF-based rotation ensure that Byzantine cluster heads are replaced within a bounded number of rounds (formalized in Theorem~\ref{thm:isolation}). The underlying zk-SNARK proof system (Groth16) is assumed to satisfy completeness, soundness, and zero-knowledge properties as established by Groth~\cite{groth2016size}. The collision-resistant hash function used inside the circuits is instantiated as Poseidon-128~\cite{poseidon} for in-circuit efficiency; outside circuits we use SHA3-256. The verifiable random function is instantiated as the EC-VRF construction of Algorand~\cite{chen2017algorand}, seeded by a drand-style threshold-BLS public randomness beacon~\cite{drand} so that no single party (including miners or validators of any participating chain) can grind the seed. Network communication is partially synchronous in the sense of Dwork et al.~\cite{dwork1988consensus} with bounded delay $\Delta$; for our deployment scenario we set $\Delta = 2\,$s, which empirically covers $99.9\%$ of inter-region message latencies in our $50$--$500\,$ms heterogeneous network experiments. Under this assumption, any proof submission that arrives after the protocol deadline ($T_{\mathrm{round}} = 4\Delta = 8\,$s) is treated as a \emph{liveness} fault, not a safety fault; honest nodes that miss the deadline because of network jitter therefore lose election advantage but are not slashed (see Equations~\ref{eq:stake_penalty}--\ref{eq:liveness_penalty}). We further assume an adaptive but computationally bounded adversary that can corrupt up to $\lfloor M/3 \rfloor$ cluster heads and observe all public messages, but cannot break the underlying cryptographic primitives (Groth16, EC-VRF, Poseidon, threshold BLS) within the security parameter $\lambda = 128$.
 
 \subsection{Design Goals}
 
@@ -222,7 +222,7 @@ Given the threat model, H-ZKA aims to achieve the following goals. (1)~\textit{P
 \subsection{Problem Definition}
 
 \begin{definition}[Byzantine-Resilient Cross-Chain Auditing]
-Given a network of $k$ ordinary blockchains, each producing $m$ blocks per second with $n$ transactions per block, and a set of committers $\{\text{CT}_i\}$ where up to $f < |\mathcal{C}_m|/3$ committers per cluster may be Byzantine, design an auditing architecture that:
+Given a network of $k$ ordinary blockchains, each producing $m$ blocks per second with $n$ transactions per block, and a set of committers $\{\text{CT}_i\}$ where up to $f < |\mathcal{C}_\ell|/3$ committers per cluster may be Byzantine, design an auditing architecture that:
 \begin{enumerate}
     \item Verifies the correctness of all cross-chain state transitions with complexity $O(\sqrt{k} \times m)$ per auditing round.
     \item Isolates Byzantine committers to a reputation score $R_{\min} = 0.01$ within a bounded number of rounds $T_{\text{isolate}}$.
@@ -307,7 +307,7 @@ This amplified decay ensures that even a sophisticated oscillating attack (e.g.,
 \begin{equation}
 R_i^t = R_i^{t-1} \quad \text{if } R_i^{t-1} \leq 1.5 \cdot R_{\min}.
 \end{equation}
-Otherwise, the dampened update rule is applied:
+Otherwise, the dampened update rule is applied, where $\operatorname{clamp}(v, lo, hi) := \max(lo, \min(v, hi))$:
 \begin{equation}
 R_i^t = \operatorname{clamp}\left((1 - \lambda \beta_i^t) \cdot R_i^{t-1} + \lambda \beta_i^t \cdot \widetilde{Q}_i^t, \ 0.01, \ 10.0\right)
 \label{eq:reputation_update}
@@ -318,7 +318,7 @@ The clamping function ensures that the reputation score remains within $[0.01, 1
 \subsection{On-chain Arbitration and Honest Committer Protection}
 \label{sec:onchain-arbitration}
 
-A critical vulnerability in hierarchical architectures is that the cluster head ($\text{CH}_m$) is responsible for scoring its committers ($C_i^t$). A malicious cluster head could intentionally score a valid proof as invalid ($C_i^t = 0$) to arbitrarily slash an honest committer. To mitigate this risk, H-ZKA implements an on-chain arbitration mechanism.
+A critical vulnerability in hierarchical architectures is that the cluster head ($\text{CH}_\ell$) is responsible for scoring its committers ($C_i^t$). A malicious cluster head could intentionally score a valid proof as invalid ($C_i^t = 0$) to arbitrarily slash an honest committer. To mitigate this risk, H-ZKA implements an on-chain arbitration mechanism.
 
 When an honest committer is penalized, it has an appeal window ($T_{\text{appeal}} = 5$ rounds) to submit its proof hash directly to the global audit chain via an on-chain \texttt{fileAppeal} transaction. If the global auditors verify the proof as valid, the appeal is upheld. The consequences are threefold: (1) the honest committer's lost reputation and slashed tokens are fully refunded, (2) the malicious cluster head suffers severe reputation slashing for false reporting, and (3) a new cluster-head election is triggered immediately. This mechanism keeps committer evaluation trustless and verifiable.
 
@@ -432,7 +432,7 @@ The table shows that the $46$-round figure is robust: doubling or halving any si
 
 The $k$ ordinary chains are partitioned into $M = \lceil \sqrt{k} \rceil$ regional clusters, with each cluster containing approximately $\sqrt{k}$ chains. The partitioning is performed based on network proximity and transaction correlation to minimize inter-cluster dependencies:
 \begin{equation}
-\bigcup_{m=1}^{M} \mathcal{C}_m = \{\text{Chain}_1, \ldots, \text{Chain}_k\}, \quad \mathcal{C}_i \cap \mathcal{C}_j = \emptyset \text{ for } i \neq j.
+\bigcup_{\ell=1}^{M} \mathcal{C}_\ell = \{\text{Chain}_1, \ldots, \text{Chain}_k\}, \quad \mathcal{C}_i \cap \mathcal{C}_j = \emptyset \text{ for } i \neq j.
 \label{eq:partition}
 \end{equation}
 
@@ -447,23 +447,23 @@ The $k$ ordinary chains are partitioned into $M = \lceil \sqrt{k} \rceil$ region
 \State Sample $M$ initial medoids $\{\mu_1,\ldots,\mu_M\}\subseteq\{1,\ldots,k\}$ via $\textsc{VRF-shuffle}(\{1,\ldots,k\},s)$
 \Repeat
   \For{each chain $j\in\{1,\ldots,k\}$}
-    \State Assign $j$ to $\mathcal{C}_{\arg\min_m \mathbf{D}[j,\mu_m]}$
+    \State Assign $j$ to $\mathcal{C}_{\arg\min_\ell \mathbf{D}[j,\mu_\ell]}$
   \EndFor
-  \For{$m=1$ to $M$}
-    \State $\mu_m \gets \arg\min_{j\in\mathcal{C}_m} \sum_{j'\in\mathcal{C}_m}\mathbf{D}[j,j']$
+  \For{$\ell=1$ to $M$}
+    \State $\mu_\ell \gets \arg\min_{j\in\mathcal{C}_\ell} \sum_{j'\in\mathcal{C}_\ell}\mathbf{D}[j,j']$
   \EndFor
 \Until medoids stable or $20$ iterations elapsed
-\State Rebalance any cluster with $|\mathcal{C}_m|>2\lceil\sqrt{k}\rceil$ by deterministic VRF-tiebreak
+\State Rebalance any cluster with $|\mathcal{C}_\ell|>2\lceil\sqrt{k}\rceil$ by deterministic VRF-tiebreak
 \State \Return $\{\mathcal{C}_1,\ldots,\mathcal{C}_M\}$
 \end{algorithmic}
 \end{algorithm}
 
 \subsection{Cluster Head Election}
 
-Within each cluster $\mathcal{C}_m$, the cluster head $\text{CH}_m$ is elected using reputation-quadratic weighting combined with a Verifiable Random Function (VRF) to ensure both meritocratic selection and unpredictability:
+Within each cluster $\mathcal{C}_\ell$, the cluster head $\text{CH}_\ell$ is elected using reputation-quadratic weighting combined with a Verifiable Random Function (VRF) to ensure both meritocratic selection and unpredictability:
 
 \begin{equation}
-w_i = (R_i)^2, \quad \text{totalWeight} = \sum_{i \in \mathcal{C}_m} w_i
+w_i = (R_i)^2, \quad \text{totalWeight} = \sum_{i \in \mathcal{C}_\ell} w_i
 \label{eq:weight}
 \end{equation}
 \begin{equation}
@@ -471,7 +471,7 @@ w_i = (R_i)^2, \quad \text{totalWeight} = \sum_{i \in \mathcal{C}_m} w_i
 \label{eq:vrf}
 \end{equation}
 \begin{equation}
-\text{CH}_m = \text{weightedSelect}(\mathcal{C}_m, \text{seed} \mod \text{totalWeight})
+\text{CH}_\ell = \text{weightedSelect}(\mathcal{C}_\ell, \text{seed} \mod \text{totalWeight})
 \label{eq:election}
 \end{equation}
 
@@ -485,34 +485,34 @@ To prevent long-term collusion among chains assigned to the same cluster, H-ZKA 
 \text{shuffled\_chains} = \text{VRF}\text{-}\text{shuffle}(\{1, \ldots, k\}, \text{seed}_{\text{epoch}})
 \label{eq:epoch_shuffle}
 \end{equation}
-The $k$ chains are randomly redistributed among the $M$ clusters using a verifiable random permutation seeded by a global random beacon (e.g., block hash). This prevents an attacker from: (1) static cluster targeting by colluding with a specific subset of chains, (2) cluster head persistence by maintaining influence within a fixed group, and (3) predictable re-elections by gaming the cluster head selection. Upon reassignment, all cluster heads are re-elected using the reputation-weighted VRF mechanism (Eq.~\ref{eq:election}), ensuring that only high-reputation nodes can lead clusters in the next epoch. This combination of temporal cluster reassignment and reputation-based head election provides strong Byzantine resilience against coordinated attacks across epochs.
+The $k$ chains are randomly redistributed among the $M$ clusters using a verifiable random permutation seeded by the drand threshold-BLS public randomness beacon~\cite{drand} (defined in Section~V.B), the same unbiasable beacon used for cluster-head election so that no single chain's miners or validators can grind the seed. This prevents an attacker from: (1) static cluster targeting by colluding with a specific subset of chains, (2) cluster head persistence by maintaining influence within a fixed group, and (3) predictable re-elections by gaming the cluster head selection. Upon reassignment, all cluster heads are re-elected using the reputation-weighted VRF mechanism (Eq.~\ref{eq:election}), ensuring that only high-reputation nodes can lead clusters in the next epoch. This combination of temporal cluster reassignment and reputation-based head election provides strong Byzantine resilience against coordinated attacks across epochs.
 
 \subsection{Intra-Cluster Proof Aggregation}
 
-To achieve sub-linear scalability, we introduce a recursive aggregation circuit, $\aggCircuit$. At each round $t$, cluster heads in $\mathcal{C}_m$ collect individual proofs $\{\pi_j\}_{j \in \mathcal{C}_m}$ and generate a succinct meta-proof.
+To achieve sub-linear scalability, we introduce a recursive aggregation circuit, $\aggCircuit$. At each round $t$, cluster heads in $\mathcal{C}_\ell$ collect individual proofs $\{\pi_j\}_{j \in \mathcal{C}_\ell}$ and generate a succinct meta-proof.
 
 \begin{algorithm}[ht]
 \caption{Intra-Cluster Proof Aggregation}
 \label{alg:aggregation}
 \begin{algorithmic}[1]
 \Require 
-    \Statex Individual proofs $\{\pi_j\}_{j \in \mathcal{C}_m}$ and verification keys $\{\vk_j\}$
-    \Statex State transitions $\{\rootOld, \rootNew\}_{j \in \mathcal{C}_m}$ and transaction batches $\{\mathsf{tx}_j\}$
+    \Statex Individual proofs $\{\pi_j\}_{j \in \mathcal{C}_\ell}$ and verification keys $\{\vk_j\}$
+    \Statex State transitions $\{\rootOld, \rootNew\}_{j \in \mathcal{C}_\ell}$ and transaction batches $\{\mathsf{tx}_j\}$
 \Ensure 
-    \Statex Aggregated proof $\pi_{\text{agg}}$ for cluster $\mathcal{C}_m$
+    \Statex Aggregated proof $\pi_{\text{agg}}$ for cluster $\mathcal{C}_\ell$
 
 \State $(\pk_{\text{agg}}, \vk_{\text{agg}}) \gets \Pi.\mathsf{Setup}(1^\lambda, \aggCircuit)$ \Comment{Pre-computed}
-\State $\vec{x} \gets \{ \rootNew \}_{j \in \mathcal{C}_m} \parallel \mathsf{id}_m \parallel \mathsf{round}_t$ \Comment{Public Inputs}
-\State $\vec{w} \gets \{ \pi_j, \rootOld, \mathsf{tx}_j \}_{j \in \mathcal{C}_m}$ \Comment{Private Witnesses}
+\State $\vec{x} \gets \{ \rootNew \}_{j \in \mathcal{C}_\ell} \parallel \mathsf{id}_\ell \parallel \mathsf{round}_t$ \Comment{Public Inputs}
+\State $\vec{w} \gets \{ \pi_j, \rootOld, \mathsf{tx}_j \}_{j \in \mathcal{C}_\ell}$ \Comment{Private Witnesses}
 
-\For{each chain $j \in \mathcal{C}_m$} \label{alg:loop}
+\For{each chain $j \in \mathcal{C}_\ell$} \label{alg:loop}
     \State \textbf{Circuit Logic} $\aggCircuit(\vec{x}, \vec{w})$:
     \State \quad Verify $\Pi.\mathsf{Verify}(\vk_j, \pi_j, \dots) = 1$ \Comment{Recursive verification}
     \State \quad Check $\mathsf{StateTransition}(\rootOld, \mathsf{tx}_j) = \rootNew$
 \EndFor
 
 \State $\pi_{\text{agg}} \gets \Pi.\mathsf{Prove}(\pk_{\text{agg}}, \vec{x}, \vec{w})$
-\State $\mathsf{TxClusterCommit} \gets \left( \mathsf{CH}_m, \{\rootNew\}, \pi_{\text{agg}}, \sigma_{\mathsf{CH}_m} \right)$
+\State $\mathsf{TxClusterCommit} \gets \left( \mathsf{CH}_\ell, \{\rootNew\}, \pi_{\text{agg}}, \sigma_{\mathsf{CH}_\ell} \right)$
 \State \textbf{submit} $\mathsf{TxClusterCommit}$ to Global Audit Chain
 \end{algorithmic}
 \end{algorithm}
@@ -563,10 +563,10 @@ W_{\text{audit}} = O(M) = O(\sqrt{k})
 \end{equation}
 This reduces the audit-layer workload from $O(k)$ in the original zkCross to $O(\sqrt{k})$ in H-ZKA. Upon successful verification of at least $\lceil 2M/3 \rceil$ cluster submissions, the global state root is updated as:
 \begin{equation}
-\mathsf{root}_{\text{global}} = \mathsf{MerkleTree}\left(\{\mathsf{rt}_{\mathcal{C}_m}\}_{m=1}^{M}\right)
+\mathsf{root}_{\text{global}} = \mathsf{MerkleTree}\left(\{\mathsf{rt}_{\mathcal{C}_\ell}\}_{\ell=1}^{M}\right)
 \label{eq:global_root}
 \end{equation}
-where $\mathsf{rt}_{\mathcal{C}_m} = \mathsf{MerkleTree}(\{\rootNew\}_{j \in \mathcal{C}_m})$. Within each cluster, $\aggCircuit$ recursively verifies the individual proofs $\pi_j$ and checks that each claimed state transition matches the corresponding proof, so the final $\pi_{\text{agg}}$ attests to the validity of all state transitions in the cluster.
+where $\mathsf{rt}_{\mathcal{C}_\ell} = \mathsf{MerkleTree}(\{\rootNew\}_{j \in \mathcal{C}_\ell})$. Within each cluster, $\aggCircuit$ recursively verifies the individual proofs $\pi_j$ and checks that each claimed state transition matches the corresponding proof, so the final $\pi_{\text{agg}}$ attests to the validity of all state transitions in the cluster.
 
 \subsection{Data Availability and Fraud Proof Mechanism}
 
@@ -578,16 +578,16 @@ To address this risk, H-ZKA implements a Data Availability (DA) challenge mechan
 After each round, a challenge window of $T_{\text{challenge}} = 10$ rounds remains open. Any honest node that observes a missing chain proof from a cluster head may file a DA challenge on-chain, claiming that chain $j$ was censored during round $t$.
 
 \subsubsection{Fraud Proof Structure}
-The fraud proof submitted in the challenge includes: (1) cluster and chain identification (cluster ID $m$ and chain ID $j$), (2) round metadata (the round $t$ and the challenge filing time), (3) state evidence (a cryptographic proof that chain $j$ produced valid state transitions during round $t$, attested by $\geq 2/3$ of the chain's validators), and (4) omission attestation (evidence that $\text{CH}_m$ did not include proof for chain $j$ in its aggregated submission). We formalize \emph{omission attestation} as a Merkle non-membership proof: each $\mathsf{TxClusterCommit}$ contains a Merkle root $\mathsf{rt}_{\mathcal{C}_m} = \mathsf{MerkleTree}(\{\rootNew\}_{j\in\mathcal{C}_m})$ over the ordered list of submitted chain roots; an honest challenger submits the canonical chain identifier $j$, the cluster commitment $\mathsf{rt}_{\mathcal{C}_m}$, and a Merkle path proving that no leaf for chain $j$ exists in $\mathsf{rt}_{\mathcal{C}_m}$ (proof-of-absence). Because $\mathsf{rt}_{\mathcal{C}_m}$ is publicly committed on the global audit chain, a malicious cluster head cannot retroactively alter it.
+The fraud proof submitted in the challenge includes: (1) cluster and chain identification (cluster ID $\ell$ and chain ID $j$), (2) round metadata (the round $t$ and the challenge filing time), (3) state evidence (a cryptographic proof that chain $j$ produced valid state transitions during round $t$, attested by $\geq 2/3$ of the chain's validators), and (4) omission attestation (evidence that $\text{CH}_\ell$ did not include proof for chain $j$ in its aggregated submission). We formalize \emph{omission attestation} as a Merkle non-membership proof: each $\mathsf{TxClusterCommit}$ contains a Merkle root $\mathsf{rt}_{\mathcal{C}_\ell} = \mathsf{MerkleTree}(\{\rootNew\}_{j\in\mathcal{C}_\ell})$ over the ordered list of submitted chain roots; an honest challenger submits the canonical chain identifier $j$, the cluster commitment $\mathsf{rt}_{\mathcal{C}_\ell}$, and a Merkle path proving that no leaf for chain $j$ exists in $\mathsf{rt}_{\mathcal{C}_\ell}$ (proof-of-absence). Because $\mathsf{rt}_{\mathcal{C}_\ell}$ is publicly committed on the global audit chain, a malicious cluster head cannot retroactively alter it.
 
 \subsubsection{Challenge Resolution}
-Upon receiving a fraud proof: (1) the global audit chain verifies the proof validity using standard consensus mechanisms (e.g., majority vote among auditors); (2) if valid, the cluster head $\text{CH}_m$ reputation is immediately set to $R_{\min} = 0.01$, a new cluster head is immediately elected via the VRF mechanism (Section~V.2), and the missing chain data is recovered and incorporated into the global state; (3) if invalid (the challenge is frivolous), the challenger's reputation is reduced by $\beta = 0.08$.
+Upon receiving a fraud proof: (1) the global audit chain verifies the proof validity using standard consensus mechanisms (e.g., majority vote among auditors); (2) if valid, the cluster head $\text{CH}_\ell$ reputation is immediately set to $R_{\min} = 0.01$, a new cluster head is immediately elected via the VRF mechanism (Section~V.2), and the missing chain data is recovered and incorporated into the global state; (3) if invalid (the challenge is frivolous), the challenger's reputation is reduced by $\beta = 0.08$.
 
 This mechanism ensures that the global audit chain cannot remain in an inconsistent state where valid chain data is permanently excluded. The 10-round challenge window provides sufficient time for honest nodes to detect and report omissions, while the slashing of cluster head reputation prevents systematic censorship campaigns.
 
 \begin{theorem}[Data Availability Guarantee]
 \label{thm:da_guarantee}
-Under the DA challenge mechanism, if a cluster head $\text{CH}_m$ censors the proof of any chain $j \in \mathcal{C}_m$, an honest node can file a valid fraud proof within $T_{\text{challenge}} = 10$ rounds, causing $\text{CH}_m$ to be isolated to $R_{\min}$. Thus, sustained data censorship is prevented with probability approaching 1 as the number of honest nodes grows.
+Under the DA challenge mechanism, if a cluster head $\text{CH}_\ell$ censors the proof of any chain $j \in \mathcal{C}_\ell$, an honest node can file a valid fraud proof within $T_{\text{challenge}} = 10$ rounds, causing $\text{CH}_\ell$ to be isolated to $R_{\min}$. Thus, sustained data censorship is prevented with probability approaching 1 as the number of honest nodes grows.
 \end{theorem}
 
 \subsection{Complexity Analysis}
@@ -612,7 +612,7 @@ The aggregation does not compromise soundness because the recursive circuit $\ag
 
 \subsection{End-to-End Protocol Flow}
 
-The complete H-ZKA protocol proceeds in rounds. First, committers ($\text{CT}_i$) on each chain collect the latest transaction batch, generate a zk-SNARK proof $\pi_j$ via the $\Psi.\text{Commit}$ protocol (identical to the original zkCross), and submit $\text{TxCommit}$ to their regional cluster $\mathcal{C}_m$. Second, the cluster head $\text{CH}_m$ receives proofs from all chains in $\mathcal{C}_m$, cross-references the submitted state roots against each other for consistency, computes the consistency score $C_i^t$ for each committer, and triggers reputation updates via the MF-PoP mechanism. Third, $\text{CH}_m$ runs the aggregation circuit $\aggCircuit$ (Algorithm~\ref{alg:aggregation}) to produce $\pi_{\text{agg}}$ and submits $\text{TxClusterCommit}$ to the global audit chain. Fourth, the global audit chain verifies the $M$ aggregated proofs, and upon consensus by $\geq 2/3$ of the aggregated submissions, the global state root $\text{root}_{\text{global}}$ is updated. Fifth, cluster head reputation is updated at the global level; if $R_{\text{CH}} < R_{\text{median}}$ or a VRF-triggered rotation event occurs, a new cluster head is elected.
+The complete H-ZKA protocol proceeds in rounds. First, committers ($\text{CT}_i$) on each chain collect the latest transaction batch, generate a zk-SNARK proof $\pi_j$ via the $\Psi.\text{Commit}$ protocol (identical to the original zkCross), and submit $\text{TxCommit}$ to their regional cluster $\mathcal{C}_\ell$. Second, the cluster head $\text{CH}_\ell$ receives proofs from all chains in $\mathcal{C}_\ell$, cross-references the submitted state roots against each other for consistency, computes the consistency score $C_i^t$ for each committer, and triggers reputation updates via the MF-PoP mechanism. Third, $\text{CH}_\ell$ runs the aggregation circuit $\aggCircuit$ (Algorithm~\ref{alg:aggregation}) to produce $\pi_{\text{agg}}$ and submits $\text{TxClusterCommit}$ to the global audit chain. Fourth, the global audit chain verifies the $M$ aggregated proofs, and upon consensus by $\geq 2/3$ of the aggregated submissions, the global state root $\text{root}_{\text{global}}$ is updated. Fifth, cluster head reputation is updated at the global level; if $R_{\text{CH}} < R_{\text{median}}$ or a VRF-triggered rotation event occurs, a new cluster head is elected.
 
 \subsection{Decoupling from Privacy Protocols}
 
@@ -629,7 +629,7 @@ H-ZKA preserves the unlinkability property of protocols $\Theta$ and $\Phi$, i.e
 \begin{proof}
 The components introduced in H-ZKA (MF-PoP reputation, hierarchical clustering, proof aggregation) interact only with the auditing protocol $\Psi$. The circuits $\Lambda_\Theta$ (Figure~3 in~\cite{guo2024zkcross}), $\Lambda_\Phi^{\text{off}}$ (Figure~4), and $\Lambda_\Phi^{\text{on}}$ (Figure~5) are not modified. The private inputs (sender/receiver public keys, random numbers, serial numbers, preimages) and the zero-knowledge proofs generated by these circuits remain identical to the original zkCross. Since the proof of Theorem~1 in~\cite{guo2024zkcross} depends solely on the zero-knowledge property of zk-SNARK, the collision resistance of the hash function, and the circuit design of $\Theta$ and $\Phi$, and none of these are altered, the unlinkability guarantee carries over to H-ZKA.
 
-We additionally rule out two H-ZKA-specific leakage channels by hybrid argument. (1)~\textit{Aggregation-side leakage.} Inside $\aggCircuit$, the witness $\vec{w} = \{\pi_j, \rootOld, \mathsf{tx}_j\}_{j\in\mathcal{C}_m}$ is encrypted by the zero-knowledge property of Groth16; the public output $\pi_{\mathrm{agg}}$ binds only to the cluster commitment $\mathsf{rt}_{\mathcal{C}_m}$ and round index, neither of which exposes individual sender/receiver tuples. Reduction: any distinguisher between H-ZKA and zkCross unlinkability experiments yields a distinguisher against Groth16 zero-knowledge, contradicting~\cite{groth2016size}. (2)~\textit{Timing-side leakage.} Because cluster heads aggregate proofs at fixed round boundaries (deadline $T_{\mathrm{round}} = 8\,$s) regardless of which transactions occurred in which chain, the per-round publication time of $\pi_{\mathrm{agg}}$ is independent of any single transaction's arrival; we therefore inherit the timing-channel resistance argument of zkCross verbatim. The MF-PoP reputation update is computed from the cluster head's view of $C_i^t$, which is itself a function only of $\rootNew$, a public quantity already exposed by the original zkCross protocol.
+We additionally rule out two H-ZKA-specific leakage channels by hybrid argument. (1)~\textit{Aggregation-side leakage.} Inside $\aggCircuit$, the witness $\vec{w} = \{\pi_j, \rootOld, \mathsf{tx}_j\}_{j\in\mathcal{C}_\ell}$ is encrypted by the zero-knowledge property of Groth16; the public output $\pi_{\mathrm{agg}}$ binds only to the cluster commitment $\mathsf{rt}_{\mathcal{C}_\ell}$ and round index, neither of which exposes individual sender/receiver tuples. Reduction: any distinguisher between H-ZKA and zkCross unlinkability experiments yields a distinguisher against Groth16 zero-knowledge, contradicting~\cite{groth2016size}. (2)~\textit{Timing-side leakage.} Because cluster heads aggregate proofs at fixed round boundaries (deadline $T_{\mathrm{round}} = 8\,$s) regardless of which transactions occurred in which chain, the per-round publication time of $\pi_{\mathrm{agg}}$ is independent of any single transaction's arrival; we therefore inherit the timing-channel resistance argument of zkCross verbatim. The MF-PoP reputation update is computed from the cluster head's view of $C_i^t$, which is itself a function only of $\rootNew$, a public quantity already exposed by the original zkCross protocol.
 \end{proof}
 
 \subsection{Byzantine Fault Tolerance Analysis}
@@ -638,7 +638,7 @@ We additionally rule out two H-ZKA-specific leakage channels by hybrid argument.
 
 \begin{theorem}[Byzantine Resilience]
 \label{thm:byzantine}
-H-ZKA tolerates up to $f < |\mathcal{C}_m|/3$ Byzantine committers per cluster without compromising the integrity of auditing results, and Byzantine committers are isolated to $R_{\min}$ within 46 rounds.
+H-ZKA tolerates up to $f < |\mathcal{C}_\ell|/3$ Byzantine committers per cluster without compromising the integrity of auditing results, and Byzantine committers are isolated to $R_{\min}$ within 46 rounds.
 \end{theorem}
 
 \begin{proof}
@@ -679,7 +679,7 @@ Experiments are conducted on Azure cloud servers using 10 Standard\_E4s\_v3 inst
 \label{fig:reputation}
 \end{figure}
 
-Fig~\ref{fig:reputation} demonstrates the reputation convergence behavior from our simulation with 100 committers (30\% Byzantine) over 100 rounds. Starting from the initial reputation $R_0 = 0.5$, an honest committer (consistently producing valid proofs) converges to $R \approx 0.99$ after 50 rounds. A Byzantine committer (consistently submitting invalid proofs) is reduced to $R_{\min} = 0.01$ after a mean of $46.3$ rounds with a 95\% confidence interval of $[44.0, 48.6]$ over 30 seeds when stochastic latency is injected. (An earlier draft reported $46.0 \pm 0.0$ because the latency-injection wrapper was disabled for the convergence-only experiment; with jitter enabled the variance is non-zero and centred on the analytical $46$-round bound.) The result confirms Theorem~\ref*{thm:isolation} and is robust to MF-PoP parameter perturbations (Table~\ref{tab:sensitivity}). The adaptive decay rate $\beta$ accelerates the descent for low-reputation nodes, providing a fast response to persistent misbehavior.
+Figure~\ref{fig:reputation} demonstrates the reputation convergence behavior from our simulation with 100 committers (30\% Byzantine) over 100 rounds. Starting from the initial reputation $R_0 = 0.5$, an honest committer (consistently producing valid proofs) converges to $R \approx 0.99$ after 50 rounds. A Byzantine committer (consistently submitting invalid proofs) is reduced to $R_{\min} = 0.01$ after a mean of $46.3$ rounds with a 95\% confidence interval of $[44.0, 48.6]$ over 30 seeds when stochastic latency is injected. (An earlier draft reported $46.0 \pm 0.0$ because the latency-injection wrapper was disabled for the convergence-only experiment; with jitter enabled the variance is non-zero and centred on the analytical $46$-round bound.) The result confirms Theorem~\ref*{thm:isolation} and is robust to MF-PoP parameter perturbations (Table~\ref{tab:sensitivity}). The adaptive decay rate $\beta$ accelerates the descent for low-reputation nodes, providing a fast response to persistent misbehavior.
 
 % [SỬA LỖI B3] Thêm phân tích tấn công dao động với non-linear slashing
 \subsection{Oscillating Attack Resilience}
