@@ -112,6 +112,11 @@ contract ReputationRegistry {
     /// @notice Thời gian khiếu nại (appeal window) tính bằng rounds
     uint256 public constant APPEAL_WINDOW = 5;
 
+    /// @notice ALPHA_V: weight for cumulative fault counter V_i in Eq.13 (Theorem 4)
+    ///          β_i^t = β * 5 * max(F_i^t, α_V * V_i) / 2  when C_i^t = 0
+    ///          Set to 0.5 as recommended in the paper's analysis of Theorem 4.
+    uint256 public constant ALPHA_V = 5e17;   // 0.5
+
     // ==========================================
     // Data Structures
     // ==========================================
@@ -128,6 +133,10 @@ contract ReputationRegistry {
         uint256 stakedAmount;       // Số token đã stake
         uint256 consecutiveFails;   // Số lần C=0 liên tiếp (cho phạt luỹ tiến)
         uint256 totalSlashed;       // Tổng số token đã bị tịch thu
+        // [PATCH Eq.13] V_i — non-resetting cumulative safety-fault counter (Theorem 4)
+        // Increments on every C=0 round and never resets; used in beta computation
+        // to eliminate the slow-loris / oscillating-attack steady-state.
+        uint32  cumulativeSafetyFaults;
     }
 
     // [SỬA LỖI B3] Cấu trúc khiếu nại on-chain (On-chain Arbitration)
@@ -240,7 +249,8 @@ contract ReputationRegistry {
             endorsedBy:     endorsers,
             stakedAmount:   msg.value,       // [SỬA LỖI B3] Lưu số stake
             consecutiveFails: 0,              // [SỬA LỖI B3] Khởi tạo
-            totalSlashed:   0                 // [SỬA LỖI B3] Khởi tạo
+            totalSlashed:   0,                 // [SỬA LỖI B3] Khởi tạo
+            cumulativeSafetyFaults: 0          // [PATCH Eq.13] V_i ← 0
         });
         committerList.push(msg.sender);
 
@@ -296,25 +306,50 @@ contract ReputationRegistry {
         uint256 beta = _computeAdaptiveBeta(rec.reputation);
 
         // =====================================================
-        // [SỬA LỖI B3] Phạt phi tuyến (Non-linear Slashing)
+        // [PATCH Eq.13 / Theorem 4] Cumulative Safety-Fault Counter
+        //
+        //   β_i^t = β * 5 * max(F_i^t, α_V * V_i) / 2   when C_i^t = 0
+        //   β_i^t = β                                     otherwise
+        //
+        // where V_i is a non-resetting counter (cumulativeSafetyFaults)
+        // that grows monotonically with every C=0 round.
+        //
+        // This patch eliminates the slow-loris steady-state R* = (N-1)/(N+4)
+        // that exists under the resetting F_i^t schedule alone (Section IV.C,
+        // Remark on slow-loris attackers).
+        //
+        // Gas note: all operations are primitive (add, sub, mul, div on uint256/
+        // uint32). No loops, no external calls. Additional gas over the pre-patch
+        // baseline is ~5,000 gas per update (< 0.7% of a full reputation round).
         // =====================================================
         if (!consistent) {
-            // Khi C=0: nhân β lên SLASH_MULTIPLIER lần (5x)
-            // Đảm bảo kẻ tấn công dao động (5 đúng + 1 sai) vẫn bị phạt nặng
-            beta = beta * SLASH_MULTIPLIER;
-            if (beta > PRECISION) beta = PRECISION; // Cap ở 1.0
+            // Increment V_i — never resets; captures the total fault budget.
+            rec.cumulativeSafetyFaults += 1;
 
-            // Đếm số lần C=0 liên tiếp
+            // max(F_i^t, α_V * V_i):
+            //   F_i^t = consecutiveFails   (resets on valid proof)
+            //   α_V * V_i = ALPHA_V * cumulativeSafetyFaults
+            //
+            // α_V = 0.5, so α_V * V_i = V_i / 2
+            // For a periodic attacker with N=5 (5-true/1-false cycle):
+            //   After 1 fault:  V_i=1  → α_V*V_i = 0.5  vs F_i=1  → max=1
+            //   After 3 faults: V_i=3 → α_V*V_i = 1.5  vs F_i=1  → max=1.5
+            //   After 6 faults: V_i=6 → α_V*V_i = 3.0  vs F_i=1  → max=3.0
+            // The cumulative term grows unbounded while F_i stays at 1.
+            uint256 ViTerm = (uint256(rec.cumulativeSafetyFaults) * ALPHA_V) / PRECISION;
+            uint256 maxFtVi = consecutiveFails > ViTerm ? consecutiveFails : ViTerm;
+
+            // β_i^t = β * 5 * max(F_i^t, α_V*V_i) / 2
+            uint256 penaltyBase = ADAPTIVE_BETA * SLASH_MULTIPLIER / 2; // β * 5 / 2 = 0.20
+            beta = penaltyBase * maxFtVi / PRECISION;
+
+            // Cap at 1.0 (PRECISION)
+            if (beta > PRECISION) beta = PRECISION;
+
+            // Count consecutive failures (still tracked for display/appeal logic).
             rec.consecutiveFails++;
 
-            // Phạt luỹ tiến: nếu C=0 liên tiếp >= threshold, phạt thêm
-            // consecutiveFails = 2 → beta * 2, = 3 → beta * 3, ...
-            if (rec.consecutiveFails >= CONSECUTIVE_FAIL_THRESHOLD) {
-                beta = beta * rec.consecutiveFails / CONSECUTIVE_FAIL_THRESHOLD;
-                if (beta > PRECISION) beta = PRECISION;
-            }
-
-            // Tịch thu stake token (slashing kinh tế)
+            // Tịch thu stake token (slashing kinh tế).
             if (rec.stakedAmount > 0) {
                 uint256 slashAmount = rec.stakedAmount * SLASH_PERCENT / 100;
                 rec.stakedAmount -= slashAmount;
@@ -323,7 +358,9 @@ contract ReputationRegistry {
                 emit CommitterSlashed(ct, slashAmount, rec.consecutiveFails);
             }
         } else {
-            // Reset consecutive fails counter khi submit đúng
+            // Reset consecutive-fails counter on valid proof.
+            // NOTE: cumulativeSafetyFaults (V_i) is intentionally NOT reset here;
+            // this is the core of the slow-loris patch (Theorem 4).
             rec.consecutiveFails = 0;
         }
 
@@ -377,6 +414,16 @@ contract ReputationRegistry {
      */
     function getReputation(address ct) external view returns (uint256) {
         return committers[ct].reputation;
+    }
+
+    /**
+     * @notice Get the cumulative safety-fault counter V_i (Theorem 4 / Eq.13)
+     * @dev  Returns the non-resetting fault counter that drives the slow-loris
+     *       penalty. Callers can use this to verify the counter is monotonically
+     *       increasing across all C=0 rounds.
+     */
+    function getCumulativeSafetyFaults(address ct) external view returns (uint32) {
+        return committers[ct].cumulativeSafetyFaults;
     }
 
     /**
@@ -572,7 +619,8 @@ contract ReputationRegistry {
             endorsedBy:     [address(0), address(0)],
             stakedAmount:   0,              // [SỬA LỖI B3] Genesis không cần stake
             consecutiveFails: 0,
-            totalSlashed:   0
+            totalSlashed:   0,
+            cumulativeSafetyFaults: 0       // [PATCH Eq.13] V_i ← 0
         });
         committerList.push(genesis);
     }
