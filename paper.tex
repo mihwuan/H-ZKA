@@ -139,13 +139,12 @@ As shown in Table~\ref{tab:comparison}, no existing approach simultaneously prov
 
 \subsection{Theoretical Comparison with Closest SOTA}
 
-\begin{table}[H]
+\begin{table*}[t]
 \centering
 \caption{Theoretical comparison with the most relevant state-of-the-art systems.}
 \label{tab:theory}
-\scriptsize
-\setlength{\tabcolsep}{2pt}
-\begin{tabular}{p{0.13\columnwidth}p{0.15\columnwidth}p{0.18\columnwidth}p{0.17\columnwidth}p{0.28\columnwidth}}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{0.15\textwidth}p{0.15\textwidth}p{0.2\textwidth}p{0.18\textwidth}p{0.22\textwidth}}
 \toprule
 Work & Scaling style & Deployment model & Reputation model & Main distinction from H-ZKA \\
 \midrule
@@ -156,7 +155,7 @@ Hu et al.~\cite{hu2024reputation} & Dynamic trust scoring & Cross-chain transact
 H-ZKA (ours) & Hierarchical & Open multi-chain auditing & EMA-based MF-PoP & Integrates privacy-preserving auditing, Byzantine isolation, and $O(\sqrt{k})$ audit cost \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 Table~\ref{tab:theory} clarifies the design gap addressed by H-ZKA. Hekaton focuses on horizontal proof parallelism, whereas H-ZKA adopts hierarchical aggregation because cross-chain auditing must preserve locality across heterogeneous chains. MAP Protocol reduces interoperability cost to $O(N)$ through a hybrid light-client/zk design, but it does not address adversarial committers in the auditing pipeline. VeCroToken targets consortium settings with different trust assumptions, while Hu et al. emphasize RNN-based reputation estimation that is more flexible than our EMA-based MF-PoP update, yet still lacks integrated zero-knowledge audit proofs. H-ZKA combines these previously separate concerns into a single audit-layer architecture.
 
@@ -448,11 +447,11 @@ T_{\mathrm{isolate}} \approx \frac{\ln(R_0/R_{\min})}{\lambda\beta_{\mathrm{eff}
 \end{equation}
 where $\bar F \in [1, F_{\max}/2]$ is the average progressive-failure multiplier. The composite-score weights $(\alpha_1,\alpha_2,\alpha_3)$ enter only through $\widetilde{Q}_i^t$ and shift the contraction factor by at most $\pm 8\%$, while the EMA factor $\gamma$ shifts it by $\pm 4\%$. Across all entries of Table~\ref{tab:sensitivity}, the $50\%$-perturbed isolation time stays within $[34, 71]$ rounds, well below the on-chain appeal window's amortized cost.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \caption{Sensitivity of $T_{\mathrm{isolate}}$ to MF-PoP parameter perturbations (analytical, derived from Eqs.~\ref{eq:tisolate}--\ref{eq:tisolate-approx}). Default row shaded; bold column shows fractional change.}
 \label{tab:sensitivity}
-\resizebox{\columnwidth}{!}{%
+\renewcommand{\arraystretch}{1.3}
 \begin{tabular}{lccc}
 \toprule
 Parameter & Value & $T_{\mathrm{isolate}}$ (rounds) & $\Delta$ vs.\ default \\
@@ -473,8 +472,8 @@ $(\alpha_1,\alpha_2,\alpha_3) = (0.30,0.60,0.10)$ & realloc. & 49 & $+7\%$ \\
 $(\alpha_1,\alpha_2,\alpha_3) = (0.60,0.30,0.10)$ (default) & --- & 46 & --- \\
 $(\alpha_1,\alpha_2,\alpha_3) = (0.80,0.10,0.10)$ & realloc. & 43 & $-7\%$ \\
 \bottomrule
-\end{tabular}}
-\end{table}
+\end{tabular}
+\end{table*}
 
 The table shows that the $46$-round figure is robust: doubling or halving any single parameter changes $T_{\mathrm{isolate}}$ by less than $55\%$ in either direction, and the qualitative claim ``Byzantine committers are isolated within $O(\ln(1/R_{\min}))$ rounds'' holds across the entire perturbation grid.
 
@@ -590,11 +589,10 @@ A legitimate cryptographic concern is whether a Groth16 proof over BN254 can ver
 \subsection{Recursive-Verifier Cost Comparison}
 \label{sec:recursivecmp}
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \caption{Recursive-verifier cost across SNARK back-ends, normalized to a single inner Groth16 proof verification. Constraint counts are public-domain estimates from the cited primary references and library benchmarks; on-chain verifier byte size is the deployed Solidity verifier.}
 \label{tab:recursivecmp}
-\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 Proof system & Recursive cost & Trusted setup & Verifier byte & Citation \\
@@ -606,8 +604,8 @@ Halo2 (no trusted setup) & $\sim 1{,}000{,}000$ & none & $\sim 4$\,kB & \cite{bo
 Nova (folding) & $O(1)$ amortized & none & $\sim 16$\,kB & \cite{kothapalli2022nova} \\
 Plonky2 (FRI, same field) & $\sim 80{,}000$ & none & $\sim 50$\,kB & \cite{plonky2} \\
 \bottomrule
-\end{tabular}}
-\end{table}
+\end{tabular}
+\end{table*}
 
 Table~\ref{tab:recursivecmp} confirms two facts simultaneously. First, the $20\,$M-constraint figure for our Groth16-over-BN254 verifier is consistent with public benchmarks for the same primitive (e.g., Belling et al.\,implementations of Groth16-in-Groth16 BN254 verifiers report $1.5$--$2.5\times 10^7$ constraints depending on Miller-loop optimization) and is not anomalous. Second, the H-ZKA architecture is independent of the back-end choice: swapping in Halo2, Nova, or Plonky2 reduces recursive prover cost by $20\times$, $\Theta(k)\times$, and $250\times$ respectively, but at the cost of a heavier on-chain verifier (between $30\times$ and $400\times$ larger) that would erase H-ZKA's $8.7\times$ on-chain gas advantage. The Groth16 instantiation chosen here is therefore Pareto-optimal for the on-chain verification metric that drives end-to-end cost, while leaving the prover-side bottleneck open for orthogonal optimization.
 
@@ -792,11 +790,11 @@ The simulation results validate the theoretical bounds. Figure~\ref{fig:reputati
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.48\textwidth]{fig3b_slowloris_patch.png}
-\caption{Figure 3b: Reputation trajectories under the slow-loris (oscillating) attack with and without the cumulative $V_i$ patch (Eq. 13). \textbf{Green solid:} honest committer stable at $R \approx 1.0$. \textbf{Red dashed:} oscillating Byzantine attacker under the Eq.13 patch, where $V_i$ grows monotonically and triggers the Trust Jail at round $30$, driving $R$ to $R_{\min}=0.01$ where it oscillates indefinitely. \textbf{Orange dash-dotted:} same attacker under the pre-patch schedule (resetting $F_i^t$ only), which stabilises at $R^{*} \approx 0.62$ --- well above $R_{\min}$. The patch therefore eliminates the theoretical steady-state gap identified in the Remark on slow-loris attackers (Section IV.C).}
+\caption{Figure 3b: Reputation trajectories under the slow-loris (oscillating) attack with and without the cumulative $V_i$ patch (Eq. 13). Green solid: honest committer stable at $R \approx 1.0$. Red dashed: oscillating Byzantine attacker under the Eq.13 patch, where $V_i$ grows monotonically and triggers the Trust Jail at round $30$, driving $R$ to $R_{\min}=0.01$ where it oscillates indefinitely. Orange dash-dotted: same attacker under the pre-patch schedule (resetting $F_i^t$ only), which stabilises at $R^{*} \approx 0.62$ - well above $R_{\min}$. The patch therefore eliminates the theoretical steady-state gap identified in the Remark on slow-loris attackers (Section IV.C).}
 \label{fig:slowloris_patch}
 \end{figure}
 
-The cumulative fault counter patch (Eq. 13, Theorem 4) is evaluated in Figure~\ref{fig:slowloris_patch}. An oscillating attacker following the $N=5$ cycle (four correct and one incorrect proof per cycle) is considered. Under the pre-patch schedule with only the resetting progressive counter $F_i^t$, the attacker's reputation stabilises at $R^{*} \approx 0.62$, which is well above $R_{\min}=0.01$ --- this confirms the theoretical steady-state $R^{*}=(N-1)/(N+4)=4/9 \approx 0.44$ derived in the Remark on slow-loris attackers (Section IV.C). Under the Eq.13 patch, the non-resetting cumulative fault counter $V_i$ grows monotonically with each safety fault and enters the max$(\cdot)$ term of the beta computation with ever-increasing weight. After six faults (corresponding to $30$ rounds under the $N=5$ cycle), the Trust Jail threshold ($1.5 \times R_{\min}$) is crossed, and the attacker's reputation is frozen at $R_{\min}=0.01$ indefinitely --- eliminating all quadratic election weight. The patch therefore closes the theoretical slow-loris gap without requiring any change to the reputation update formula beyond the addition of a single $\uint32$ counter per committer. On-chain gas overhead is negligible: the update requires only three additional arithmetic operations ($+1$, $\times$, and $\div$ on $\uint256$) compared to the pre-patch baseline, corresponding to approximately $5{,}000$ additional gas per update --- less than $0.7\%$ of a full reputation round ($772{,}621$ gas). The cumulative-fault patch is fully implemented in the updated \texttt{ReputationRegistry} contract (Section VII.A).
+The cumulative fault counter patch (Eq. 13, Theorem 4) is evaluated in Figure~\ref{fig:slowloris_patch}. An oscillating attacker following the $N=5$ cycle (four correct and one incorrect proof per cycle) is considered. Under the pre-patch schedule with only the resetting progressive counter $F_i^t$, the attacker's reputation stabilises at $R^{*} \approx 0.62$, which is well above $R_{\min}=0.01$ --- this confirms the theoretical steady-state $R^{*}=(N-1)/(N+4)=4/9 \approx 0.44$ derived in the Remark on slow-loris attackers (Section IV.C). Under the Eq.13 patch, the non-resetting cumulative fault counter $V_i$ grows monotonically with each safety fault and enters the max$(\cdot)$ term of the beta computation with ever-increasing weight. After six faults (corresponding to $30$ rounds under the $N=5$ cycle), the Trust Jail threshold ($1.5 \times R_{\min}$) is crossed, and the attacker's reputation is frozen at $R_{\min}=0.01$ indefinitely --- eliminating all quadratic election weight. The patch therefore closes the theoretical slow-loris gap without requiring any change to the reputation update formula beyond the addition of a single $\unit32$ counter per committer. On-chain gas overhead is negligible: the update requires only three additional arithmetic operations ($+1$, $\times$, and $\div$ on $\uint256$) compared to the pre-patch baseline, corresponding to approximately $5{,}000$ additional gas per update --- less than $0.7\%$ of a full reputation round ($772{,}621$ gas). The cumulative-fault patch is fully implemented in the updated \texttt{ReputationRegistry} contract (Section VII.A).
 
 \subsection{Audit Workload Reduction}
 
@@ -819,7 +817,7 @@ $k$ (chains) & zkCross & H-ZKA & Reduction Factor \\
 
 Table~\ref{tab:workload} shows the reduction in the number of proof verifications per auditing round. For $k = 100$ chains, the original zkCross requires 100 individual proof verifications, while H-ZKA requires only 10 aggregated proof verifications (one per cluster), achieving a $10\times$ reduction that matches the theoretical $\sqrt{k} = 10$ prediction. At $k = 200$, the reduction factor increases to $13.3\times$, consistent with $\sqrt{200} \approx 14.1$.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \caption{Effective per-cluster prover overhead under fixed-shape Groth16 with maximum capacity $B_{\max}=15$ slots ($k_{\max}=200$). The on-chain verification count of Table~\ref{tab:workload} is unaffected; only the per-cluster prover load grows with the padding ratio.}
 \label{tab:workload-padded}
@@ -834,7 +832,7 @@ $k$ & $M=\lceil\sqrt{k}\rceil$ & Avg.\ active chains/cluster & Padding overhead 
 200 & 15 & 13.3 & $1.1\times$ & $\sim 12.1\times$ \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 Table~\ref{tab:workload-padded} reports the practically realised reduction once the dummy-padding overhead of Section~\ref{sec:fixedshape} is accounted for. The padded $O(\sqrt{k})$ bound holds well at large $k$ but degrades at small $k$, where the cluster size is much smaller than $B_{\max}$. The on-chain verification count of Table~\ref{tab:workload} is independent of padding because the verifier processes a single 127-byte proof per cluster regardless of the prover circuit's slot occupancy.
 
@@ -889,11 +887,10 @@ Table~\ref{tab:e2e} shows that even after charging the full $9.84\,$s recursive 
 
 \subsection{Proof Size and Gas Consumption}
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \caption{Proof size and gas consumption comparison.}
 \label{tab:gas}
-\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lccc}
 \toprule
 Metric & zkCross & H-ZKA & Reduction \\
@@ -905,8 +902,8 @@ Gas per aggregated proof verification (global audit per cluster) & -- & 324,145 
 Gas per reputation update + slashing (per round, total) & -- & 772,621 & -- \\
 Total gas/round ($k=100$) & 55,519,200 & 4,014,071 & $13.8\times$ \\
 \bottomrule
-\end{tabular}}
-\end{table}
+\end{tabular}
+\end{table*}
 
 Table~\ref{tab:gas} confirms that the aggregated proof size remains 127 bytes, preserving the succinctness property of zk-SNARKs. 
 We re‑benchmarked the on‑chain gas consumption using the actual recursive Groth16 circuit (20M constraints) on a local Ethereum testnet. 
