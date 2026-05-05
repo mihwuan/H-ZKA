@@ -1,0 +1,121 @@
+mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$ bash scripts/run_benchmark_on_vm.sh 40.82.136.55 ../VM_key.pem
+[03:39:11] Testing SSH to 40.82.136.55...
+SSH OK
+Linux VM 6.8.0-1052-azure #58~22.04.1-Ubuntu SMP Thu Mar 26 05:02:21 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+               total        used        free      shared  buff/cache   available
+Mem:            31Gi       402Mi        30Gi       4.0Mi       525Mi        30Gi
+
+[03:39:17] Installing dependencies on VM (This may take ~5-7 mins)...
+Hit:1 http://azure.archive.ubuntu.com/ubuntu jammy InRelease
+Hit:2 http://azure.archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:3 http://azure.archive.ubuntu.com/ubuntu jammy-backports InRelease
+Hit:4 http://azure.archive.ubuntu.com/ubuntu jammy-security InRelease
+Hit:5 https://deb.nodesource.com/node_20.x nodistro InRelease
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+build-essential is already the newest version (12.9ubuntu3).
+libgmp-dev is already the newest version (2:6.2.1+dfsg-3ubuntu1).
+libomp-dev is already the newest version (1:14.0-55~exp2).
+nasm is already the newest version (2.15.05-1).
+curl is already the newest version (7.81.0-1ubuntu1.23).
+git is already the newest version (1:2.34.1-1ubuntu1.17).
+libsodium-dev is already the newest version (1.0.18-1ubuntu0.22.04.1).
+libstdc++6 is already the newest version (12.3.0-1ubuntu1~22.04.3).
+docker.io is already the newest version (29.1.3-0ubuntu3~22.04.1).
+0 upgraded, 0 newly installed, 0 to remove and 16 not upgraded.
+info: downloading installer
+warn: It looks like you have an existing rustup settings file at:
+warn: /home/azureuser/.rustup/settings.toml
+warn: Rustup will install the default toolchain as specified in the settings file,
+warn: instead of the one inferred from the default host triple.
+info: profile set to default
+info: default host triple is x86_64-unknown-linux-gnu
+warn: Updating existing toolchain, profile choice will be ignored
+info: syncing channel updates for stable-x86_64-unknown-linux-gnu
+
+info: default toolchain set to stable-x86_64-unknown-linux-gnu
+  stable-x86_64-unknown-linux-gnu unchanged - rustc 1.95.0 (59807616e 2026-04-14)
+
+
+Rust is installed now. Great!
+
+To get started you may need to restart your current shell.
+This would reload your PATH environment variable to include
+Cargo's bin directory ($HOME/.cargo/bin).
+
+To configure your current shell, you need to source
+the corresponding env file under $HOME/.cargo.
+
+This is usually done by running one of the following (note the leading DOT):
+. "$HOME/.cargo/env"            # For sh/bash/zsh/ash/dash/pdksh
+source "$HOME/.cargo/env.fish"  # For fish
+source "~/.cargo/env.nu"  # For nushell
+source "$HOME/.cargo/env.tcsh"  # For tcsh
+. "$HOME/.cargo/env.ps1"        # For pwsh
+source "$HOME/.cargo/env.xsh"   # For xonsh
+All dependencies ready.
+[03:39:31] Uploading benchmark script...
+vm_groth16_benchmark.js                                            100%   10KB  73.0KB/s   00:00    
+[03:39:33] Upload done.
+[03:39:33] Starting benchmark on VM (expect 20-40 min)...
+[03:39:33] Streaming output...
+═══════════════════════════════════════════════════════
+Swap is not active. Setting up 20GB swap...
+======================================================================
+  Groth16 Prover Benchmark (RAPIDSNARK C++ ACCELERATED)
+======================================================================
+[2026-05-03T03:39:37.787Z] System: Intel(R) Xeon(R) Platinum 8272CL CPU @ 2.60GHz, 4 threads, 31.3 GB RAM
+[2026-05-03T03:39:37.931Z] Using snarkjs path: node /usr/bin/snarkjs
+[2026-05-03T03:39:37.932Z] 
+════════════════════════════════════════════════════════════
+[2026-05-03T03:39:37.932Z] BENCHMARKING: 0.5M constraints
+[2026-05-03T03:39:37.932Z] ════════════════════════════════════════════════════════════
+[2026-05-03T03:39:37.938Z]   Compiling circom...
+[2026-05-03T03:42:59.989Z]   Compiled in 3.4m
+[2026-05-03T03:43:06.345Z]   Actual constraints: 500,000
+[2026-05-03T03:43:06.345Z]   ptau 20 exists (1208.0 MB)
+[2026-05-03T03:43:06.346Z]   Groth16 setup (Node.js)...
+[2026-05-03T03:46:44.674Z]   Setup done in 3.6m
+[2026-05-03T03:46:45.544Z]   Prove run 1/3 (Rapidsnark C++)...
+[2026-05-03T03:46:57.990Z]   Run 1: 12.2s
+[2026-05-03T03:46:57.990Z]   Prove run 2/3 (Rapidsnark C++)...
+[2026-05-03T03:47:10.496Z]   Run 2: 12.4s
+[2026-05-03T03:47:10.496Z]   Prove run 3/3 (Rapidsnark C++)...
+[2026-05-03T03:47:22.878Z]   Run 3: 12.3s
+[2026-05-03T03:47:23.544Z]   Verify: OK ✓ (665ms)
+[2026-05-03T03:47:23.544Z]   Cleaning up large circuit files to save disk space...
+[2026-05-03T03:47:23.544Z]   Cleanup warning: wtns is not defined
+[2026-05-03T03:47:23.545Z] 
+════════════════════════════════════════════════════════════
+[2026-05-03T03:47:23.545Z] BENCHMARKING: 1.0M constraints
+[2026-05-03T03:47:23.545Z] ════════════════════════════════════════════════════════════
+[2026-05-03T03:47:23.545Z]   Compiling circom...
+[2026-05-03T04:00:23.666Z]   Compiled in 13.0m
+[2026-05-03T04:00:35.265Z]   Actual constraints: 1,000,000
+[2026-05-03T04:00:35.265Z]   ptau 21 exists (2416.0 MB)
+[2026-05-03T04:00:35.265Z]   Groth16 setup (Node.js)...
+[2026-05-03T04:07:59.495Z]   Setup done in 7.4m
+[2026-05-03T04:08:00.069Z]   Prove run 1/3 (Rapidsnark C++)...
+[2026-05-03T04:08:23.261Z]   Run 1: 23.0s
+[2026-05-03T04:08:23.262Z]   Prove run 2/3 (Rapidsnark C++)...
+[2026-05-03T04:08:46.561Z]   Run 2: 23.2s
+[2026-05-03T04:08:46.561Z]   Prove run 3/3 (Rapidsnark C++)...
+[2026-05-03T04:09:09.804Z]   Run 3: 23.1s
+[2026-05-03T04:09:10.436Z]   Verify: OK ✓ (632ms)
+[2026-05-03T04:09:10.436Z]   Cleaning up large circuit files to save disk space...
+[2026-05-03T04:09:10.436Z]   Cleanup warning: wtns is not defined
+[2026-05-03T04:09:10.436Z] 
+════════════════════════════════════════════════════════════
+[2026-05-03T04:09:10.436Z] BENCHMARKING: 2.0M constraints
+[2026-05-03T04:09:10.436Z] ════════════════════════════════════════════════════════════
+[2026-05-03T04:09:10.437Z]   Compiling circom...
+[2026-05-03T05:00:00.680Z]   Compiled in 50.8m
+[2026-05-03T05:00:25.788Z]   Actual constraints: 2,000,000
+[2026-05-03T05:00:25.788Z]   ptau 22 exists (3405.7 MB)
+[2026-05-03T05:00:25.789Z]   Groth16 setup (Node.js)...
+
+
+
+

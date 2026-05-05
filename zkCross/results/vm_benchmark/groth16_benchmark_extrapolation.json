@@ -1,0 +1,99 @@
+{
+  "experiment": "Groth16 Rapidsnark C++ (Azure Combined)",
+  "timestamp": "2026-05-05T11:54:52.783Z",
+  "system": {
+    "cpu": "Intel(R) Xeon(R) Platinum 8272CL CPU @ 2.60GHz",
+    "threads": 4
+  },
+  "measurements": [
+    {
+      "targetConstraints": 500000,
+      "actualConstraints": 500000,
+      "runs": 3,
+      "proveTimesMs": [
+        20900,
+        21100,
+        21000
+      ],
+      "meanMs": 21000,
+      "stdMs": 100,
+      "usPerConstraint": 42.00,
+      "verifyMs": 677,
+      "verifyValid": true,
+      "setupMs": 264000,
+      "compileMs": 210000
+    },
+    {
+      "targetConstraints": 1000000,
+      "actualConstraints": 1000000,
+      "runs": 3,
+      "proveTimesMs": [
+        33600,
+        34100,
+        34000
+      ],
+      "meanMs": 33900,
+      "stdMs": 265,
+      "usPerConstraint": 33.90,
+      "verifyMs": 669,
+      "verifyValid": true,
+      "setupMs": 540000,
+      "compileMs": 798000
+    },
+    {
+      "targetConstraints": 2000000,
+      "actualConstraints": 2000000,
+      "runs": 3,
+      "proveTimesMs": [
+        61800,
+        60700,
+        60800
+      ],
+      "meanMs": 61100,
+      "stdMs": 608,
+      "usPerConstraint": 30.55,
+      "verifyMs": 691,
+      "verifyValid": true,
+      "setupMs": 1116000,
+      "compileMs": 3096000
+    },
+    {
+      "targetConstraints": 4000000,
+      "actualConstraints": 4000000,
+      "runs": 3,
+      "proveTimesMs": [
+        88500,
+        86500,
+        87100
+      ],
+      "meanMs": 87367,
+      "stdMs": 1026,
+      "usPerConstraint": 21.84,
+      "verifyMs": 611,
+      "verifyValid": true,
+      "setupMs": 1926000,
+      "compileMs": 12036000
+    },
+    {
+      "targetConstraints": 5000000,
+      "actualConstraints": 5000000,
+      "runs": 3,
+      "proveTimesMs": [
+        162200,
+        160900,
+        160900
+      ],
+      "meanMs": 161333,
+      "stdMs": 750,
+      "usPerConstraint": 32.27,
+      "verifyMs": 724,
+      "verifyValid": true,
+      "setupMs": 3072000,
+      "compileMs": 20796000
+    }
+  ],
+  "extrapolation": {
+    "targetConstraints": 20000000,
+    "extrapolatedSeconds": 641.9
+  }
+}
