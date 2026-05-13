@@ -18,7 +18,7 @@ set -eo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$SCRIPT_DIR/.."
 
-VM1_IP="${VM1_IP:-20.243.120.13}"
+VM1_IP="${VM1_IP:-40.82.136.55}"
 VM1_KEY="/home/mihwuan/Project/VM_key.pem"
 VM_USER="${VM_USER:-azureuser}"
 GLOBAL_AUDIT_ROUNDS="${GLOBAL_AUDIT_ROUNDS:-5}"

@@ -1,0 +1,65 @@
+{
+  "experiment": "Groth16 Rapidsnark C++ (Local Combined)",
+  "timestamp": "2026-05-04T04:38:35.535Z",
+  "system": {
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13500H",
+    "threads": 16
+  },
+  "measurements": [
+    {
+      "targetConstraints": 500000,
+      "actualConstraints": 500000,
+      "runs": 3,
+      "proveTimesMs": [
+        12400,
+        8600,
+        6500
+      ],
+      "meanMs": 9167,
+      "stdMs": 2991,
+      "usPerConstraint": 18.31,
+      "verifyMs": 577,
+      "verifyValid": true,
+      "setupMs": 66000,
+      "compileMs": 84000
+    },
+    {
+      "targetConstraints": 1000000,
+      "actualConstraints": 1000000,
+      "runs": 3,
+      "proveTimesMs": [
+        20900,
+        13200,
+        15700
+      ],
+      "meanMs": 16600,
+      "stdMs": 3928,
+      "usPerConstraint": 16.56,
+      "verifyMs": 558,
+      "verifyValid": true,
+      "setupMs": 150000,
+      "compileMs": 312000
+    },
+    {
+      "targetConstraints": 2000000,
+      "actualConstraints": 2000000,
+      "runs": 3,
+      "proveTimesMs": [
+        21300,
+        18500,
+        19000
+      ],
+      "meanMs": 19600,
+      "stdMs": 1493,
+      "usPerConstraint": 9.80,
+      "verifyMs": 429,
+      "verifyValid": true,
+      "setupMs": 402000,
+      "compileMs": 1212000
+    }
+  ],
+  "extrapolation": {
+    "targetConstraints": 20000000,
+    "extrapolatedSeconds": 284.8
+  }
+}

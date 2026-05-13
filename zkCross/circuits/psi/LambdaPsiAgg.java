@@ -25,10 +25,15 @@
  *   Output: single aggregated proof for the cluster
  *
  * COMPLEXITY:
- *   - Each recursive verification: ~40,000 constraints
+ *   - Each recursive verification with BN254 non-native pairing: ~1.5-2.5M constraints
  *   - With N = √k chains/cluster (e.g., N=10 for k=100):
- *     Total constraints: ~400,000
- *   - Prove time overhead: ~2-4 seconds vs single proof
+ *     Total constraints: ~20,000,000 (dominated by Miller-loop + final-exp emulation)
+ *   - Prove time: ~150s on commodity 16-thread CPU (120-180s range)
+ *   - Peak RAM: ~60 GB
+ *   - NOTE: An earlier version of this header stated ~40,000 constraints,
+ *     which only counted the Groth16 verification gadget WITHOUT non-native
+ *     field arithmetic. The 500x discrepancy is entirely due to BN254 pairing
+ *     emulation over the scalar field.
  *
  * Reference: See circuit documentation
  */

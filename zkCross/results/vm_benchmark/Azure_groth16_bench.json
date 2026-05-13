@@ -1,0 +1,48 @@
+{
+    "experiment": "Groth16 Rapidsnark C++ (In Progress)",
+    "timestamp": "2026-05-03T04:09:10.436Z",
+    "system": {
+        "cpu": "Intel(R) Xeon(R) Platinum 8272CL CPU @ 2.60GHz",
+        "threads": 4
+    },
+    "measurements": [
+        {
+            "targetConstraints": 500000,
+            "actualConstraints": 500000,
+            "runs": 3,
+            "proveTimesMs": [
+                12200,
+                12400,
+                12300
+            ],
+            "meanMs": 12300,
+            "stdMs": 100,
+            "usPerConstraint": 24.6,
+            "verifyMs": 665,
+            "verifyValid": true,
+            "setupMs": 218328,
+            "compileMs": 202051
+        },
+        {
+            "targetConstraints": 1000000,
+            "actualConstraints": 1000000,
+            "runs": 3,
+            "proveTimesMs": [
+                23000,
+                23200,
+                23100
+            ],
+            "meanMs": 23100,
+            "stdMs": 100,
+            "usPerConstraint": 23.1,
+            "verifyMs": 632,
+            "verifyValid": true,
+            "setupMs": 444230,
+            "compileMs": 780121
+        }
+    ],
+    "extrapolation": {
+        "targetConstraints": 20000000,
+        "extrapolatedSeconds": 519.2
+    }
+}
