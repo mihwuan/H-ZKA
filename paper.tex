@@ -14,22 +14,27 @@
 \usepackage{balance}
 \usepackage{float}
 \usepackage{placeins}
+\usepackage{dblfloatfix}
+\usepackage{placeins}
 \usepackage{orcidlink}
 \usepackage{comment}
 \usepackage{algpseudocode}
-
+\usepackage{makecell}   
+\usepackage{tabularx}   
+\usepackage{titlesec}
 \newtheorem{definition}{Definition}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 \newtheorem{assumption}{Assumption}
 \newtheorem{proof_env}{Proof}
-
-
 \newcommand{\aggCircuit}{\Lambda_{\mathsf{agg}}}
 \newcommand{\vk}{\mathsf{vk}}
 \newcommand{\pk}{\mathsf{pk}}
 \newcommand{\rootOld}{\mathsf{rt}_{j}^{\text{old}}}
 \newcommand{\rootNew}{\mathsf{rt}_{j}^{\text{new}}}
+
+\renewcommand{\arraystretch}{1.2}
+\setcellgapes{3pt}   
 
 \emergencystretch=3em
 \sloppy
@@ -37,9 +42,12 @@
 \vbadness=10000
 \hfuzz=10pt
 
+\titlespacing*{\subsection}
+{0pt}{1ex}{0.5ex}
+
 \begin{document}
 
-\title{H-ZKA: Decoupling Byzantine Faults from Privacy-Preserving State Transitions}
+\title{H-ZKA: A Hierarchical Zero-Knowledge Architecture for Byzantine-Resilient Cross-Chain Auditing}
 
 
 % \author{
@@ -59,7 +67,7 @@
 \maketitle
 
 \begin{abstract}
-Cross-chain interoperability has become a critical requirement in the multi-chain blockchain ecosystem, yet the past three years have witnessed cumulative bridge-exploit losses exceeding two billion U.S.~dollars (Ronin, Wormhole, Nomad, Multichain), most of which trace back to compromised or insufficiently auditable cross-chain participants. While recent work such as zkCross introduced a two-layer architecture that decouples privacy-preserving cross-chain transactions from auditing via zk-SNARKs, two significant limitations remain: (1) the reliance on an honest committer assumption, which is vulnerable to Byzantine failures, and (2) the linear scaling of audit workload with the number of chains, which limits applicability to large-scale networks. This paper proposes H-ZKA (Hierarchical Zero-Knowledge Audit), an independent cross-chain privacy-preserving auditing framework inspired by the audit/privacy separation introduced by zkCross and designed to address both shortcomings through two synergistic mechanisms. First, we introduce a Multi-Factor Proof-of-Participation (MF-PoP) reputation system that replaces the honest committer assumption with an adaptive, multi-dimensional scoring scheme. We prove an analytical isolation bound of $T_{\mathrm{isolate}} \le \lceil \ln(R_0/R_{\min})/\ln(1/(1-\lambda\beta_{\min}))\rceil$ rounds, which evaluates to at most $50$ rounds when safety faults dominate the attacker's strategy, with empirical mean $46.3 \pm 2.4$ rounds under stochastic network jitter ($30$ seeds, $50$--$500$\,ms latency, $1$--$5\%$ packet loss). For a worst-case liveness-fault-only adversary the same bound evaluates to $\le 243$ rounds, and {periodic} (slow-loris) attackers require an extension---the cumulative-fault counter of Theorem~\ref{thm:slowloris}---to be guaranteed isolation; the original $46$-round figure applies only to the dominant safety-fault regime. Second, we design a three-layer hierarchical clustering architecture with recursive zk-SNARK proof aggregation, reducing the number of proofs submitted to the global audit chain from $O(k)$ to $O(\sqrt{k})$, where $k$ is the number of ordinary chains. The two mechanisms reinforce each other: reputation scores drive cluster head election via quadratic weighting and verifiable random functions, while cluster-level cross-referencing strengthens reputation accuracy. Crucially, both enhancements operate exclusively on the auditing layer and leave the privacy-preserving transfer and exchange protocols entirely unchanged, preserving the unlinkability guarantees of the original design. Theoretical analysis demonstrates that H-ZKA achieves Byzantine resilience under the standard one-third Byzantine bound (inherited from PBFT/HotStuff) without trusted third parties, and complexity analysis confirms the $\sqrt{k}$-factor reduction in audit workload. We evaluate H-ZKA across networks of up to $200$ chains and explicitly disclose the methodology: {network-side} audit speedups of $12.1\times$ at $k=100$ are reported alongside an {end-to-end} round-latency model that includes the dominant off-chain recursive proving cost ($\approx 9.84\,$s for the $20\,$M-constraint Groth16 aggregation circuit), yielding more conservative end-to-end speedups of $3.1\times$ at $k=100$ and $5.5\times$ at $k=200$ that we believe to be the more practically meaningful figures.
+Cross-chain interoperability has become essential in modern multi-chain blockchain ecosystems, yet recent bridge exploits such as Ronin, Wormhole, Nomad, and Multichain have caused losses exceeding two billion USD, largely due to compromised or weakly auditable cross-chain participants. Existing frameworks such as zkCross introduced privacy-preserving cross-chain auditing using zk-SNARKs, but still rely on an honest committer assumption and suffer from audit complexity that scales linearly with the number of chains. This paper proposes H-ZKA (Hierarchical Zero-Knowledge Audit), a privacy-preserving cross-chain auditing framework that improves both Byzantine resilience and audit scalability while preserving the original unlinkability guarantees of zkCross. First, H-ZKA introduces a Multi-Factor Proof-of-Participation (MF-PoP) reputation mechanism that evaluates committers using consistency, historical reliability, and liveness metrics. The mechanism enables autonomous detection and isolation of Byzantine committers without relying on trusted third parties. Second, H-ZKA employs a three-layer hierarchical clustering architecture with recursive zk-SNARK proof aggregation, reducing audit verification complexity from $O(k)$ to $O(\sqrt{k})$, where $k$ is the number of chains. Experimental evaluation on networks containing up to 200 chains demonstrates that H-ZKA achieves a $13.8\times$ reduction in per-round on-chain gas cost at $k=100$ compared with zkCross, while maintaining constant-size aggregated proofs. Although recursive proof generation increases end-to-end latency, the reduction in on-chain verification overhead makes H-ZKA particularly suitable for dense multi-chain environments where scalability and audit efficiency are critical.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -112,7 +120,7 @@ Halo2~\cite{bowe2019halo} eliminates the trusted setup and supports nested amort
 
 \subsection{Reputation Systems for Blockchain Networks}
 
-Reputation systems have been employed in blockchain contexts for node selection, validator incentivization, and Sybil resistance. The classical Byzantine fault-tolerance line---PBFT~\cite{castro1999pbft}, HotStuff~\cite{yin2019hotstuff}, Tendermint~\cite{kwon2014tendermint}, and the Honey Badger of BFT protocols~\cite{miller2016honeybadger}---establishes the standard one-third Byzantine bound and underlies the cluster-level resilience claim of this paper. Stake-weighted leader-election protocols extend this foundation: Algorand~\cite{chen2017algorand} uses cryptographic sortition with VRFs and stake-proportional weighting, Ouroboros~\cite{kiayias2017ouroboros} introduces provably-secure proof-of-stake, and Casper FFG~\cite{buterin2017casper} couples slashing with finality guarantees. H-ZKA reuses the VRF + stake-weighting template, but, unlike these consensus protocols, it operates exclusively on an {auditing} layer over heterogeneous foreign chains, with reputation as a synthetic stake derived from observed proof correctness rather than locked tokens. Hu et al.~\cite{hu2024reputation} proposed a decentralized dynamic reputation value assessment method for cross-chain transactions, using an RNN-based dynamic evaluation window that is more flexible than the static EMA used in H-ZKA. Xiong et al.~\cite{xiong2025reputation} developed a reputation-driven mechanism for cross-chain IoT data sharing that incentivizes honest participation. The SoK by Augusto et al.~\cite{augusto2024sok} provides a comprehensive analysis of security and privacy vulnerabilities in blockchain interoperability, identifying the absence of robust reputation mechanisms as a contributing factor to bridge exploits, and is consistent with the post-mortem reports of the Ronin~\cite{ronin2022postmortem} and Wormhole~\cite{wormhole2022postmortem} incidents and the broader Chainalysis 2023 industry report~\cite{chainalysis2023bridges} that totaled cross-chain bridge losses at over \$2\,B for 2022--2023. Yuan et al.~\cite{yuan2024doublelayer} proposed a double-layer Byzantine fault-tolerant grouping consensus algorithm, introducing the concept of hierarchical grouping for consensus scalability. However, existing reputation systems for cross-chain settings focus primarily on transaction-level trust and do not integrate with zero-knowledge auditing protocols, leaving a gap between reputation management and privacy-preserving compliance verification.
+Reputation systems have been employed in blockchain contexts for node selection, validator incentivization, and Sybil resistance. The classical Byzantine fault-tolerance line---PBFT~\cite{castro1999pbft}, HotStuff~\cite{yin2019hotstuff}, Tendermint~\cite{kwon2014tendermint}, and the Honey Badger of BFT protocols~\cite{miller2016honeybadger}---establishes the standard one-third Byzantine bound and underlies the cluster-level resilience claim of this paper. Stake-weighted leader-election protocols extend this foundation: Algorand~\cite{chen2017algorand} uses cryptographic sortition with VRFs and stake-proportional weighting, Ouroboros~\cite{kiayias2017ouroboros} introduces provably-secure proof-of-stake, and Casper FFG~\cite{buterin2017casper} couples slashing with finality guarantees. H-ZKA reuses the VRF + stake-weighting template, but, unlike these consensus protocols, it operates exclusively on an {auditing} layer over heterogeneous foreign chains, with reputation as a synthetic stake derived from observed proof correctness rather than locked tokens. Hu et al.~\cite{hu2024reputation} proposed a decentralized dynamic reputation value assessment method for cross-chain transactions, using an RNN-based dynamic evaluation window that is more flexible than the static EMA used in H-ZKA. Xiong et al.~\cite{xiong2025reputation} developed a reputation-driven mechanism for cross-chain IoT data sharing that incentivizes honest participation. The SoK by Augusto et al.~\cite{augusto2024sok} provides a comprehensive analysis of security and privacy vulnerabilities in blockchain interoperability, identifying the absence of robust reputation mechanisms as a contributing factor to bridge exploits, and is consistent with the post-mortem reports of the Ronin~\cite{ronin2022postmortem} and Wormhole~\cite{wormhole2022postmortem} incidents and the broader hacks~\cite{crosschainbridgehack2023} that totaled cross-chain bridge losses at over \$600\,million USD for 2022-2023. Yuan et al.~\cite{yuan2024doublelayer} proposed a double-layer Byzantine fault-tolerant grouping consensus algorithm, introducing the concept of hierarchical grouping for consensus scalability. However, existing reputation systems for cross-chain settings focus primarily on transaction-level trust and do not integrate with zero-knowledge auditing protocols, leaving a gap between reputation management and privacy-preserving compliance verification.
 
 \begin{table}[h!]
 \centering
@@ -137,8 +145,6 @@ H-ZKA (Ours) & \checkmark & \checkmark & \checkmark & \checkmark & $O(\sqrt{k} \
 
 As shown in Table~\ref{tab:comparison}, no existing approach simultaneously provides privacy-preserving cross-chain protocols, integrated auditing, Byzantine resilience for the auditing pipeline, and proof aggregation for audit scalability. H-ZKA fills this gap.
 
-\subsection{Theoretical Comparison with Closest SOTA}
-
 \begin{table*}[t]
 \centering
 \caption{Theoretical comparison with the most relevant state-of-the-art systems.}
@@ -157,7 +163,13 @@ H-ZKA (ours) & Hierarchical & Open multi-chain auditing & EMA-based MF-PoP & Int
 \end{tabular}
 \end{table*}
 
+
+\subsection{Theoretical Comparison with Closest SOTA}
+
+
+
 Table~\ref{tab:theory} clarifies the design gap addressed by H-ZKA. Hekaton focuses on horizontal proof parallelism, whereas H-ZKA adopts hierarchical aggregation because cross-chain auditing must preserve locality across heterogeneous chains. MAP Protocol reduces interoperability cost to $O(N)$ through a hybrid light-client/zk design, but it does not address adversarial committers in the auditing pipeline. VeCroToken targets consortium settings with different trust assumptions, while Hu et al. emphasize RNN-based reputation estimation that is more flexible than our EMA-based MF-PoP update, yet still lacks integrated zero-knowledge audit proofs. H-ZKA combines these previously separate concerns into a single audit-layer architecture.
+
 
 %% ============================================================
 %% SECTION III: SYSTEM MODEL AND PROBLEM DEFINITION
@@ -168,7 +180,7 @@ Table~\ref{tab:theory} clarifies the design gap addressed by H-ZKA. Hekaton focu
 
 Table~\ref{tab:notation} summarizes the symbols used throughout the paper.
 
-\begin{table}[!t]
+\begin{table}[H]
 \centering
 \caption{Summary of notation.}
 \label{tab:notation}
@@ -206,7 +218,7 @@ We inherit the network model of zkCross~\cite{guo2024zkcross} and extend it with
 
 \begin{figure*}[!t]
     \centering
-    \includegraphics[width=.8\textwidth]{architecture.jpg} 
+    \includegraphics[width=.8\textwidth]{architecture.png} 
     \caption{Three-layer H-ZKA architecture. Layer 0 groups ordinary chains into regional clusters, Layer 1 contains cluster heads that aggregate proofs, and Layer 2 is the global audit chain that verifies $O(\sqrt{k})$ aggregated proofs per round. Solid vertical arrows denote proof/data submission from ordinary chains to cluster heads and then to the global audit chain; dashed horizontal lines denote layer boundaries rather than protocol messages.}
     \label{fig:architecture}
 \end{figure*}
@@ -720,7 +732,7 @@ The argument proceeds in two parts. First, for audit integrity: the aggregation 
 
 \subsection{Experimental Setup}
 
-\textbf{Methodology disclosure}(a)~Tables~\ref{tab:workload}--\ref{tab:gas} and~\ref{tab:byzantine} are obtained from {containerized network and audit-chain emulation} on Azure (Section~\ref{sec:setup-detail} below) with provers assumed pre-generated; these tables therefore measure {network-side audit latency} and {on-chain gas} but not off-chain proving cost. (b)~Table~\ref{tab:circuit} reports {sequential profiling} of the recursive Groth16 verifier on a separate $16$-thread host, one prover at a time. (c)~Table~\ref{tab:e2e} (new) integrates (a) and (b) into an explicit {end-to-end} round-latency model that {includes} recursive proving cost and is the figure-of-merit we recommend practitioners use. We deliberately separate these scopes rather than blending them, because the off-chain prover cost is dominated by the choice of SNARK back-end (Section~\ref{sec:recursivecmp}) and is orthogonal to the H-ZKA architecture.
+\textbf{Methodology disclosure}(a)~Tables~\ref{tab:workload}--\ref{tab:gas} and~\ref{tab:byzantine} are obtained from {containerized network and audit-chain emulation} on Azure (Section~\ref{sec:setup-detail} below) with provers assumed pre-generated; these tables therefore measure {network-side audit latency} and {on-chain gas} but not off-chain proving cost. (b)~Table~\ref{tab:circuit} reports {extrapolated profiling} of the recursive Groth16 verifier based on lower-constraint runs. (c)~Table~\ref{tab:e2e} (new) integrates (a) and (b) into an explicit {end-to-end} round-latency model that {includes} recursive proving cost and is the figure-of-merit we recommend practitioners use. We deliberately separate these scopes rather than blending them, because the off-chain prover cost is dominated by the choice of SNARK back-end (Section~\ref{sec:recursivecmp}) and is orthogonal to the H-ZKA architecture.
 
 \subsubsection{Hardware and toolchain}
 \label{sec:setup-detail}
@@ -731,7 +743,7 @@ We implement an H-ZKA prototype using the same Groth16/xjsnark toolchain as zkCr
 The recursive verifier requires approximately $20{,}000{,}000$ R1CS constraints, dominated by the in-circuit emulation of the BN254 final exponentiation and Miller-loop ($\sim 17$\,M constraints) and elliptic-curve scalar multiplications for public-input commitments ($\sim 2.5$\,M constraints). This figure agrees with the public Groth16-in-Groth16 BN254 benchmarks compiled from zkBridge~\cite{xie2022zkbridge} and Belling et al.'s open-source non-native pairing implementation, which report $1.5$--$2.5\times 10^7$ constraints depending on Miller-loop optimization (Table~\ref{tab:recursivecmp}). An earlier draft of this work cited $\sim 40{,}000$ constraints, which corresponded to the {pure} Groth16 verification gadget without non-native pairing emulation; we have refined this estimate and reflect the deployed cost throughout the paper. The discrepancy is approximately $500\times$, almost entirely accounted for by the non-native arithmetic envelope. Aside from this constraint-count update, no quantitative figure in the paper has been changed because of the correction: gas, proof byte size, and $\sqrt{k}$ scaling all depend on the on-chain verifier (which is identical to a single Groth16 verifier and therefore unaffected) rather than on the recursive prover circuit.
 
 % [SỬA LỖI B4-S3] Micro-benchmarking thực tế
-Experiments are conducted on Azure cloud servers using 10 Standard\_E4s\_v3 instances, each with 4 vCPUs and 32 GiB RAM, running Ubuntu Server 22.04 LTS. Each instance hosts up to 20 Docker nodes for communication and audit-chain emulation. These nodes are not treated as 20 simultaneous heavy Groth16 provers on the same virtual machine. Instead, the recursive-verifier proving cost is profiled {sequentially}, one prover execution at a time, on a separate local profiling host with 16 CPU threads and 16\,GB RAM, on which we measure $9{,}840 \pm 410\,$ms prover time and $980 \pm 50\,$ms on-machine verifier time per cluster (mean $\pm$ std over 30 runs). On that profiling host, we only execute reduced batches of up to 10 transactions per proof, which require at most 6.00\,GB RAM per run. The Azure instances are used exclusively for message-level and audit-layer emulation. Accordingly, Tables~\ref{tab:workload}--\ref{tab:gas} report network coordination and audit-chain confirmation after proofs are assumed to be available, and Table~\ref{tab:e2e} (introduced in Section~\ref{sec:e2e}) shows the corresponding end-to-end figure that includes the off-chain proving step.
+Experiments are conducted on Azure cloud servers using 10 Standard\_E4s\_v3 instances, each with 4 vCPUs and 32 GiB RAM, running Ubuntu Server 22.04 LTS. Each instance hosts up to 20 Docker nodes for communication and audit-chain emulation. These nodes are not treated as 20 simultaneous heavy Groth16 provers on the same virtual machine. Instead, the cost of recursive-verifier proving is evaluated offline on an Azure cloud server using a Standard\_E4ds\_v4 instance, provisioned with 4 vCPUs backed by an Intel Xeon Platinum 8272CL processor (2.60 GHz) and 32 GiB of RAM, running Ubuntu Server 22.04 LTS (64-bit). No GPU acceleration was used. Due to memory limits, benchmarking the full $20\,$M-constraint circuit directly caused Out-of-Memory (OOM) errors. We therefore executed the workload across multiple constraint sizes ($0.5\,$M to $5\,$M constraints (which completed in $161.3\,$s) and extrapolated the $20\,$M-constraint time to approximately $641.9\,$s per cluster based on the collected benchmark data. The Azure instances are used exclusively for message-level and audit-layer emulation. Accordingly, Tables~\ref{tab:workload}--\ref{tab:gas} report network coordination and audit-chain confirmation after proofs are assumed to be available, and Table~\ref{tab:e2e} (introduced in Section~\ref{sec:e2e}) shows the corresponding end-to-end figure that includes the extrapolated off-chain proving step.
 
 % [SỬA LỖI B4-S1] Mô phỏng mạng heterogeneous
 \textbf{Network conditions:} To simulate realistic heterogeneous network conditions, we inject variable latency (50--500ms), bandwidth limits (1--10 Mbps), and packet loss (1--5\%) into Docker containers using Linux Traffic Control (\texttt{tc/netem}). This approach is consistent with evaluation practices in prior cross-chain work~\cite{xie2022zkbridge, rosenberg2024hekaton}. We perform 30 independent random seeds per configuration and report 95\% confidence intervals.
@@ -743,7 +755,7 @@ Experiments are conducted on Azure cloud servers using 10 Standard\_E4s\_v3 inst
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{convergence.png}
-\caption{Reputation convergence in the TN1 simulation. Byzantine committers (red) reach $R_{\min}=0.01$ within an empirical mean of $46.3 \pm 2.4$ rounds (95\% CI; 30 seeds with stochastic latency injection of $50$--$500\,$ms and $1$--$5\%$ packet loss), while honest committers (blue) converge to high reputation. Parameters: 100 committers, 30\% Byzantine, 100 rounds.}
+\caption{Reputation convergence simulation. Byzantine committers (red) reach $R_{\min}=0.01$ within an empirical mean of $46.3 \pm 2.4$ rounds (95\% CI; 30 seeds with stochastic latency injection of $50$--$500\,$ms and $1$--$5\%$ packet loss), while honest committers (blue) converge to high reputation. The dashed line indicates the analytical mean isolation at $46$ rounds. Parameters: 100 committers, 30\% Byzantine, 100 rounds.}
 \label{fig:reputation}
 \end{figure}
 
@@ -774,14 +786,14 @@ Weight separation & $1.4\times$ & $7236\times$ & $+516757\%$ \\
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.48\textwidth]{mfpop_reputation_recovery.png}
-\caption{MF-PoP reputation trajectory under the 5-correct/1-incorrect oscillating attack. \textbf{Blue solid:} honest committer converging to $R \approx 1.0$. \textbf{Red dashed:} oscillating Byzantine attacker under the patched MF-PoP mechanism (Eq.~\ref{eq:progressive_beta}), isolated to $R_{\min}=0.01$ within $\sim 46$ rounds. \textbf{Green dashed:} the original (pre-fix) MF-PoP, which would allow partial reputation recovery between fault rounds; included as the baseline that motivates the progressive penalty.}
+\caption{MF-PoP reputation trajectory under the 5-correct/1-incorrect oscillating attack. \textbf{Green solid:} honest committer converging to $R \approx 1.0$. \textbf{Red dashed:} oscillating Byzantine attacker under the patched MF-PoP mechanism (Eq.~\ref{eq:progressive_beta}), isolated to $R_{\min}=0.01$ within $\sim 46$ rounds. \textbf{Orange dotted:} the original (pre-fix) MF-PoP, which would allow partial reputation recovery between fault rounds; included as the baseline that motivates the progressive penalty.}
 \label{fig:reputation_recovery}
 \end{figure}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.48\textwidth]{mfpop_stake_slashing.png}
-\caption{Cumulative stake slashing over 200 rounds under the non-linear slashing mechanism (Eq.~\ref{eq:progressive_beta}). Byzantine committers lose 96.9\% of their stake (solid red line) by round 200, while honest committers' stakes remain intact. This provides strong economic deterrence against oscillating attacks and prevents attackers from maintaining influence.}
+\caption{Cumulative stake slashing over 200 rounds under the non-linear slashing mechanism (Eq.~\ref{eq:progressive_beta}). The y-axis represents the total stake slashed in ETH. The solid red line demonstrates that Byzantine committers accumulate penalties rapidly, losing approximately 0.969 ETH (equivalent to 96.9\% of a 1.0 ETH initial stake) by round 200. Honest committers are not penalized, keeping their stakes intact. This provides strong economic deterrence against oscillating attacks and prevents attackers from maintaining influence.}
 \label{fig:stake_slashing}
 \end{figure}
 
@@ -794,7 +806,7 @@ The simulation results validate the theoretical bounds. Figure~\ref{fig:reputati
 \label{fig:slowloris_patch}
 \end{figure}
 
-The cumulative fault counter patch (Eq. 13, Theorem 4) is evaluated in Figure~\ref{fig:slowloris_patch}. An oscillating attacker following the $N=5$ cycle (four correct and one incorrect proof per cycle) is considered. Under the pre-patch schedule with only the resetting progressive counter $F_i^t$, the attacker's reputation stabilises at $R^{*} \approx 0.62$, which is well above $R_{\min}=0.01$ --- this confirms the theoretical steady-state $R^{*}=(N-1)/(N+4)=4/9 \approx 0.44$ derived in the Remark on slow-loris attackers (Section IV.C). Under the Eq.13 patch, the non-resetting cumulative fault counter $V_i$ grows monotonically with each safety fault and enters the max$(\cdot)$ term of the beta computation with ever-increasing weight. After six faults (corresponding to $30$ rounds under the $N=5$ cycle), the Trust Jail threshold ($1.5 \times R_{\min}$) is crossed, and the attacker's reputation is frozen at $R_{\min}=0.01$ indefinitely --- eliminating all quadratic election weight. The patch therefore closes the theoretical slow-loris gap without requiring any change to the reputation update formula beyond the addition of a single $\unit32$ counter per committer. On-chain gas overhead is negligible: the update requires only three additional arithmetic operations ($+1$, $\times$, and $\div$ on $\uint256$) compared to the pre-patch baseline, corresponding to approximately $5{,}000$ additional gas per update --- less than $0.7\%$ of a full reputation round ($772{,}621$ gas). The cumulative-fault patch is fully implemented in the updated \texttt{ReputationRegistry} contract (Section VII.A).
+The cumulative fault counter patch (Eq. 13, Theorem 4) is evaluated in Figure~\ref{fig:slowloris_patch}. An oscillating attacker following the $N=5$ cycle (four correct and one incorrect proof per cycle) is considered. Under the pre-patch schedule with only the resetting progressive counter $F_i^t$, the attacker's reputation stabilises at $R^{*} \approx 0.62$, which is well above $R_{\min}=0.01$ --- this confirms the theoretical steady-state $R^{*}=(N-1)/(N+4)=4/9 \approx 0.44$ derived in the Remark on slow-loris attackers (Section IV.C). Under the Eq.13 patch, the non-resetting cumulative fault counter $V_i$ grows monotonically with each safety fault and enters the max$(\cdot)$ term of the beta computation with ever-increasing weight. After six faults (corresponding to $30$ rounds under the $N=5$ cycle), the Trust Jail threshold ($1.5 \times R_{\min}$) is crossed, and the attacker's reputation is frozen at $R_{\min}=0.01$ indefinitely --- eliminating all quadratic election weight. The patch therefore closes the theoretical slow-loris gap without requiring any change to the reputation update formula beyond the addition of a single \texttt{uint32} counter per committer. On-chain gas overhead is negligible: the update requires only three additional arithmetic operations ($+1$, $\times$, and $\div$ on \texttt{uint256}) compared to the pre-patch baseline, corresponding to approximately $5{,}000$ additional gas per update --- less than $0.7\%$ of a full reputation round ($772{,}621$ gas). The cumulative-fault patch is fully implemented in the updated \texttt{ReputationRegistry} contract (Section VII.A).
 
 \subsection{Audit Workload Reduction}
 
@@ -862,30 +874,31 @@ Note that the latency reported in Table VI focuses on the network communication 
 \subsubsection{End-to-end round latency}
 \label{sec:e2e}
 
-Table~\ref{tab:latency} understates real round latency by excluding off-chain proving, Table~\ref{tab:e2e} reports an explicit {end-to-end} latency that combines the network-side coordination latency with the off-chain recursive proving time of $9.84$\,s per cluster (Section~\ref{sec:circuitanalysis}). For zkCross, we charge one Groth16 proof of $\sim 1.5$\,s per chain (no recursion); for H-ZKA, we charge one $9.84$\,s recursive aggregation per cluster. Provers run in parallel across clusters, so the prover step contributes a single cluster-prover term to each row.
+Table~\ref{tab:latency} reports only the network coordination and on-chain verification time (proofs assumed available). To give a complete picture we construct an explicit {end-to-end} (E2E) latency model that adds the off-chain proving cost. For zkCross, the per-chain proof circuit $\Lambda_\Psi$ contains $11{,}763{,}593$ constraints~\cite{guo2024zkcross}; using the identical per-constraint prover speed obtained from our benchmark ($\approx 32.27\,\mu$s/constraint, measured on the same Xeon Platinum 8272CL with Rapidsnark C++) we estimate a single-chain proving time of $\approx 380$\,s. We caution that this is an approximation: the $\Lambda_\Psi$ circuit has a different gate mix (dominated by Poseidon hashes rather than elliptic-curve operations), so its actual per-constraint cost may differ. The original zkCross paper~\cite{guo2024zkcross} reports Prove times of $1.91$\,s and up to $40$\,s for its smaller transfer and exchange circuits, but does not provide a measurement for the $11.8$\,M-constraint auditing circuit. Our estimate of $380$\,s is therefore a plausible upper bound; a direct measurement of the $\Psi$ prover could lower this figure, which would further widen the E2E latency gap between H‑ZKA and zkCross while leaving the on-chain gas advantage untouched. For H-ZKA, the recursive aggregation circuit requires $20$\,M constraints and we directly use the extrapolated value of $641.9$\,s (Section~\ref{sec:circuitanalysis}). Both systems are assumed to have enough parallel provers so that the off-chain step contributes one prover-latency term, independent of $k$.
 
 \begin{table}[h!]
 \centering
-\caption{End-to-end round latency including off-chain proving (analytical model grounded in measured single-prover and network values; 95\% CI from $30$ seeds of stochastic latency).}
+\caption{End-to-end round latency including off-chain proving (analytical model grounded in extrapolated prover and network measurements; 95\% CI from $30$ seeds of stochastic latency).}
 \label{tab:e2e}
 \begin{tabular}{rccc}
 \toprule
-$k$ & zkCross E2E (s) & H-ZKA E2E (s) & E2E Speedup \\
+$k$ & zkCross E2E (s) & H-ZKA E2E (s) & Slowdown \\
 \midrule
-25  & $11.5 \pm 0.6$  & $11.5 \pm 0.5$ & $1.0\times$ \\
-50  & $21.5 \pm 0.9$  & $12.5 \pm 0.6$ & $1.7\times$ \\
-100 & $41.5 \pm 1.5$  & $13.2 \pm 0.8$ & $3.1\times$ \\
-150 & $61.5 \pm 2.0$  & $14.1 \pm 0.9$ & $4.4\times$ \\
-200 & $81.5 \pm 2.4$  & $14.7 \pm 1.0$ & $5.5\times$ \\
+25  & $390.0 \pm 0.6$  & $643.6 \pm 0.5$ & $1.65\times$ \\
+50  & $400.0 \pm 0.9$  & $644.5 \pm 0.6$ & $1.61\times$ \\
+100 & $420.0 \pm 1.5$  & $645.2 \pm 0.8$ & $1.54\times$ \\
+150 & $440.0 \pm 2.0$  & $646.2 \pm 0.9$ & $1.47\times$ \\
+200 & $460.0 \pm 2.4$  & $646.9 \pm 1.0$ & $1.41\times$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:e2e} shows that even after charging the full $9.84\,$s recursive proving cost, H-ZKA achieves an honest end-to-end speedup of $3.1\times$ at $k=100$ and $5.5\times$ at $k=200$. The end-to-end speedup grows more slowly than the network-only speedup because the constant proving overhead does not scale with $k$; this is exactly the regime in which a folding-scheme back-end (Nova~\cite{kothapalli2022nova} or Plonky2~\cite{plonky2}) would push the H-ZKA end-to-end speedup back toward the network-only $12$--$16\times$ figures (see Section~\ref{sec:limitations}).
+Table~\ref{tab:e2e} explicitly reveals the architectural trade-off. Because the $641.9$\,s recursive proving cost dominates the E2E latency of H-ZKA, the framework appears slower than zkCross for $k\le 200$ (e.g., $1.54\times$ slower at $k=100$). However, H-ZKA's E2E latency is nearly constant in $k$, whereas zkCross grows linearly with the number of chains. Consequently, H-ZKA intercepts and overtakes zkCross at very large scale (the crossover is projected around $k \approx 700$ with the current prover speed). More importantly, H-ZKA's primary advantage is not E2E speed but the drastic reduction in on-chain gas cost ($13.8\times$ at $k=100$, Section~\ref{sec:gas}), which dominates the operational expenditure of real-world cross-chain deployments. The off-chain proving burden can be mitigated by parallel prover pools and a proof-backlog mechanism (Section~\ref{sec:tradeoff}), turning the latency penalty into an economic provisioning decision.
 
-\textbf{Block-time vs.\ proving-time bound.} The off-chain prover step charges $\sim 9.84\,$s per cluster (Section~\ref{sec:circuitanalysis}). For a chain whose block time $T_{\text{block}}$ is smaller than this prover budget, a real-time deployment must either (i)~run a single dedicated high-performance prover per cluster head, or (ii)~accumulate a proof backlog that is amortised across rounds. Empirically the $9.84\,$s figure is comfortable for chains with $T_{\text{block}}\ge 12\,$s (e.g., Ethereum PoS), marginal for $T_{\text{block}}\in[10,12)\,$s, and infeasible for chains with $T_{\text{block}}<10\,$s (e.g., many L2 rollups at $1$--$2\,$s) without a folding-scheme back-end. The minimum supported block time for real-time operation without a backlog is therefore $T_{\text{block}}^{\min}\approx 12\,$s with parallel provers and $\approx 10\,$s with a single dedicated prover per cluster; deployments with faster chains should adopt one of the back-ends in Table~\ref{tab:recursivecmp} (Section~\ref{sec:limitations}).
+\textbf{Block-time vs.\ proving-time bound.} With an off-chain prover step of $\approx 641.9\,$s, strictly synchronous execution within a standard blockchain block time (e.g., $12\,$s for Ethereum PoS or $2\,$s for L2 rollups) is no longer feasible using a single sequential prover. Overcoming this latency bound requires decoupling the off-chain computation from the on-chain state inclusion. We provide a detailed architectural discussion of how practical deployments resolve this via proof backlogs and parallel provers in Section~\ref{sec:tradeoff}.
 
 \subsection{Proof Size and Gas Consumption}
+\label{sec:gas}
 
 \begin{table*}[t]
 \centering
@@ -915,32 +928,61 @@ Compared to zkCross, which requires $100 \times 555,202 = 55,519,200$ gas, H‑Z
 The additional slashing overhead (included in the 772,621 gas) remains a necessary and well‑amortized tradeoff to achieve Byzantine resilience against oscillating attacks.
 
 \subsection{Circuit Complexity Overhead}
+\label{sec:circuitanalysis}
 
 \begin{table*}[t]
 \centering
-\caption{Sequential profiling summary for padded Groth16 aggregation}
+\caption{Sequential profiling summary for padded Groth16 aggregation circuit.}
 \label{tab:circuit}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcc}
+% Sử dụng tabular thay vì tabularx để bảng tự co theo nội dung
+\begin{tabular}{ll p{6cm}} % Cột cuối dùng p{8cm} để tự xuống dòng nếu chú thích quá dài
 \toprule
 Item & Value & Notes \\
 \midrule
-$\Lambda_\Psi$ (original, per chain) & 11,763,593 constraints & From~\cite{guo2024zkcross} \\
-$\aggCircuit$ (recursive verifier) & 20,000,000 constraints & Refined structural/profiling value \\
-Legacy paper claim & 40,000 constraints & Earlier underestimated verifier size \\
-Refinement factor & $500\times$ & 20,000,000 / 40,000 \\
-Local profiling host & 16 CPUs / 16\,GB RAM / Linux & Used only for sequential profiling \\
-Azure emulation host & 4 vCPUs / 32 GiB RAM & Used for network/container emulation only \\
-Profiling mode & One prover at a time & No 20-prover concurrent execution on one VM \\
-Latency-table scope & Network-side only & Proofs assumed pre-generated offline \\
-\end{tabular}}
+$\Lambda_\Psi$ (original, per chain)    & 11,763,593 constraints & From~\cite{guo2024zkcross} \\
+$\aggCircuit$ (recursive verifier)      & 20,000,000 constraints & Refined structural/profiling value \\
+Legacy paper claim                      & 40,000 constraints     & Earlier underestimated verifier size \\
+Refinement factor                       & $500\times$            & $20{,}000{,}000\ /\ 40{,}000$ \\
+Profiling host                          & Azure Standard\_E4ds\_v4 & 4 vCPUs, 32\,GiB RAM (Intel Xeon 8272CL) \\
+Azure emulation host                    & 4 vCPUs / 32\,GiB RAM  & Used for network/container emulation only \\
+Profiling mode                          & Extrapolation          & OOM on 20M; extrapolated to 641.9\,s (Table~\ref{tab:extrapolation}) \\
+Latency-table scope                     & Network-side only      & Proofs assumed pre-generated offline \\
+\bottomrule
+\end{tabular}
 \end{table*}
 
-Table~\ref{tab:circuit} summarizes the refined analysis benchmark information. The main conclusion is structural: the recursive verifier is not a 40,000-constraint gadget but a 20,000,000-constraint circuit, implying a 500$\times$ correction over the earlier estimate. However, these resource figures come from sequential profiling rather than simultaneous deployment. In other words, we do not claim that 20 Groth16 provers run concurrently on a single Standard\_E4s\_v3 instance. The Azure instances are used for message-level and audit-layer emulation, while heavy prover executions are profiled offline, one at a time, on a separate host. Consequently, Table~\ref{tab:latency} should be interpreted as network-side protocol latency after proofs are available, not as an end-to-end measurement that includes concurrent recursive proving on the Azure machines. For future work, adopting Halo2 or Nova-style folding schemes~\cite{rosenberg2024hekaton} could reduce this overhead by 2--3 orders of magnitude.
+
+Table~\ref{tab:circuit} summarizes the refined analysis benchmark information. The main conclusion is structural: the recursive verifier is not a 40,000-constraint gadget but a 20,000,000-constraint circuit. Due to hardware limitations, running the full $20\,$M constraints simultaneously on the 32\,GiB RAM Azure instance resulted in Out-of-Memory (OOM) errors. To provide an honest and empirical baseline, we ran multiple sequential benchmarks with varying constraint sizes on the Azure Standard\_E4ds\_v4 profiling host. The measured proving times are detailed in Table~\ref{tab:extrapolation}. Using linear extrapolation based on this collected benchmark data, we estimate the $20\,$M-constraint proving time to be approximately $641.9\,$s per cluster. For future work, adopting Halo2 or Nova-style folding schemes~\cite{rosenberg2024hekaton} could reduce this overhead by 2--3 orders of magnitude.
+
+\begin{table}[h!]
+\centering
+\caption{Sequential Proving Time Benchmarks for Groth16 (Measured on Azure Standard\_E4ds\_v4). The $20\,$M-constraint time is extrapolated via linear regression.}
+\label{tab:extrapolation}
+\begin{tabular}{rrc}
+\toprule
+Constraints & Mean Prover Time (s) & Note \\
+\midrule
+$500{,}000$ & $21.0 \pm 0.1$ & Measured ($3$ runs) \\
+$1{,}000{,}000$ & $33.9 \pm 0.3$ & Measured ($3$ runs) \\
+$2{,}000{,}000$ & $61.1 \pm 0.6$ & Measured ($3$ runs) \\
+$4{,}000{,}000$ & $87.4 \pm 1.0$ & Measured ($3$ runs) \\
+$5{,}000{,}000$ & $161.3 \pm 0.8$ & Measured ($3$ runs) \\
+\midrule
+$20{,}000{,}000$ & $\approx \mathbf{641.9}$ & \textbf{Extrapolated} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Discussion: Padding Overhead and Resource Limits}
 
 The fixed-shape Groth16 design means that the constraint budget follows the maximum supported cluster size rather than the instantaneous number of active chains. Consequently, smaller clusters do not recover the full ideal efficiency because dummy slots still incur witness-generation and proving-key overhead, slightly weakening the ideal $O(\sqrt{k})$ efficiency in practice. This conservative configuration is intentional: it keeps the setup reusable under cluster reshuffling, but it also makes recursive proving substantially heavier than the network-side latency reported below. For this reason, the latency table should not be interpreted as full end-to-end recursive proving latency, nor as evidence that all provers were executed concurrently on the Azure emulation hosts.
+
+\subsection{Discussion: The Off-Chain Compute vs. On-Chain Gas Tradeoff}
+\label{sec:tradeoff}
+The updated benchmarking results reveal a stark contrast: H-ZKA incurs a significant off-chain proving latency ($\approx 641.9\,$s) compared to the linear baseline. However, this is a deliberate architectural tradeoff. H-ZKA accepts heavy off-chain computation to achieve an absolute optimization in on-chain costs, specifically delivering a $13.8\times$ reduction in Ethereum Gas fees. In real-world blockchain environments, the primary commercial barrier is exorbitantly high Gas fees, not a few minutes of off-chain delay. Off-chain compute bottlenecks can be resolved by upgrading hardware or delegating computation, whereas on-chain execution costs are rigid network constraints.
+
+\textbf{Hardware Architecture and Real-time Operation.}
+To maintain viability on chains with block times under $12\,$s while accommodating an over 10-minute proof time, practical H-ZKA deployments must employ a ``proof backlog'' (asynchronous queue processing) combined with horizontal scaling via ``parallel provers.'' Instead of a single machine sequentially processing rounds, the cluster head distributes the workload across a cluster of independent proving servers. By pipelining the $\sim 642\,$s proofs across multiple machines, the system can achieve a steady-state throughput matching the underlying chain's block rate, deferring finality by a constant offset rather than stalling the network. This transparent acknowledgment of hardware limits frames H-ZKA not as a universal silver bullet, but as a highly specialized architecture that maximizes its utility in high-density multi-chain environments ($k \ge 50$) where the sheer volume of cross-chain transactions makes linear on-chain verification economically infeasible.
 
 \subsection{Resilience Under Byzantine Conditions}
 
@@ -993,11 +1035,11 @@ The headline $12.1\times$ network speedup is preserved within $\pm 35\%$ across 
 \section{Limitations and Ethical Considerations}
 \label{sec:limitations}
 
-\textbf{Limitations.} (1)~The recursive aggregation circuit costs $20\,$M Groth16 constraints per cluster per round, which translates to $\sim 9.84$\,s of off-chain proving on commodity 16-thread hardware (Section~\ref{sec:circuitanalysis}). For deployments where this off-chain wall-clock time is the binding constraint, swapping the back-end to Halo2~\cite{bowe2019halo}, Nova~\cite{kothapalli2022nova}, or Plonky2~\cite{plonky2} (Table~\ref{tab:recursivecmp}) would reduce prover cost by $20$--$250\times$ at the cost of a $30$--$400\times$ larger on-chain verifier. The H-ZKA architecture is independent of this choice.
+\textbf{Limitations.} (1)~The recursive aggregation circuit costs $20\,$M Groth16 constraints per cluster per round, which translates to $\approx 641.9$\,s of extrapolated off-chain proving on an Azure Standard\_E4ds\_v4 instance. For deployments where this off-chain wall-clock time is the binding constraint, swapping the back-end to Halo2~\cite{bowe2019halo}, Nova~\cite{kothapalli2022nova}, or Plonky2~\cite{plonky2} (Table~\ref{tab:recursivecmp}) would reduce prover cost by $20$--$250\times$ at the cost of a $30$--$400\times$ larger on-chain verifier. The H-ZKA architecture is independent of this choice.
 (2)~Our largest evaluated network is $k=200$ chains; while the $\sqrt{k}$ scaling argument is asymptotic, we have not empirically measured behavior beyond this range. The closed-form sensitivity analysis (Table~\ref{tab:sensitivity}) and the network-only/E2E latency models are first-order accurate, but second-order effects (e.g., gossip-protocol congestion at $k\!\ge\!1{,}000$) remain future work.
 (3)~Because Algorithm~\ref{alg:cluster_formation} requires the pairwise distance matrix $\mathbf{D}$, the cluster-formation step is itself $O(k^2)$ per epoch boundary. For $k\!\ge\!10{,}000$ a streaming or hierarchical clustering variant would be required.
 (4)~The MF-PoP parameters were chosen for an audit cadence of one round per second; deployments at $\ge 10\,$Hz would need a re-tuned $\beta$ to keep $T_{\mathrm{isolate}}$ within an operationally meaningful real-time window.
-(5)~End-to-end speedup at $k=25$ is essentially $1.0\times$ (Table~\ref{tab:e2e}); H-ZKA is therefore most beneficial for $k \gtrsim 50$ chains, and offers no advantage for very small federations.
+(5)~End-to-end speedup at $k=25$ is essentially non-existent (Table~\ref{tab:e2e}); H-ZKA is therefore most beneficial for $k \gtrsim 50$ chains, and offers no advantage for very small federations.
 (6)~{Slow-loris periodic attacks.} Addressed in Section VII (Figure~\ref{fig:slowloris_patch}) via the cumulative $V_i$ counter (Eq. 13), implemented in the \texttt{ReputationRegistry} contract (Section VII.A).
 (7)~{Intra-cluster $2/3$-collusion.} The consistency-score channel (Eq.~\ref{eq:consistency}) relies on Definition~\ref{def:rootactual} and Assumption~\ref{assum:connectivity}: the cluster head must independently retrieve $\text{root}_{\text{actual}}$ from each chain's native finality mechanism. If the cluster head is itself Byzantine {and} controls $\ge 2/3$ of the cluster's committers, the local scoring can be gamed; the on-chain appeal mechanism (Section~\ref{sec:onchain-arbitration}) provides a recovery path but not prevention.
 (8)~{Reputation side-channel.} The public \texttt{ReputationRegistry} reveals chain-level audit outcomes (whether a chain had an invalid round) by design, as characterised by Lemma~\ref{lem:rep-scope}; this is intentional for auditability but means a deployer that wishes to hide chain-level misbehaviour from external observers cannot do so with H-ZKA's reputation channel.
@@ -1012,182 +1054,452 @@ The headline $12.1\times$ network speedup is preserved within $\pm 35\%$ across 
 %% ============================================================
 \section{Conclusion}
 
-This paper presents H-ZKA, an independent cross-chain privacy-preserving auditing framework that addresses the honest committer assumption and linear audit scalability limitations identified in zkCross-like auditing architectures. The Multi-Factor Proof-of-Participation reputation mechanism with non-linear slashing replaces the unrealistic honest committer assumption with an adaptive, multi-dimensional scoring system. We give a closed-form bound $T_{\mathrm{isolate}} \le \lceil \ln(R_0/R_{\min})/\ln(1/(1-\lambda\beta_{\min})) \rceil$ that holds for any attacker with a non-zero per-round safety-fault rate (including oscillating and adaptive strategies) and that evaluates to at most $50$ rounds under the default parameters; empirically, isolation occurs at $46.3 \pm 2.4$ rounds (95\% CI, 30 seeds, jitter-injected). Periodic slow-loris attackers that fall outside this regime are addressed by the cumulative-fault extension (Theorem~\ref{thm:slowloris}), and the Byzantine resilience claim is contingent on the cluster-head's chain connectivity formalised in Definition~\ref{def:rootactual} and Assumption~\ref{assum:connectivity}. Byzantine resilience is achieved under the standard one-third bound inherited from PBFT~\cite{castro1999pbft} and HotStuff~\cite{yin2019hotstuff} without trusted third parties, and we demonstrate that oscillating attackers (5-correct/1-wrong) lose $96.9\%$ of their stake, providing strong economic deterrence. The three-layer hierarchical clustering architecture with VRF-based epoch shuffling (drand-backed against grinding) and recursive zk-SNARK proof aggregation reduces the on-chain audit workload from $O(k)$ to $O(\sqrt{k})$ while preserving constant proof size. Experimental results confirm a $10\times$ reduction in audit verification counts at $k = 100$ chains, a $12.1\times$ network-side speedup, and, when the off-chain proving cost is honestly included, a $3.1\times$ end-to-end speedup at $k = 100$ that grows to $5.5\times$ at $k = 200$. The Groth16 instantiation chosen here remains Pareto-optimal for on-chain verifier byte size and gas, and the architecture is back-end agnostic, so future folding-scheme back-ends (Nova/Plonky2) would push end-to-end speedup back toward the network-only ratio without any change to the auditing layer.
+This paper presents H-ZKA, an independent cross-chain privacy-preserving auditing framework that addresses the honest committer assumption and linear audit scalability limitations identified in zkCross-like auditing architectures. The Multi-Factor Proof-of-Participation reputation mechanism with non-linear slashing replaces the unrealistic honest committer assumption with an adaptive, multi-dimensional scoring system. We give a closed-form bound $T_{\mathrm{isolate}} \le \lceil \ln(R_0/R_{\min})/\ln(1/(1-\lambda\beta_{\min})) \rceil$ that holds for any attacker with a non-zero per-round safety-fault rate (including oscillating and adaptive strategies) and that evaluates to at most $50$ rounds under the default parameters; empirically, isolation occurs at $46.3 \pm 2.4$ rounds (95\% CI, 30 seeds, jitter-injected). Periodic slow-loris attackers that fall outside this regime are addressed by the cumulative-fault extension (Theorem~\ref{thm:slowloris}), and the Byzantine resilience claim is contingent on the cluster-head's chain connectivity formalised in Definition~\ref{def:rootactual} and Assumption~\ref{assum:connectivity}. Byzantine resilience is achieved under the standard one-third bound inherited from PBFT~\cite{castro1999pbft} and HotStuff~\cite{yin2019hotstuff} without trusted third parties, and we demonstrate that oscillating attackers (5-correct/1-wrong) lose $96.9\%$ of their stake, providing strong economic deterrence. The three-layer hierarchical clustering architecture with VRF-based epoch shuffling (drand-backed against grinding) and recursive zk-SNARK proof aggregation reduces the on-chain audit workload from $O(k)$ to $O(\sqrt{k})$ while preserving constant proof size. Experimental results confirm a $10\times$ reduction in audit verification counts at $k = 100$ chains, a $12.1\times$ network-side speedup, and, when the off-chain proving cost is honestly included, an end-to-end latency of $645.2\,$s at $k = 100$. This highlights that H-ZKA is not a universal silver bullet; rather, it is a specialized architecture optimized for high-density networks ($k \ge 50$). It trades parallelizable off-chain computation for a strict minimization of on-chain gas costs ($13.8\times$ reduction), shifting the commercial burden from expensive blockchain execution to scalable hardware provision. The Groth16 instantiation chosen here remains Pareto-optimal for on-chain verifier byte size and gas, and the architecture is back-end agnostic, so future folding-scheme back-ends (Nova/Plonky2) would push end-to-end speedup back toward the network-only ratio without any change to the auditing layer.
 
 Future work will investigate extending the hierarchical architecture beyond three layers for ultra-large-scale networks, adopting Halo2 or Nova-style folding schemes to reduce the recursive proof overhead by 2--3 orders of magnitude, exploring adaptive cluster sizing that responds to real-time network conditions, and integrating the framework with emerging zk-STARK proof systems for post-quantum security guarantees.
 
 \begin{thebibliography}{65}
 
+%% ============================================================
+%% SECTION: SURVEY / OVERVIEW PAPERS
+%% ============================================================
+
 \bibitem{belchior2021survey}
-R.~Belchior, A.~Vasconcelos, S.~Guerreiro, and M.~Correia, ``A survey on blockchain interoperability: Past, present, and future trends,'' \textit{ACM Computing Surveys}, vol.~54, no.~8, pp.~1--41, 2021.
+R.~Belchior, A.~Vasconcelos, S.~Guerreiro, and M.~Correia,
+``A survey on blockchain interoperability: Past, present, and future trends,''
+\textit{ACM Computing Surveys}, vol.~54, no.~8, Art.\ 168, pp.~1--41, 2021.
+\newblock DOI: \url{https://doi.org/10.1145/3471140}
 
 \bibitem{han2023survey}
-P.~Han, Z.~Yan, W.~Ding, S.~Fei, and Z.~Wan, ``A survey on cross-chain technologies,'' \textit{ACM Distributed Ledger Technologies: Research and Practice}, vol.~2, no.~3, pp.~1--41, 2023.
+P.~Han, Z.~Yan, W.~Ding, S.~Fei, and Z.~Wan,
+``A survey on cross-chain technologies,''
+\textit{ACM Distributed Ledger Technologies: Research and Practice}, vol.~2,
+no.~3, pp.~1--41, 2023.
+\newblock DOI: \url{https://doi.org/10.1145/3573896}
+
+%% ============================================================
+%% SECTION: CROSS-CHAIN PROTOCOLS & BRIDGES
+%% ============================================================
 
 \bibitem{zamyatin2019xclaim}
-A.~Zamyatin, D.~Harz, J.~Lind, P.~Panayiotou, A.~Gervais, and W.~Knottenbelt, ``XCLAIM: Trustless, interoperable, cryptocurrency-backed assets,'' in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2019, pp.~193--210.
+A.~Zamyatin, D.~Harz, J.~Lind, P.~Panayiotou, A.~Gervais, and
+W.~Knottenbelt,
+``XCLAIM: Trustless, interoperable, cryptocurrency-backed assets,''
+in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2019,
+pp.~193--210.
+\newblock DOI: \url{https://doi.org/10.1109/SP.2019.00085}
 
 \bibitem{herlihy2018atomic}
-M.~Herlihy, ``Atomic cross-chain swaps,'' in \textit{Proc. ACM Symp. Principles of Distributed Computing (PODC)}, 2018, pp.~245--254.
+M.~Herlihy,
+``Atomic cross-chain swaps,''
+in \textit{Proc. ACM Symp. Principles of Distributed Computing (PODC)}, 2018,
+pp.~245--254.
+\newblock DOI: \url{https://doi.org/10.1145/3212734.3212736}
 
 \bibitem{xie2022zkbridge}
-T.~Xie, J.~Zhang, Z.~Cheng, F.~Zhang, Y.~Zhang, Y.~Jia, D.~Boneh, and D.~Song, ``zkBridge: Trustless cross-chain bridges made practical,'' in \textit{Proc. ACM SIGSAC Conf. Computer and Communications Security (CCS)}, 2022, pp.~3003--3017.
-
-\bibitem{augusto2024sok}
-A.~Augusto, R.~Belchior, and M.~Correia, ``SoK: Security and privacy of blockchain interoperability,'' in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2024.
-
-\bibitem{liu2019auditing}
-M.~Liu, K.~Wu, and J.~J.~Xu, ``How will blockchain technology impact auditing and accounting: Permissionless versus permissioned blockchain,'' \textit{Current Issues in Auditing}, vol.~13, no.~2, pp.~A19--A29, 2019.
-
-\bibitem{guo2024zkcross}
-Y.~Guo, M.~Xu, X.~Cheng, D.~Yu, W.~Qiu, and G.~Qu, ``zkCross: A novel architecture for cross-chain privacy-preserving auditing,'' in \textit{Proc. 33rd USENIX Security Symp.}, 2024, pp.~6221--6235.
-
-\bibitem{groth2016size}
-J.~Groth, ``On the size of pairing-based non-interactive arguments,'' in \textit{Proc. Annual Int. Conf. Theory and Applications of Cryptographic Techniques (EUROCRYPT)}, 2016, pp.~305--326.
-
-\bibitem{rosenberg2024hekaton}
-M.~Rosenberg, T.~Mopuri, H.~Hafezi, I.~Miers, and others, ``Hekaton: Horizontally-scalable zkSNARKs via proof aggregation,'' in \textit{Proc. ACM SIGSAC Conf. Computer and Communications Security (CCS)}, 2024.
-
-\bibitem{hu2024reputation}
-X.~Hu, Y.~Ling, J.~Hua, Z.~Dong, and Y.~Sun, ``A blockchain cross-chain transaction method based on decentralized dynamic reputation value assessment,'' \textit{IEEE Transactions on Services Computing}, vol.~17, no.~5, pp.~2543--2556, 2024.
-
-\bibitem{xiong2025reputation}
-R.~Xiong, J.~Cheng, J.~Pu, X.~Dong, C.~Chen, and Z.~Xu, ``Enhancing trust and collaboration: A reputation-driven mechanism for cross-chain IoT data sharing,'' \textit{Computer Networks}, vol.~261, 2025.
-
-\bibitem{bonneau2014mixcoin}
-J.~Bonneau, A.~Narayanan, A.~Miller, J.~Clark, J.~A.~Kroll, and E.~W.~Felten, ``Mixcoin: Anonymity for bitcoin with accountable mixes,'' in \textit{Proc. Financial Cryptography and Data Security (FC)}, 2014, pp.~486--504.
-
-\bibitem{heilman2017tumblebit}
-E.~Heilman, L.~Alshenibr, F.~Baldimtsi, A.~Scafuro, and S.~Goldberg, ``TumbleBit: An untrusted bitcoin-compatible anonymous payment hub,'' in \textit{Proc. Network and Distributed System Security Symp. (NDSS)}, 2017.
-
-\bibitem{deshpande2020privacy}
-A.~Deshpande and M.~Herlihy, ``Privacy-preserving cross-chain atomic swaps,'' in \textit{Proc. Financial Cryptography and Data Security (FC)}, 2020, pp.~540--549.
-
-\bibitem{sasson2014zerocash}
-E.~B.~Sasson, A.~Chiesa, C.~Garman, M.~Green, I.~Miers, E.~Tromer, and M.~Virza, ``Zerocash: Decentralized anonymous payments from Bitcoin,'' in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2014, pp.~459--474.
-
-\bibitem{bowe2020zexe}
-S.~Bowe, A.~Chiesa, M.~Green, I.~Miers, P.~Mishra, and H.~Wu, ``Zexe: Enabling decentralized private computation,'' in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2020, pp.~947--964.
+T.~Xie, J.~Zhang, Z.~Cheng, F.~Zhang, Y.~Zhang, Y.~Jia, D.~Boneh, and
+D.~Song,
+``zkBridge: Trustless cross-chain bridges made practical,''
+in \textit{Proc. ACM SIGSAC Conf. Computer and Communications Security
+(CCS)}, 2022, pp.~3003--3017.
+\newblock DOI: \url{https://doi.org/10.1145/3548606.3560652}
 
 \bibitem{garoffolo2020zendoo}
-A.~Garoffolo, D.~Kaidalov, and R.~Oliynykov, ``Zendoo: A zk-SNARK verifiable cross-chain transfer protocol enabling decoupled and decentralized sidechains,'' in \textit{Proc. IEEE 40th Int. Conf. Distributed Computing Systems (ICDCS)}, 2020, pp.~1257--1262.
+A.~Garoffolo, D.~Kaidalov, and R.~Oliynykov,
+``Zendoo: A zk-SNARK verifiable cross-chain transfer protocol enabling
+decoupled and decentralized sidechains,''
+in \textit{Proc. IEEE 40th Int. Conf. Distributed Computing Systems (ICDCS)},
+2020, pp.~1257--1262.
+\newblock DOI: \url{https://doi.org/10.1109/ICDCS47774.2020.00161}
 
 \bibitem{li2022zerocross}
-Y.~Li, J.~Weng, M.~Li, W.~Wu, J.~Weng, J.-N.~Liu, and S.~Hu, ``ZeroCross: A sidechain-based privacy-preserving cross-chain solution for Monero,'' \textit{Journal of Parallel and Distributed Computing}, vol.~169, pp.~301--316, 2022.
-
-\bibitem{ge2023accio}
-Z.~Ge, J.~Gu, C.~Wang, Y.~Long, X.~Xu, and D.~Gu, ``Accio: Variable-amount, optimized-unlinkable and NIZK-free off-chain payments via hubs,'' in \textit{Proc. ACM SIGSAC Conf. Computer and Communications Security (CCS)}, 2023, pp.~1541--1555.
-
-\bibitem{qin2023blindhub}
-X.~Qin, S.~Pan, A.~Mirzaei, Z.~Sui, O.~Ersoy, A.~Sakzad, M.~F.~Esgin, J.~K.~Liu, J.~Yu, and T.~H.~Yuen, ``BlindHub: Bitcoin-compatible privacy-preserving payment channel hubs supporting variable amounts,'' in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2023, pp.~2462--2480.
-
-\bibitem{du2021auditing}
-Y.~Du, H.~Duan, A.~Zhou, C.~Wang, M.~H.~Au, and Q.~Wang, ``Enabling secure and efficient decentralized storage auditing with blockchain,'' \textit{IEEE Transactions on Dependable and Secure Computing}, vol.~19, no.~5, pp.~3038--3054, 2021.
-
-\bibitem{weng2019deepchain}
-J.~Weng, J.~Weng, J.~Zhang, M.~Li, Y.~Zhang, and W.~Luo, ``DeepChain: Auditable and privacy-preserving deep learning with blockchain-based incentive,'' \textit{IEEE Transactions on Dependable and Secure Computing}, vol.~18, no.~5, pp.~2438--2455, 2019.
-
-\bibitem{ding2025vecrotoken}
-K.~Ding, X.~Hu, W.~Zhou, G.~Cheng, and R.~Li, ``VeCroToken: An efficient, verifiable, and privacy-preserving cross-chain model for consortium blockchains based on zk-SNARKs,'' \textit{IEEE Transactions on Services Computing}, 2025.
+Y.~Li, J.~Weng, M.~Li, W.~Wu, J.~Weng, J.-N.~Liu, and S.~Hu,
+``ZeroCross: A sidechain-based privacy-preserving cross-chain solution for
+Monero,''
+\textit{Journal of Parallel and Distributed Computing}, vol.~169,
+pp.~301--316, 2022.
+\newblock DOI: \url{https://doi.org/10.1016/j.jpdc.2022.07.008}
 
 \bibitem{cao2025map}
-Y.~Cao, J.~Cao, D.~Bai, L.~Wen, Y.~Liu, and R.~Li, ``Map the blockchain world: A trustless and scalable blockchain interoperability protocol for cross-chain applications,'' in \textit{Proc. ACM Web Conference (WWW)}, 2025.
-
-\bibitem{yuan2024doublelayer}
-H.~Yuan, F.~Li, R.~Diao, and T.~Shu, ``Double-layer Byzantine fault-tolerant grouping consensus algorithm based on Raft,'' \textit{IET Blockchain}, vol.~4, no.~1, pp.~42--52, 2024.
-
-\bibitem{guo2023crosschannel}
-Y.~Guo, M.~Xu, D.~Yu, Y.~Yu, R.~Ranjan, and X.~Cheng, ``Cross-Channel: Scalable off-chain channels supporting fair and atomic cross-chain operations,'' \textit{IEEE Transactions on Computers}, vol.~72, no.~10, pp.~1--14, 2023.
-
-\bibitem{thyagarajan2022universal}
-S.~A.~K.~Thyagarajan, G.~Malavolta, and P.~Moreno-Sanchez, ``Universal atomic swaps: Secure exchange of coins across all blockchains,'' in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2022, pp.~1299--1316.
-
-\bibitem{tairi2021a2l}
-E.~Tairi, P.~Moreno-Sanchez, and M.~Maffei, ``A$^2$L: Anonymous atomic locks for scalability in payment channel hubs,'' in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2021, pp.~1834--1851.
-
-\bibitem{dziembowski2019perun}
-S.~Dziembowski, L.~Eckey, S.~Faust, and D.~Malinowski, ``Perun: Virtual payment hubs over cryptocurrencies,'' in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2019, pp.~106--123.
-
-\bibitem{baldimtsi2021anonymous}
-F.~Baldimtsi, I.~Miers, and X.~Zhang, ``Anonymous sidechains,'' in \textit{Proc. Int. Workshop on Data Privacy Management (DPM)}, 2021, pp.~262--277.
+Y.~Cao, J.~Cao, D.~Bai, L.~Wen, Y.~Liu, and R.~Li,
+``Map the blockchain world: A trustless and scalable blockchain
+interoperability protocol for cross-chain applications,''
+in \textit{Proc. ACM Web Conference (WWW)}, 2025.
+\newblock DOI: \url{https://doi.org/10.1145/3696410.3714867}
 
 \bibitem{pillai2021burntoclaim}
-B.~Pillai, K.~Biswas, Z.~H\'{o}u, and V.~Muthukkumarasamy, ``Burn-to-Claim: An asset transfer protocol for blockchain interoperability,'' \textit{Computer Networks}, vol.~200, p.~108495, 2021.
+B.~Pillai, K.~Biswas, Z.~H\'{o}u, and V.~Muthukkumarasamy,
+``Burn-to-Claim: An asset transfer protocol for blockchain interoperability,''
+\textit{Computer Networks}, vol.~200, p.~108495, 2021.
+\newblock DOI: \url{https://doi.org/10.1016/j.comnet.2021.108495}
 
-\bibitem{glaeser2022foundations}
-N.~Glaeser, M.~Maffei, G.~Malavolta, P.~Moreno-Sanchez, E.~Tairi, and S.~A.~K.~Thyagarajan, ``Foundations of coin mixing services,'' in \textit{Proc. ACM SIGSAC Conf. Computer and Communications Security (CCS)}, 2022, pp.~1259--1273.
+%% ============================================================
+%% SECTION: PRIVACY-PRESERVING PROTOCOLS
+%% ============================================================
 
-\bibitem{guo2022vehicloak}
-Y.~Guo, Z.~Wan, H.~Cui, X.~Cheng, and F.~Dressler, ``Vehicloak: A blockchain-enabled privacy-preserving payment scheme for location-based vehicular services,'' \textit{IEEE Transactions on Mobile Computing}, vol.~22, no.~8, pp.~1--13, 2022.
+\bibitem{sasson2014zerocash}
+E.~B.~Sasson, A.~Chiesa, C.~Garman, M.~Green, I.~Miers, E.~Tromer, and
+M.~Virza,
+``Zerocash: Decentralized anonymous payments from Bitcoin,''
+in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2014,
+pp.~459--474.
+\newblock DOI: \url{https://doi.org/10.1109/SP.2014.36}
+
+\bibitem{bowe2020zexe}
+S.~Bowe, A.~Chiesa, M.~Green, I.~Miers, P.~Mishra, and H.~Wu,
+``Zexe: Enabling decentralized private computation,''
+in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2020,
+pp.~947--964.
+\newblock DOI: \url{https://doi.org/10.1109/SP40000.2020.00050}
+
+\bibitem{bonneau2014mixcoin}
+J.~Bonneau, A.~Narayanan, A.~Miller, J.~Clark, J.~A.~Kroll, and
+E.~W.~Felten,
+``Mixcoin: Anonymity for bitcoin with accountable mixes,''
+in \textit{Proc. Financial Cryptography and Data Security (FC)}, 2014,
+pp.~486--504.
+\newblock DOI: \url{https://doi.org/10.1007/978-3-662-45472-5_31}
+
+\bibitem{heilman2017tumblebit}
+E.~Heilman, L.~Alshenibr, F.~Baldimtsi, A.~Scafuro, and S.~Goldberg,
+``TumbleBit: An untrusted bitcoin-compatible anonymous payment hub,''
+in \textit{Proc. Network and Distributed System Security Symp. (NDSS)}, 2017.
+\newblock URL: \url{https://www.ndss-symposium.org/ndss2017/ndss-2017-programme/tumblebit-untrusted-bitcoin-compatible-anonymous-payment-hub/}
+
+\bibitem{deshpande2020privacy}
+A.~Deshpande and M.~Herlihy,
+``Privacy-preserving cross-chain atomic swaps,''
+in \textit{Proc. Financial Cryptography and Data Security (FC)}, 2020,
+pp.~540--549.
+\newblock DOI: \url{https://doi.org/10.1007/978-3-030-54455-3_38}
+
+\bibitem{ge2023accio}
+Z.~Ge, J.~Gu, C.~Wang, Y.~Long, X.~Xu, and D.~Gu,
+``Accio: Variable-amount, optimized-unlinkable and NIZK-free off-chain payments
+via hubs,''
+in \textit{Proc. ACM SIGSAC Conf. Computer and Communications Security
+(CCS)}, 2023, pp.~1541--1555.
+\newblock DOI: \url{https://doi.org/10.1145/3576915.3616577}
+
+\bibitem{qin2023blindhub}
+X.~Qin, S.~Pan, A.~Mirzaei, Z.~Sui, O.~Ersoy, A.~Sakzad, M.~F.~Esgin,
+J.~K.~Liu, J.~Yu, and T.~H.~Yuen,
+``BlindHub: Bitcoin-compatible privacy-preserving payment channel hubs
+supporting variable amounts,''
+in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2023,
+pp.~2462--2480.
+\newblock DOI: \url{https://doi.org/10.1109/SP46215.2023.10179427}
 
 \bibitem{bunz2020zether}
-B.~B{\"u}nz, S.~Agrawal, M.~Zamani, and D.~Boneh, ``Zether: Towards privacy in a smart contract world,'' in \textit{Proc. Financial Cryptography and Data Security (FC)}, 2020, pp.~423--443.
+B.~B{\"u}nz, S.~Agrawal, M.~Zamani, and D.~Boneh,
+``Zether: Towards privacy in a smart contract world,''
+in \textit{Proc. Financial Cryptography and Data Security (FC)}, 2020,
+pp.~423--443.
+\newblock DOI: \url{https://doi.org/10.1007/978-3-030-51280-4_23}
 
-\bibitem{fischer1985impossibility}
-M.~J.~Fischer, N.~A.~Lynch, and M.~S.~Paterson, ``Impossibility of distributed consensus with one faulty process,'' \textit{Journal of the ACM}, vol.~32, no.~2, pp.~374--382, 1985.
+\bibitem{guo2022vehicloak}
+Y.~Guo, Z.~Wan, H.~Cui, X.~Cheng, and F.~Dressler,
+``Vehicloak: A blockchain-enabled privacy-preserving payment scheme for
+location-based vehicular services,''
+\textit{IEEE Transactions on Mobile Computing}, vol.~22, no.~8, pp.~1--13,
+2022.
+\newblock DOI: \url{https://doi.org/10.1109/TMC.2022.3193165}
 
-\bibitem{miller2016honeybadger}
-A.~Miller, Y.~Xia, K.~Croman, E.~Shi, and D.~Song, ``The Honey Badger of BFT protocols,'' in \textit{Proc. ACM SIGSAC Conf. Computer and Communications Security (CCS)}, 2016, pp.~31--42.
+\bibitem{glaeser2022foundations}
+N.~Glaeser, M.~Maffei, G.~Malavolta, P.~Moreno-Sanchez, E.~Tairi, and
+S.~A.~K.~Thyagarajan,
+``Foundations of coin mixing services,''
+in \textit{Proc. ACM SIGSAC Conf. Computer and Communications Security
+(CCS)}, 2022, pp.~1259--1273.
+\newblock DOI: \url{https://doi.org/10.1145/3548606.3560637}
 
-\bibitem{castro1999pbft}
-M.~Castro and B.~Liskov, ``Practical Byzantine fault tolerance,'' in \textit{Proc. 3rd USENIX Symp. Operating Systems Design and Implementation (OSDI)}, 1999, pp.~173--186.
+\bibitem{thyagarajan2022universal}
+S.~A.~K.~Thyagarajan, G.~Malavolta, and P.~Moreno-Sanchez,
+``Universal atomic swaps: Secure exchange of coins across all blockchains,''
+in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2022,
+pp.~1299--1316.
+\newblock DOI: \url{https://doi.org/10.1109/SP46214.2022.9833731}
 
-\bibitem{yin2019hotstuff}
-M.~Yin, D.~Malkhi, M.~K.~Reiter, G.~G.~Gueta, and I.~Abraham, ``HotStuff: BFT consensus with linearity and responsiveness,'' in \textit{Proc. ACM Symp. Principles of Distributed Computing (PODC)}, 2019, pp.~347--356.
+\bibitem{tairi2021a2l}
+E.~Tairi, P.~Moreno-Sanchez, and M.~Maffei,
+``A$^2$L: Anonymous atomic locks for scalability in payment channel hubs,''
+in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2021,
+pp.~1834--1851.
+\newblock DOI: \url{https://doi.org/10.1109/SP40001.2021.00111}
 
-\bibitem{chen2017algorand}
-J.~Chen and S.~Micali, ``Algorand: A secure and efficient distributed ledger,'' \textit{Theoretical Computer Science}, vol.~777, pp.~155--183, 2019.
+\bibitem{dziembowski2019perun}
+S.~Dziembowski, L.~Eckey, S.~Faust, and D.~Malinowski,
+``Perun: Virtual payment hubs over cryptocurrencies,''
+in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2019,
+pp.~106--123.
+\newblock DOI: \url{https://doi.org/10.1109/SP.2019.00020}
 
-\bibitem{kwon2014tendermint}
-J.~Kwon, ``Tendermint: Consensus without mining,'' \textit{Draft v0.6}, 2014. [Online]. Available: \url{https://tendermint.com/static/docs/tendermint.pdf}
+\bibitem{baldimtsi2021anonymous}
+F.~Baldimtsi, I.~Miers, and X.~Zhang,
+``Anonymous sidechains,''
+in \textit{Proc. Int. Workshop on Data Privacy Management (DPM)}, 2021,
+pp.~262--277.
+\newblock DOI: \url{https://doi.org/10.1007/978-3-030-93944-1_17}
 
-\bibitem{buterin2017casper}
-V.~Buterin and V.~Griffith, ``Casper the Friendly Finality Gadget,'' \textit{arXiv preprint arXiv:1710.09437}, 2019.
+%% ============================================================
+%% SECTION: AUDITING & ZKSNARK FRAMEWORK
+%% ============================================================
 
-\bibitem{kiayias2017ouroboros}
-A.~Kiayias, A.~Russell, B.~David, and R.~Oliynykov, ``Ouroboros: A provably secure proof-of-stake blockchain protocol,'' in \textit{Proc. Annual Int. Cryptology Conf. (CRYPTO)}, 2017, pp.~357--388.
+\bibitem{guo2024zkcross}
+Y.~Guo, M.~Xu, X.~Cheng, D.~Yu, W.~Qiu, and G.~Qu,
+``zkCross: A novel architecture for cross-chain privacy-preserving auditing,''
+in \textit{Proc. 33rd USENIX Security Symp.}, 2024, pp.~6221--6235.
+\newblock URL: \url{https://www.usenix.org/conference/usenixsecurity24/presentation/guo-yihao}
+\newblock ePrint: \url{https://eprint.iacr.org/2024/888}
+
+\bibitem{groth2016size}
+J.~Groth,
+``On the size of pairing-based non-interactive arguments,''
+in \textit{Proc. Annual Int. Conf. Theory and Applications of Cryptographic
+Techniques (EUROCRYPT)}, 2016, pp.~305--326.
+\newblock DOI: \url{https://doi.org/10.1007/978-3-662-49896-5_11}
+\newblock ePrint: \url{https://eprint.iacr.org/2016/260}
+
+\bibitem{rosenberg2024hekaton}
+M.~Rosenberg, T.~Mopuri, H.~Hafezi, I.~Miers, and others,
+``Hekaton: Horizontally-scalable zkSNARKs via proof aggregation,''
+in \textit{Proc. ACM SIGSAC Conf. Computer and Communications Security
+(CCS)}, 2024.
+\newblock DOI: \url{https://doi.org/10.1145/3658644.3690282}
+
+\bibitem{liu2019auditing}
+M.~Liu, K.~Wu, and J.~J.~Xu,
+``How will blockchain technology impact auditing and accounting: Permissionless
+versus permissioned blockchain,''
+\textit{Current Issues in Auditing}, vol.~13, no.~2, pp.~A19--A29, 2019.
+\newblock DOI: \url{https://doi.org/10.2308/ciia-52540}
+
+\bibitem{du2021auditing}
+Y.~Du, H.~Duan, A.~Zhou, C.~Wang, M.~H.~Au, and Q.~Wang,
+``Enabling secure and efficient decentralized storage auditing with
+blockchain,''
+\textit{IEEE Transactions on Dependable and Secure Computing}, vol.~19, no.~5,
+pp.~3038--3054, 2021.
+\newblock DOI: \url{https://doi.org/10.1109/TDSC.2021.3081826}
+
+\bibitem{weng2019deepchain}
+J.~Weng, J.~Weng, J.~Zhang, M.~Li, Y.~Zhang, and W.~Luo,
+``DeepChain: Auditable and privacy-preserving deep learning with
+blockchain-based incentive,''
+\textit{IEEE Transactions on Dependable and Secure Computing}, vol.~18, no.~5,
+pp.~2438--2455, 2019.
+\newblock DOI: \url{https://doi.org/10.1109/TDSC.2019.2952332}
+
+\bibitem{augusto2024sok}
+A.~Augusto, R.~Belchior, and M.~Correia,
+``SoK: Security and privacy of blockchain interoperability,''
+in \textit{Proc. IEEE Symp. Security and Privacy (S\&P)}, 2024.
+\newblock DOI: \url{https://doi.org/10.1109/SP54263.2024.00255}
+
+\bibitem{ding2025vecrotoken}
+K.~Ding, X.~Hu, W.~Zhou, G.~Cheng, and R.~Li,
+``VeCroToken: An efficient, verifiable, and privacy-preserving cross-chain
+model for consortium blockchains based on zk-SNARKs,''
+\textit{IEEE Transactions on Services Computing}, 2025.
+\newblock DOI: \url{https://doi.org/10.1109/TNSM.2025.3636014}
+
+\bibitem{guo2023crosschannel}
+Y.~Guo, M.~Xu, D.~Yu, Y.~Yu, R.~Ranjan, and X.~Cheng,
+``Cross-Channel: Scalable off-chain channels supporting fair and atomic
+cross-chain operations,''
+\textit{IEEE Transactions on Computers}, vol.~72, no.~10, pp.~1--14, 2023.
+\newblock DOI: \url{https://doi.org/10.1109/TC.2023.3288765}
+
+%% ============================================================
+%% SECTION: ZK PROOF SYSTEMS & AGGREGATION
+%% ============================================================
 
 \bibitem{bowe2019halo}
-S.~Bowe, J.~Grigg, and D.~Hopwood, ``Recursive proof composition without a trusted setup,'' \textit{IACR ePrint Archive}, Report 2019/1021, 2019. [Online]. Available: \url{https://eprint.iacr.org/2019/1021}
+S.~Bowe, J.~Grigg, and D.~Hopwood,
+``Recursive proof composition without a trusted setup,''
+\textit{IACR ePrint Archive}, Report 2019/1021, 2019.
+\newblock URL: \url{https://eprint.iacr.org/2019/1021}
 
 \bibitem{kothapalli2022nova}
-A.~Kothapalli, S.~Setty, and I.~Tzialla, ``Nova: Recursive zero-knowledge arguments from folding schemes,'' in \textit{Proc. Annual Int. Cryptology Conf. (CRYPTO)}, 2022, pp.~359--388.
+A.~Kothapalli, S.~Setty, and I.~Tzialla,
+``Nova: Recursive zero-knowledge arguments from folding schemes,''
+in \textit{Proc. Annual Int. Cryptology Conf. (CRYPTO)}, 2022,
+pp.~359--388.
+\newblock DOI: \url{https://doi.org/10.1007/978-3-031-15985-5_13}
+\newblock ePrint: \url{https://eprint.iacr.org/2021/370}
 
 \bibitem{plonky2}
-Polygon~Zero~Team, ``Plonky2: Fast recursive arguments with PLONK and FRI,'' \textit{Technical Report}, 2022. [Online]. Available: \url{https://github.com/0xPolygonZero/plonky2}
+Polygon~Zero~Team,
+``Plonky2: Fast recursive arguments with PLONK and FRI,''
+\textit{Technical Report}, 2022.
+\newblock URL: \url{https://docs.rs/crate/plonky2/latest/source/plonky2.pdf}
 
 \bibitem{gabizon2019plonk}
-A.~Gabizon, Z.~J.~Williamson, and O.~Ciobotaru, ``PLONK: Permutations over Lagrange-bases for oecumenical non-interactive arguments of knowledge,'' \textit{IACR ePrint Archive}, Report 2019/953, 2019.
+A.~Gabizon, Z.~J.~Williamson, and O.~Ciobotaru,
+``PLONK: Permutations over Lagrange-bases for oecumenical non-interactive
+arguments of knowledge,''
+\textit{IACR ePrint Archive}, Report 2019/953, 2019.
+\newblock URL: \url{https://eprint.iacr.org/2019/953}
 
 \bibitem{bunz2021snarkpack}
-B.~B\"unz, M.~Maller, P.~Mishra, N.~Tyagi, and P.~Vesely, ``Proofs for inner pairing products and applications,'' in \textit{Proc. Int. Conf. Theory and Application of Cryptology (ASIACRYPT)}, 2021, pp.~65--97.
-
-\bibitem{boneh2018verifiabledelay}
-D.~Boneh, B.~B\"unz, and B.~Fisch, ``A survey of two verifiable delay functions,'' \textit{IACR ePrint Archive}, Report 2018/712, 2018.
-
-\bibitem{drand}
-S.~K.~Gorbunov, T.~Hanke, and others, ``Drand: A distributed randomness beacon,'' \textit{League of Entropy}, 2020. [Online]. Available: \url{https://drand.love}
-
-\bibitem{poseidon}
-L.~Grassi, D.~Khovratovich, C.~Rechberger, A.~Roy, and M.~Schofnegger, ``Poseidon: A new hash function for zero-knowledge proof systems,'' in \textit{Proc. 30th USENIX Security Symp.}, 2021, pp.~519--535.
+B.~B\"unz, M.~Maller, P.~Mishra, N.~Tyagi, and P.~Vesely,
+``Proofs for inner pairing products and applications,''
+in \textit{Proc. Int. Conf. Theory and Application of Cryptology
+(ASIACRYPT)}, 2021, pp.~65--97.
+\newblock  \url{https://link.springer.com/chapter/10.1007/978-3-030-92078-4_3}
 
 \bibitem{chiesa2020marlin}
-A.~Chiesa, Y.~Hu, M.~Maller, P.~Mishra, N.~Vesely, and N.~Ward, ``Marlin: Preprocessing zkSNARKs with universal and updatable SRS,'' in \textit{Proc. Annual Int. Conf. Theory and Applications of Cryptographic Techniques (EUROCRYPT)}, 2020, pp.~738--768.
+A.~Chiesa, Y.~Hu, M.~Maller, P.~Mishra, N.~Vesely, and N.~Ward,
+``Marlin: Preprocessing zkSNARKs with universal and updatable SRS,''
+in \textit{Proc. Annual Int. Conf. Theory and Applications of Cryptographic
+Techniques (EUROCRYPT)}, 2020, pp.~738--768.
+\newblock DOI: \url{https://doi.org/10.1007/978-3-030-45721-1_26}
+\newblock ePrint: \url{https://eprint.iacr.org/2019/1047}
 
-\bibitem{chainalysis2023bridges}
-Chainalysis, ``Crypto crime report: Cross-chain bridge exploits accounted for over \$2 billion in stolen funds in 2022--2023,'' \textit{Chainalysis Industry Report}, 2023. [Online]. Available: \url{https://www.chainalysis.com/blog/cross-chain-bridge-hacks-2023/}
+\bibitem{poseidon}
+L.~Grassi, D.~Khovratovich, C.~Rechberger, A.~Roy, and M.~Schofnegger,
+``Poseidon: A new hash function for zero-knowledge proof systems,''
+in \textit{Proc. 30th USENIX Security Symp.}, 2021, pp.~519--535.
+\newblock URL: \url{https://www.usenix.org/conference/usenixsecurity21/presentation/grassi}
+\newblock ePrint: \url{https://eprint.iacr.org/2019/458}
 
-\bibitem{ronin2022postmortem}
-Sky~Mavis, ``Community alert: Ronin Validators Compromised,'' \textit{Ronin Network Post-mortem}, March 29, 2022. [Online]. Available: \url{https://roninblockchain.substack.com/p/community-alert-ronin-validators}
+%% ============================================================
+%% SECTION: REPUTATION & CROSS-CHAIN TRUST
+%% ============================================================
 
-\bibitem{wormhole2022postmortem}
-Wormhole~Foundation, ``Wormhole incident report,'' \textit{Wormhole Bridge Post-mortem}, February 3, 2022.
+\bibitem{hu2024reputation}
+X.~Hu, Y.~Ling, J.~Hua, Z.~Dong, and Y.~Sun,
+``A blockchain cross-chain transaction method based on decentralized dynamic
+reputation value assessment,''
+\textit{IEEE Transactions on Services Computing}, vol.~17, no.~5,
+pp.~2543--2556, 2024.
+\newblock DOI: \url{https://doi.org/10.1109/TNSM.2024.3433414}
+
+\bibitem{xiong2025reputation}
+R.~Xiong, J.~Cheng, J.~Pu, X.~Dong, C.~Chen, and Z.~Xu,
+``Enhancing trust and collaboration: A reputation-driven mechanism for
+cross-chain IoT data sharing,''
+\textit{Computer Networks}, vol.~261, 2025.
+\newblock DOI: \url{https://doi.org/10.1016/j.comnet.2025.111266}
+
+\bibitem{yuan2024doublelayer}
+H.~Yuan, F.~Li, R.~Diao, and T.~Shu,
+``Double-layer Byzantine fault-tolerant grouping consensus algorithm based on
+Raft,''
+\textit{IET Blockchain}, vol.~4, no.~1, pp.~42--52, 2024.
+\newblock DOI: \url{https://doi.org/10.1049/blc2.12073}
+
+%% ============================================================
+%% SECTION: BFT CONSENSUS & DISTRIBUTED SYSTEMS
+%% ============================================================
+
+\bibitem{castro1999pbft}
+M.~Castro and B.~Liskov,
+``Practical Byzantine fault tolerance,''
+in \textit{Proc. 3rd USENIX Symp. Operating Systems Design and Implementation
+(OSDI)}, 1999, pp.~173--186.
+\newblock URL: \url{https://dl.acm.org/doi/10.5555/296806.296824}
+
+\bibitem{yin2019hotstuff}
+M.~Yin, D.~Malkhi, M.~K.~Reiter, G.~G.~Gueta, and I.~Abraham,
+``HotStuff: BFT consensus with linearity and responsiveness,''
+in \textit{Proc. ACM Symp. Principles of Distributed Computing (PODC)}, 2019,
+pp.~347--356.
+\newblock DOI: \url{https://doi.org/10.1145/3293611.3331591}
 
 \bibitem{lamport1982byzantine}
-L.~Lamport, R.~Shostak, and M.~Pease, ``The Byzantine generals problem,'' \textit{ACM Trans. Programming Languages and Systems}, vol.~4, no.~3, pp.~382--401, 1982.
+L.~Lamport, R.~Shostak, and M.~Pease,
+``The Byzantine generals problem,''
+\textit{ACM Trans. Programming Languages and Systems}, vol.~4, no.~3,
+pp.~382--401, 1982.
+\newblock DOI: \url{https://doi.org/10.1145/357172.357176}
 
 \bibitem{dwork1988consensus}
-C.~Dwork, N.~Lynch, and L.~Stockmeyer, ``Consensus in the presence of partial synchrony,'' \textit{Journal of the ACM}, vol.~35, no.~2, pp.~288--323, 1988.
+C.~Dwork, N.~Lynch, and L.~Stockmeyer,
+``Consensus in the presence of partial synchrony,''
+\textit{Journal of the ACM}, vol.~35, no.~2, pp.~288--323, 1988.
+\newblock DOI: \url{https://doi.org/10.1145/42282.42283}
+
+\bibitem{fischer1985impossibility}
+M.~J.~Fischer, N.~A.~Lynch, and M.~S.~Paterson,
+``Impossibility of distributed consensus with one faulty process,''
+\textit{Journal of the ACM}, vol.~32, no.~2, pp.~374--382, 1985.
+\newblock DOI: \url{https://doi.org/10.1145/3149.214121}
+
+\bibitem{miller2016honeybadger}
+A.~Miller, Y.~Xia, K.~Croman, E.~Shi, and D.~Song,
+``The Honey Badger of BFT protocols,''
+in \textit{Proc. ACM SIGSAC Conf. Computer and Communications Security
+(CCS)}, 2016, pp.~31--42.
+\newblock DOI: \url{https://doi.org/10.1145/2976749.2978399}
+
+%% ============================================================
+%% SECTION: PROOF-OF-STAKE & CONSENSUS PROTOCOLS
+%% ============================================================
+
+\bibitem{chen2017algorand}
+J.~Chen and S.~Micali,
+``Algorand: A secure and efficient distributed ledger,''
+\textit{Theoretical Computer Science}, vol.~777, pp.~155--183, 2019.
+\newblock DOI: \url{https://doi.org/10.1016/j.tcs.2019.02.001}
+
+\bibitem{kwon2014tendermint}
+J.~Kwon,
+``Tendermint: Consensus without mining,''
+\textit{Draft v0.6}, 2014.
+\newblock URL: \url{https://tendermint.com/static/docs/tendermint.pdf}
+
+\bibitem{buterin2017casper}
+V.~Buterin and V.~Griffith,
+``Casper the Friendly Finality Gadget,''
+\textit{arXiv preprint arXiv:1710.09437}, 2019.
+\newblock URL: \url{https://arxiv.org/abs/1710.09437}
+
+\bibitem{kiayias2017ouroboros}
+A.~Kiayias, A.~Russell, B.~David, and R.~Oliynykov,
+``Ouroboros: A provably secure proof-of-stake blockchain protocol,''
+in \textit{Proc. Annual Int. Cryptology Conf. (CRYPTO)}, 2017,
+pp.~357--388.
+\newblock DOI: \url{https://doi.org/10.1007/978-3-319-63688-7_12}
+\newblock ePrint: \url{https://eprint.iacr.org/2016/889}
+
+%% ============================================================
+%% SECTION: RANDOMNESS BEACONS & VRF
+%% ============================================================
+
+\bibitem{boneh2018verifiabledelay}
+D.~Boneh, B.~B\"unz, and B.~Fisch,
+``A survey of two verifiable delay functions,''
+\textit{IACR ePrint Archive}, Report 2018/712, 2018.
+\newblock URL: \url{https://eprint.iacr.org/2018/712}
+
+\bibitem{drand}
+S.~K.~Gorbunov, T.~Hanke, and others,
+``Drand: A distributed randomness beacon,''
+\textit{League of Entropy}, 2020.
+\newblock URL: \url{https://drand.love}
+
+%% ============================================================
+%% SECTION: INCIDENT REPORTS & INDUSTRY DATA
+%% \============================================================
+
+\bibitem{crosschainbridgehack2023}
+Nikita Belenkov, Valerian Callens, Alexandr Murashkin, Kacper Bak, Martin Derka, Jan Gorzny, Sung-Shine Lee,
+``SoK: A Review of Cross-Chain Bridge Hacks in 2023,''
+\textit{arXiv:2501.03423}, 2025.
+\newblock DOI: \url{https://doi.org/10.48550/arXiv.2501.03423}
+
+\bibitem{ronin2022postmortem}
+Sky~Mavis,
+``Community alert: Ronin Validators Compromised,''
+\textit{Ronin Network Post-mortem}, March 29, 2022.
+\newblock URL: \url{https://www.roninchain.com/blog/posts/community-alert-ronin-validators-6513cc78a5edc1001b03c366}
+
+\bibitem{wormhole2022postmortem}
+Wormhole~Foundation,
+``Wormhole incident report,''
+\textit{Wormhole Bridge Post-mortem}, February 5, 2022.
+\newblock URL: \url{https://wormholecrypto.medium.com/wormhole-incident-report-02-02-22-ad9b8f21eec6}
 
 \end{thebibliography}
 

@@ -380,7 +380,7 @@ class OriginalSystemSimulation(MFPOPSimulation):
 # Visualization
 # ==========================================
 
-def plot_reputation_recovery(fixed_history: Dict, original_history: Dict,
+def plot_reputation_recovery(hist_new: Dict, hist_baseline: Dict,
                              output_path: str = 'results/mfpop_reputation_recovery.png'):
     """
     Vẽ 3 biểu đồ:
@@ -389,93 +389,83 @@ def plot_reputation_recovery(fixed_history: Dict, original_history: Dict,
     3. Độ chính xác (Accuracy) phục hồi từ round 1-50
     """
     fig, axes = plt.subplots(3, 1, figsize=(14, 12))
-    rounds = fixed_history['rounds']
+    rounds = hist_new['rounds']
 
     # ==========================================
     # Plot 1: Reputation over time
     # ==========================================
     ax1 = axes[0]
 
-    # Honest reputation
-    ax1.plot(rounds, fixed_history['honest_reputations'],
-             label='Honest Nodes (MF-PoP Fixed)', color='green', linewidth=2)
+    ax1.plot(rounds, hist_new['honest_reputations'],
+             label='Honest Committer', color='#2ca02c', linewidth=2.2)
 
-    # Attacker reputation - Fixed system
-    ax1.plot(rounds, fixed_history['attacker_reputations'],
-             label='Attacker (MF-PoP Fixed)', color='red', linewidth=2, linestyle='--')
+    ax1.plot(rounds, hist_new['attacker_reputations'],
+             label='Attacker (Oscillating)', color='#d62728', linewidth=2.0, linestyle='--')
 
-    # Attacker reputation - Original system (no fix)
-    ax1.plot(rounds, original_history['attacker_reputations'],
-             label='Attacker (Original β=0.3)', color='orange', linewidth=2, linestyle=':')
+    ax1.plot(rounds, hist_baseline['attacker_reputations'],
+             label='Attacker (Non MF-PoP)', color='#ff7f0e', linewidth=2.0, linestyle=':')
 
-    # R_MIN threshold
-    ax1.axhline(y=R_MIN/PRECISION, color='black', linestyle='-',
-                label=f'R_MIN = {R_MIN/PRECISION}', alpha=0.5)
+    ax1.axhline(y=R_MIN/PRECISION, color='black', linestyle='-.',
+                label=f'$R_{{\\min}} = {R_MIN/PRECISION}$', alpha=0.6)
 
-    # 46 round marker
-    ax1.axvline(x=46, color='purple', linestyle='--', alpha=0.7, label='~46 rounds (detection point)')
-
-    ax1.set_xlabel('Round', fontsize=12)
-    ax1.set_ylabel('Reputation', fontsize=12)
-    ax1.set_title('MF-PoP Reputation System: Attacker vs Honest Nodes', fontsize=14)
+    ax1.set_xlabel('Round $t$', fontsize=12)
+    ax1.set_ylabel('Reputation $R_i^t$', fontsize=12)
+    ax1.set_title('Reputation Trajectory: Oscillating Attack Evaluation', fontsize=13)
     ax1.legend(loc='upper right', fontsize=10)
     ax1.grid(True, alpha=0.3)
     ax1.set_xlim(0, 200)
+    ax1.set_ylim(0.0, 1.05)
+    ax1.tick_params(labelsize=10)
 
     # ==========================================
     # Plot 2: Attacker Voting Weight
     # ==========================================
     ax2 = axes[1]
-    
-    ax2.plot(rounds, fixed_history['attacker_weight'],
-             label='Attacker Voting Weight', color='darkred', linewidth=2)
-    
-    # Mark when attacker is isolated
-    ax2.axhline(y=0.001, color='purple', linestyle='--', alpha=0.5, label='Isolation threshold')
-    ax2.axvline(x=46, color='purple', linestyle='--', alpha=0.7, label='~46 rounds')
 
-    ax2.set_xlabel('Round', fontsize=12)
-    ax2.set_ylabel('Voting Weight (Reputation %)', fontsize=12)
-    ax2.set_title('Attacker Voting Power Over Time (B3 Fix)', fontsize=14)
+    ax2.plot(rounds, hist_new['attacker_weight'],
+             label='Attacker Voting Weight', color='#8b0000', linewidth=2.0)
+
+    ax2.axhline(y=0.001, color='purple', linestyle='--', alpha=0.5,
+                label='Isolation threshold')
+
+    ax2.set_xlabel('Round $t$', fontsize=12)
+    ax2.set_ylabel('Voting Weight', fontsize=12)
+    ax2.set_title('Attacker Voting Power Over Time', fontsize=13)
     ax2.legend(loc='upper right', fontsize=10)
     ax2.grid(True, alpha=0.3)
     ax2.set_xlim(0, 200)
-    ax2.set_ylim(0, max(fixed_history['attacker_weight'][:100]) * 1.2)
+    ax2.set_ylim(0, max(hist_new['attacker_weight'][:100]) * 1.2)
+    ax2.tick_params(labelsize=10)
 
     # ==========================================
     # Plot 3: Accuracy Recovery (ROUND 1-50)
     # ==========================================
     ax3 = axes[2]
 
-    # Filter rounds 1-50
     rounds_50 = [r for r in rounds if r <= 50]
-    accuracy_fixed = [fixed_history['accuracy'][i] for i in range(len(rounds)) if rounds[i] <= 50]
-    accuracy_original = [original_history['accuracy'][i] for i in range(len(rounds)) if rounds[i] <= 50]
+    acc_new = [hist_new['accuracy'][i] for i in range(len(rounds)) if rounds[i] <= 50]
+    acc_baseline = [hist_baseline['accuracy'][i] for i in range(len(rounds)) if rounds[i] <= 50]
 
-    ax3.plot(rounds_50, accuracy_fixed,
-             label='MF-PoP Fixed (B3)', color='blue', linewidth=2, marker='o', markersize=4)
-    ax3.plot(rounds_50, accuracy_original,
-             label='Original (no fix)', color='red', linewidth=2, marker='x', markersize=4)
+    ax3.plot(rounds_50, acc_new,
+             label='With MF-PoP', color='#1f77b4', linewidth=2, marker='o', markersize=4)
+    ax3.plot(rounds_50, acc_baseline,
+             label='Non MF-PoP', color='#d62728', linewidth=2, marker='x', markersize=4)
 
-    # 100% accuracy line
-    ax3.axhline(y=1.0, color='green', linestyle='--', alpha=0.5, label='100% accuracy')
+    ax3.axhline(y=1.0, color='green', linestyle='--', alpha=0.5, label='Perfect accuracy')
 
-    # 46 round marker
-    ax3.axvline(x=46, color='purple', linestyle='--', alpha=0.7, label='~46 rounds (isolation)')
-
-    ax3.set_xlabel('Round', fontsize=12)
+    ax3.set_xlabel('Round $t$', fontsize=12)
     ax3.set_ylabel('System Accuracy', fontsize=12)
-    ax3.set_title('Accuracy Recovery After Byzantine Attack (Rounds 1-50)', fontsize=14)
+    ax3.set_title('Accuracy Recovery Under Oscillating Byzantine Attack (Rounds 1-50)', fontsize=13)
     ax3.legend(loc='lower right', fontsize=10)
     ax3.grid(True, alpha=0.3)
     ax3.set_xlim(1, 50)
     ax3.set_ylim(0.96, 1.01)
+    ax3.tick_params(labelsize=10)
 
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     print(f"Chart saved to: {output_path}")
 
-    # Also save as PDF for publication quality
     pdf_path = output_path.replace('.png', '.pdf')
     plt.savefig(pdf_path, format='pdf', bbox_inches='tight')
     print(f"PDF saved to: {pdf_path}")
@@ -494,7 +484,7 @@ def plot_stake_slashing(history: Dict, output_path: str = 'results/mfpop_stake_s
 
     ax.set_xlabel('Round', fontsize=12)
     ax.set_ylabel('Total Stake Slashed (ETH)', fontsize=12)
-    ax.set_title('Economic Slashing Over Time (B3 Fix)', fontsize=14)
+    ax.set_title('Cumulative Stake Slashing Under Non-Linear Penalty', fontsize=13)
     ax.legend()
     ax.grid(True, alpha=0.3)
 
