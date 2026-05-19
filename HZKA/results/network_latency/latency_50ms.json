@@ -6,6 +6,6 @@
     "blocks_mined": 0,
     "transactions_per_block": 10,
     "estimated_tps": 0,
-    "latency_penalty_sec": .10,
+    "latency_penalty_sec": 0.10,
     "measured_at": "2026-04-26T10:02:27+00:00"
 }
