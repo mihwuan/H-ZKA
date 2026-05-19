@@ -62,7 +62,7 @@ Chain 10: 8563 (n1), 8564 (n2)   → chainId 110
 ## Project Structure
 
 ```
-zkCross/
+HZKA/
 ├── contracts/
 │   ├── audit_chain/
 │   │   ├── AuditContract.sol          # Original audit protocol
@@ -78,7 +78,7 @@ zkCross/
 │
 ├── circuits/
 │   ├── circom/
-│   │   └── zkcross_psi.circom        # Groth16 audit circuit (Ψ)
+│   │   └── HZKA_psi.circom        # Groth16 audit circuit (Ψ)
 │   ├── common/                        # Shared circuit components
 │   ├── phi/                           # Protocol Φ circuits
 │   ├── psi/                           # Protocol Ψ circuits
@@ -137,7 +137,7 @@ zkCross/
 
 ```bash
 # Install Node.js dependencies
-cd zkCross && npm install
+cd HZKA && npm install
 
 # Install Python dependencies (for MF-PoP simulation)
 pip install numpy matplotlib
@@ -152,7 +152,7 @@ pip install numpy matplotlib
 ```bash
 # SSH to each VM and run setup
 ssh -i <key>.pem azureuser@<VM_IP>
-cd ~/zkCross
+cd ~/HZKA
 bash scripts/azure_vm_setup.sh
 exit  # Re-login for Docker group
 ```
@@ -160,7 +160,7 @@ exit  # Re-login for Docker group
 ### Step 2 — Start Local Chains (on each VM)
 
 ```bash
-cd ~/zkCross/docker
+cd ~/HZKA/docker
 cp .env.vm1 .env          # .env.vm2 on VM2, etc.
 docker compose -f docker-compose-10vm.yml up -d --build
 ```
@@ -269,7 +269,7 @@ The `scripts/log_run_script/` directory contains complete execution traces for m
 
 ## Experimental Results
 
-All results are stored under `zkCross/results/`.
+All results are stored under `HZKA/results/`.
 
 ### TN1 — MF-PoP Reputation Convergence (RQ2)
 
@@ -507,7 +507,7 @@ results/
 ```bash
 # From local machine — collect all VM results
 for i in $(seq 1 10); do
-  scp -r -i <key>.pem azureuser@<VM${i}_IP>:~/zkCross/results/ ./results_vm${i}/
+  scp -r -i <key>.pem azureuser@<VM${i}_IP>:~/HZKA/results/ ./results_vm${i}/
 done
 ```
 

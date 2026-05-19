@@ -10,11 +10,11 @@
  *   2. Transaction batch respects blacklist (no sanctioned addresses)
  *
  * Usage:
- *   1. Compile: ./node_modules/.bin/snarkjs compile circuits/circom/zkcross_psi.circom
- *   2. Setup:   ./node_modules/.bin/snarkjs groth16 setup zkcross_psi.r1cs pot12_final.ptau zkcross_psi_0000.zkey
- *   3. Contribute (optional): ./node_modules/.bin/snarkjs zkey contribute zkcross_psi_0000.zkey zkcross_psi_final.zkey
- *   4. Export VK: ./node_modules/.bin/snarkjs zkey export verificationkey zkcross_psi_final.zkey verification_key.json
- *   5. Prove:   ./node_modules/.bin/snarkjs groth16 fullprove input.json zkcross_psi.wasm zkcross_psi_final.zkey proof.json public.json
+ *   1. Compile: ./node_modules/.bin/snarkjs compile circuits/circom/HZKA_psi.circom
+ *   2. Setup:   ./node_modules/.bin/snarkjs groth16 setup HZKA_psi.r1cs pot12_final.ptau HZKA_psi_0000.zkey
+ *   3. Contribute (optional): ./node_modules/.bin/snarkjs zkey contribute HZKA_psi_0000.zkey HZKA_psi_final.zkey
+ *   4. Export VK: ./node_modules/.bin/snarkjs zkey export verificationkey HZKA_psi_final.zkey verification_key.json
+ *   5. Prove:   ./node_modules/.bin/snarkjs groth16 fullprove input.json HZKA_psi.wasm HZKA_psi_final.zkey proof.json public.json
  *   6. Verify:  ./node_modules/.bin/snarkjs groth16 verify verification_key.json public.json proof.json
  */
 
