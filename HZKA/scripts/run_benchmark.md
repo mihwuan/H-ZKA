@@ -18,7 +18,8 @@ Chi tiết cấu hình phần cứng và phần mềm cụ thể như sau:
 * **Hệ điều hành:** Linux (Ubuntu/Debian-based x64).
 * **Trình biên dịch Mạch (Circuit Compiler):** Circom (Latest Master branch từ Iden3). Hệ thống sử dụng cờ `--wasm` để sinh định dạng WebAssembly 32-bit cho giai đoạn khởi tạo Witness.
 * **Môi trường Runtime (JS):** Node.js v20.12.2 (với cờ mở rộng bộ nhớ ảo `--max-old-space-size=163840`).
-* **Công cụ sinh Bằng chứng (Rust Prover - Arkworks):** * Ngôn ngữ thực thi: Rust (Phiên bản Stable mới nhất cập nhật qua `rustup`).
+* **Công cụ sinh Bằng chứng (Rust Prover - Arkworks):** 
+  * Ngôn ngữ thực thi: Rust (Phiên bản Stable mới nhất cập nhật qua `rustup`).
   * Giao thức Zero-Knowledge: Groth16.
   * Thư viện mật mã (Cryptography Libraries): Cấu hình cứng phiên bản `v0.6.0` cho toàn bộ hệ sinh thái Arkworks bao gồm `ark-bn254`, `ark-groth16`, `ark-snark`, và `ark-circom`.
   * Tối ưu hóa tính toán: Kích hoạt tính năng xử lý song song (`features = ["parallel"]`) trong thư viện `ark-groth16`, kết hợp với biến môi trường `RAYON_NUM_THREADS = 16` để khai thác tối đa sức mạnh của 16 vCPU.
@@ -38,6 +39,8 @@ Chi tiết cấu hình phần cứng và phần mềm cụ thể như sau:
     5.0M      |    23.112 |    20.588 |    20.707 |      21.469
     8.0M      |    29.870 |    26.404 |    26.122 |      27.465
    10.0M      |    39.430 |    41.367 |    45.261 |      42.019
+   11.0M      |    50.031 |    53.116 |    48.384 |      50.510
+   11.5M      |    62.007 |    58.172 |    53.400 |      57.860
 =======================================================================
 
 Dựa trên kết quả chạy thực nghiệm trên máy chủ DGX, dữ liệu thô được tính toán Giá trị trung bình (Mean) và Độ lệch chuẩn (Standard Deviation) như sau:
@@ -49,26 +52,29 @@ Dựa trên kết quả chạy thực nghiệm trên máy chủ DGX, dữ liệu
 * **5.0M:** [23.112, 20.588, 20.707] $\rightarrow$ **21.47 ± 1.42 s**
 * **8.0M:** [29.870, 26.404, 26.122] $\rightarrow$ **27.47 ± 2.08 s**
 * **10.0M:** [39.430, 41.367, 45.261] $\rightarrow$ **42.02 ± 2.96 s**
+* **11.0M:** [50.031, 53.116, 48.384] $\rightarrow$ **50.51 ± 2.40 s**
+* **11.5M:** [62.007, 58.172, 53.400] $\rightarrow$ **57.86 ± 4.31 s**
+
 
 ### Ngoại suy tuyến tính (Linear Regression) cho mốc 20M:
-Sử dụng phương pháp bình phương tối thiểu (Least Squares Method) dựa trên 7 điểm dữ liệu thực nghiệm:
+Sử dụng phương pháp bình phương tối thiểu (Least Squares Method) dựa trên 9 điểm dữ liệu thực nghiệm:
 * Biến độc lập $X$: Số lượng constraints (Triệu).
 * Biến phụ thuộc $Y$: Thời gian Prover trung bình (s).
 
 Phương trình hồi quy: 
 $$Y = mX + c$$
 
-Với các hệ số:
-* $m \approx 3.846$
-* $c \approx 0.855$
+Với các hệ số điều chỉnh mới khi tính đến mức rào cản tài nguyên của WASM ở 11M+:
+* $m \approx 4.568$
+* $c \approx -1.159$
 
 Thời gian dự kiến cho mạch 20M Constraints:
-$$Y(20) = 3.846 \times 20 + 0.855 \approx 77.78 \text{ (s)}$$
+$$Y(20) = 4.568 \times 20 - 1.159 \approx 90.19 \text{ (s)}$$
 
 ---
 
 ### Bảng 13 
-**Table 13:** Sequential Proving Time Benchmarks for Groth16 (Measured on DGX Server - 16 vCPU, 200GB RAM). The 20 M-constraint time is extrapolated via linear regression.
+**Table 13:** Sequential Proving Time Benchmarks for Groth16 (Measured on DGX Server - 16 vCPU, 200GB RAM). The 20 M-constraint time is extrapolated via linear regression over 9 data points.
 
 | Constraints | Mean Prover Time (s) | Note |
 | :--- | :--- | :--- |
@@ -79,9 +85,12 @@ $$Y(20) = 3.846 \times 20 + 0.855 \approx 77.78 \text{ (s)}$$
 | 5,000,000 | 21.47 ± 1.42 | Measured (3 runs) |
 | 8,000,000 | 27.47 ± 2.08 | Measured (3 runs) |
 | 10,000,000 | 42.02 ± 2.96 | Measured (3 runs) |
-| **20,000,000** | **$\approx$ 77.78** | **Extrapolated** |
+| 11,000,000 | 50.51 ± 2.40 | Measured (3 runs) |
+| 11,500,000 | 57.86 ± 4.31 | Measured (3 runs) |
+| **20,000,000** | **$\approx$ 90.19** | **Extrapolated** |
 
-> **Phân tích Hiệu năng:** Sức mạnh đa luồng của phần cứng DGX mang lại sự khác biệt rõ rệt. Dù chỉ sử dụng thuần CPU, thời gian sinh bằng chứng cho mạch 20M đã giảm từ 641.9 giây (trên Azure) xuống chỉ còn 77.78 giây (trên DGX), tương đương **tăng tốc gấp 8.25 lần**. 
+
+> **Phân tích Hiệu năng:** SSức mạnh đa luồng của phần cứng DGX mang lại sự khác biệt rõ rệt (Thời gian Prover 20M giảm từ 641.9s xuống chỉ còn 90.19s, **tăng tốc hơn 7.1 lần**).
 
 ---
 
@@ -89,15 +98,15 @@ $$Y(20) = 3.846 \times 20 + 0.855 \approx 77.78 \text{ (s)}$$
 
 Để đảm bảo tính công bằng (Apples-to-Apples comparison), thời gian E2E của cả hai kiến trúc H-ZKA và zkCross đều được ngoại suy (extrapolated) dựa trên mô hình hồi quy tuyến tính thu được từ thực nghiệm trên máy chủ DGX (16 vCPU, 200GB RAM). 
 
-**Table 10:** End-to-end round latency including off-chain proving (analytical model grounded in extrapolated prover and network measurements). *Both zkCross and H-ZKA are now evaluated on the high-performance DGX hardware baseline.*
+**Table 10:** End-to-end round latency including off-chain proving (analytical model grounded in extrapolated prover and network measurements). *Both zkCross and H-ZKA are strictly evaluated on the same high-performance DGX hardware baseline.*
 
 | $k$ | zkCross E2E (s) | H-ZKA E2E (s) | Slowdown |
 | :---: | :---: | :---: | :---: |
-| 25 | 49.1 ± 0.6 | **79.5 ± 0.5** | **1.62x** |
-| 50 | 51.1 ± 0.9 | **80.4 ± 0.6** | **1.57x** |
-| 100 | 54.1 ± 1.5 | **81.1 ± 0.8** | **1.50x** |
-| 150 | 57.4 ± 2.0 | **82.1 ± 0.9** | **1.43x** |
-| 200 | 60.4 ± 2.4 | **82.8 ± 1.0** | **1.37x** |
+| 25 | 55.8 ± 0.6 | **91.9 ± 0.5** | **1.65x** |
+| 50 | 58.0 ± 0.9 | **92.8 ± 0.6** | **1.60x** |
+| 100 | 61.4 ± 1.5 | **93.5 ± 0.8** | **1.52x** |
+| 150 | 65.2 ± 2.0 | **94.5 ± 0.9** | **1.45x** |
+| 200 | 68.6 ± 2.4 | **95.2 ± 1.0** | **1.39x** |
 
 **Hiệu năng Tương đối (Relative Slowdown):** H-ZKA tốn nhiều thời gian hơn do yêu cầu mạch xác minh tổng hợp (20M constraints) không đổi, trong khi mạch của zkCross nhỏ hơn. Tuy nhiên, độ dốc Slowdown giảm dần chứng minh rằng khi quy mô mạng lưới ($k$) càng lớn, kiến trúc tập trung của H-ZKA càng cho thấy khả năng chống chịu mở rộng tốt hơn so với zkCross.
 
