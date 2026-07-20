@@ -38,3 +38,29 @@ Data saved to: results/mfpop_simulation_data.json
   Simulation Complete!
 ======================================================================
 mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$
+
+
+
+
+
+
+PS D:\PCWuan\Research\HZKA\H-ZKA> python .\HZKA\scripts\slowloris_simulation.py
+Slow-Loris N=5 Simulation Complete!
+Jail activated at round: 30
+Final Attacker R (Canonical) : 0.0100
+Saved to results/fig3b_slowloris_patch.png
+PS D:\PCWuan\Research\HZKA\H-ZKA> python .\HZKA\scripts\mfpop_simulation.py    
+======================================================================
+  Canonical MF-PoP Reputation System Simulation
+  Scenario: Oscillating Attack (N=6)
+======================================================================
+
+--- RESULTS AFTER 200 ROUNDS ---
+1. OLD Baseline: Attacker Rep = 0.7751 (EVADED)
+2. NEW Canonical: Attacker Rep = 0.0100
+   -> ✓ PASS: Attacker fully jailed via geometric slash.
+   -> Jailed exactly at Round 36
+
+Chart saved to results/mfpop_reputation_recovery.png
+Chart saved to results/mfpop_stake_slashing.png
+PS D:\PCWuan\Research\HZKA\H-ZKA> 
