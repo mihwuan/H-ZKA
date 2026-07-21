@@ -18,7 +18,7 @@ import "./ClusterManager.sol";
  *     Original: "at least one honest committer per ordinary chain" — no enforcement.
  *     A malicious CT submits fake root_new; no on-chain mechanism detects it.
  *     Fix (Ψ.WeightedAudit): Accepts root only when Σ_{i: r_i=r} w_i ≥ 2/3·Σ w_j
- *     where w_i = R²_i (quadratic weight from MF-PoP).
+ *     where w_i = min(W_MAX, R_i) (Capped linear election weight).
  *     Reference: improvement doc §1.3.4, EdgeTrust-Shard JSA 2026 Theorem 2
  *
  *   GAP 2 — Flat O(k) Audit Topology (zkCross §3.2, §7.2.2):
@@ -62,11 +62,10 @@ contract AuditContractV2 {
     }
 
     /// @notice Weighted submission for Ψ.WeightedAudit cross-reference pools
-    /// @dev w_i = R²_i tracked per committer submission; see improvement doc §1.3.4
     struct WeightedSubmission {
         address  committer;
         bytes32  submittedRoot;
-        uint256  weight;             // R²_i / PRECISION at submission time
+        uint256  weight;             // Capped Linear Weight at submission time
     }
 
     // ==========================================
@@ -170,7 +169,7 @@ contract AuditContractV2 {
      * @notice Submit a commit for an ordinary chain (Ψ.Commit, zkCross §5.3).
      *
      * Enhancement over original AuditContract:
-     *   - Records quadratic reputation weight (R²_i) at submission time
+     *   - Records capped linear reputation weight at submission time
      *   - Groups commits by (chainId, blockRange) for Ψ.WeightedAudit pool
      *
      * @param chainId    Ordinary chain being audited
@@ -188,13 +187,12 @@ contract AuditContractV2 {
     ) external returns (bytes32 commitId) {
         require(chains[chainId].isActive, "Chain not registered");
         require(committerStakes[msg.sender] >= MIN_STAKE, "Insufficient stake");
-
         require(reputationRegistry.isCommitterRegistered(msg.sender), "Not a registered committer");
 
-        // Quadratic weight snapshot: w_i = R²_i / PRECISION (improvement doc §1.3.4)
-        uint256 qWeight   = reputationRegistry.getQuadraticWeight(msg.sender);
-        uint256 repSnap   = reputationRegistry.getReputation(msg.sender);
-        uint256 clusterID = clusterManager.chainToCluster(chainId);
+        // Capped linear weight snapshot (Eq 15 in paper)
+        uint256 linearWeight = reputationRegistry.getElectionWeight(msg.sender);
+        uint256 repSnap      = reputationRegistry.getEffectiveReputation(msg.sender);
+        uint256 clusterID    = clusterManager.chainToCluster(chainId);
 
         commitId = keccak256(abi.encode(msg.sender, chainId, oldRoot, newRoot, block.timestamp));
         commits[commitId] = CommitRecord({
@@ -214,7 +212,7 @@ contract AuditContractV2 {
         commitGroups[groupId].push(WeightedSubmission({
             committer:     msg.sender,
             submittedRoot: newRoot,
-            weight:        qWeight
+            weight:        linearWeight
         }));
 
         chains[chainId].totalCommits++;
@@ -226,18 +224,17 @@ contract AuditContractV2 {
     // ==========================================
 
     /**
-     * @notice Accept a chain root using quadratic-reputation-weighted majority vote.
+     * @notice Accept a chain root using capped-linear-reputation-weighted majority vote.
      *
-     * Algorithm (Ψ.WeightedAudit, improvement doc §1.3.4):
-     *   1. Compute total weight: W_total = Σ_j w_j = Σ_j R²_j / PREC
+     * Algorithm (Ψ.WeightedAudit):
+     *   1. Compute total weight: W_total = Σ_j w_j = Σ_j min(W_MAX, R_j)
      *   2. For each candidate root r: W_r = Σ_{i: r_i=r} w_i
      *   3. Accept r* = argmax{ W_r : W_r × 3 ≥ W_total × 2 }   (≥ 2/3 majority)
      *   4. Verify Groth16 proof for (old_root → r*)
      *   5. Update reputation: consistent[i] = (r_i == r*), alive[i] = true
      *
      * Security (Theorem 2, EdgeTrust-Shard JSA 2026 adapted):
-     *   Pr[Byzantine root accepted] ≤ f·R²_min / ((1−f)·(Q*_h)²) ≈ 0.00014
-     *   (f=0.3, R_min=0.01, Q*_h=0.6)
+     *   Pr[Byzantine root accepted] ≤ f·R_min / ((1−f)·Q*_h)
      *
      * @param groupId  Commit group ID = keccak256(abi.encode(chainId, blockStart, blockEnd))
      * @param chainId  Chain being audited
@@ -258,7 +255,7 @@ contract AuditContractV2 {
         WeightedSubmission[] storage group = commitGroups[groupId];
         require(group.length > 0, "Empty commit group");
 
-        // Step 1: Compute total quadratic weight
+        // Step 1: Compute total capped linear weight
         uint256 totalWeight = 0;
         for (uint256 i = 0; i < group.length; i++) {
             totalWeight += group[i].weight;
@@ -301,7 +298,8 @@ contract AuditContractV2 {
         // Step 5: Update MF-PoP reputation for all submitters in this group
         for (uint256 i = 0; i < group.length; i++) {
             bool consistent = (group[i].submittedRoot == acceptedRoot);
-            reputationRegistry.updateReputation(group[i].committer, consistent, true);
+            ReputationRegistry.EventType ev = consistent ? ReputationRegistry.EventType.VALID : ReputationRegistry.EventType.INVALID;
+            reputationRegistry.updateState(group[i].committer, ev, acceptedRoot);
         }
 
         emit WeightedAuditAccepted(groupId, acceptedRoot, totalWeight, acceptedWeight);
@@ -342,7 +340,7 @@ contract AuditContractV2 {
         chains[rec.chainId].latestStateRoot = rec.newStateRoot;
         chains[rec.chainId].lastUpdateBlock  = block.number;
 
-        reputationRegistry.updateReputation(rec.committer, true, true);
+        reputationRegistry.updateState(rec.committer, ReputationRegistry.EventType.VALID, rec.newStateRoot);
 
         if (address(this).balance >= rewardPerCommit) {
             payable(rec.committer).transfer(rewardPerCommit);
@@ -358,7 +356,7 @@ contract AuditContractV2 {
      * @notice Accept cluster-aggregated commits from ClusterManager (O(√k) path).
      *
      * @dev Implements the O(√k) proof submission described in improvement doc §2:
-     *   Cluster head (elected by quadratic VRF) aggregates √k individual chain roots
+     *   Cluster head (elected by VRF) aggregates √k individual chain roots
      *   into a Merkle root and submits ONE proof instead of √k proofs.
      *   At k=100 chains with M=10 clusters: 10 proofs reach global chain vs 100.
      *   Reduction factor = √k.
@@ -484,8 +482,6 @@ contract AuditContractV2 {
         }
         return layer[0];
     }
-
-    
 
     fallback() external payable {}
     receive() external payable {}

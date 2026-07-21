@@ -29,6 +29,7 @@ contract ReputationRegistry {
     uint256 public constant R_INITIAL = 5e17;   // 0.5
     uint256 public constant R_ENDORSE_MIN = 7e17; // 0.7
     uint256 public constant R_JAIL = 15e15;     // 0.015 (Trust Jail Threshold)
+    uint256 public constant W_MAX = 1e18;       // Maximum election weight cap (Eq. 15)
 
     uint256 public constant A_H = 16e14;        // a_h = 0.016 (Convex update)
     uint256 public constant GAMMA = 7e17;       // γ = 0.70 (History decay)
@@ -128,46 +129,48 @@ contract ReputationRegistry {
         StateSnapshot storage state = states[ct];
         require(state.isRegistered, "Not registered");
 
-        if (state.isJailed) return; // Absorbing state
+        // Absorbing state: Freeze everything if jailed
+        if (state.isJailed) return; 
 
         // Capture snapshot before processing an INVALID fault (for appeal purposes)
         if (e == EventType.INVALID) {
             appealSnapshots[proofHash] = state;
         }
 
-        // 1. History Update (Eq 14)
+        // 1. History Update (Eq 4 in paper)
         if (e == EventType.VALID) {
             state.historyScore = (GAMMA * state.historyScore + (PRECISION - GAMMA) * PRECISION) / PRECISION;
         } else if (e == EventType.INVALID) {
             state.historyScore = (GAMMA * state.historyScore) / PRECISION;
         }
 
-        // 2. Base Reputation Update (Eq 15)
+        // 2. Base Reputation Update (Eq 5 & 6 in paper)
         if (e == EventType.VALID) {
-            uint256 Q = PRECISION; // Baseline Q simplified for VALID
+            // Q_i = 0.6*C + 0.3*H + 0.1*L. With C=1, L=1 => Q_i = 0.7 + 0.3*H
+            uint256 Q = 7e17 + (3e17 * state.historyScore) / PRECISION;
             uint256 newRBase = ((PRECISION - A_H) * state.baseReputation + A_H * Q) / PRECISION;
             
-            // Progressive Tax: 1% tax on reputation above 0.5
-            if (newRBase > 5e17) {
-                newRBase -= (newRBase - 5e17) / 100;
-            }
+            // Progressive taxation is intentionally removed as per Section 4.4 of the paper
             state.baseReputation = newRBase > R_MAX ? R_MAX : newRBase;
         } else if (e == EventType.MISSING) {
             state.baseReputation = (Q_L * state.baseReputation) / PRECISION;
         }
 
-        // 3. Safety Fault Transition (Eq 16)
+        // 3. Safety Fault Transition (Eq 7 in paper)
         if (e == EventType.INVALID) {
             state.safetyMult = (Q_S * state.safetyMult) / PRECISION;
             state.cumulativeV += 1;
+            // Stake is slashed non-linearly (10% of CURRENT stake, not initial)
             uint256 slash = (SIGMA * state.stakedAmount) / PRECISION;
             state.stakedAmount -= slash;
             totalSlashedPool += slash;
         }
 
-        // 4. Effective Reputation & Jail Check (Eq 17)
+        // 4. Effective Reputation & Jail Check (Eq 9 in paper)
         uint256 rEff = _getEffectiveR(state);
-        if (rEff <= R_JAIL) {
+        
+        // Jail is ONLY evaluated on a finalized INVALID event
+        if (e == EventType.INVALID && rEff <= R_JAIL) {
             state.isJailed = true;
             emit NodeJailed(ct);
         }
@@ -233,10 +236,23 @@ contract ReputationRegistry {
     function getEffectiveReputation(address ct) external view returns (uint256) {
         return _getEffectiveR(states[ct]);
     }
+    
+    // Alias to support legacy interfaces interacting with AuditContractV2
+    function getReputation(address ct) external view returns (uint256) {
+        return _getEffectiveR(states[ct]);
+    }
 
-    function getQuadraticWeight(address ct) external view returns (uint256) {
-        uint256 r = _getEffectiveR(states[ct]);
-        return (r * r) / PRECISION;
+    function isCommitterRegistered(address ct) external view returns (bool) {
+        return states[ct].isRegistered;
+    }
+
+    // Capped Linear Election Weight (Eq. 15 in paper)
+    function getElectionWeight(address ct) external view returns (uint256) {
+        StateSnapshot memory state = states[ct];
+        if (state.isJailed) return 0; // Jailed node has zero weight
+        
+        uint256 r = _getEffectiveR(state);
+        return r > W_MAX ? W_MAX : r; 
     }
 
     function advanceRound() external {

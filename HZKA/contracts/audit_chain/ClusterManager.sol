@@ -34,10 +34,10 @@ import "./ReputationRegistry.sol";
  *   3. Data Availability check: Global Chain kiểm tra TẤT CẢ chains
  *      đã được submit, không bỏ qua chain nào
  *
- * LEADER ELECTION:
- *   Cluster head elected by quadratic-weighted VRF sampling:
- *     w_i = R²_i / Σ_j R²_j
- *   This reduces Byzantine leader probability by ~2100× vs uniform selection.
+ * LEADER ELECTION (UPDATED based on Section 4.4 JSA 2026):
+ *   Cluster head elected by capped-linear-weighted VRF sampling:
+ *     w_i = min(W_MAX, R_i)
+ *   Prevents "rich-get-richer" monopoly over long horizons.
  */
 contract ClusterManager {
 
@@ -194,16 +194,12 @@ contract ClusterManager {
     // ==========================================
 
     /**
-     * @notice Trigger a new cluster head election using quadratic-weighted VRF
+     * @notice Trigger a new cluster head election using capped-linear-weighted VRF
      *
-     * @dev Implements Section 2.2 / 4.1.2 of improvement doc:
-     *   1. Compute w_i = R²_i for each member
+     * @dev Implements Section 4.4 of JSA 2026 paper:
+     *   1. Compute w_i = min(W_MAX, R_i) for each member
      *   2. Use block hash + clusterId + round as VRF seed
      *   3. Walk the cumulative weight distribution to find winner
-     *
-     * Quadratic weighting creates (honest_R/byzantine_R)² = (0.85/0.03)² = 802×
-     * separation, reducing Byzantine leader probability by ~2100× vs uniform.
-     * Reference: improvement doc Section 1.3.4, EdgeTrust-Shard Theorem 2
      *
      * @param clusterId The cluster to hold election in
      */
@@ -267,23 +263,18 @@ contract ClusterManager {
      *
      * @dev In the full implementation, this would verify an aggregated ZKP
      *   proof (circuit ΛΨ_agg). Here we simulate the verification step and
-     *   update cluster head's reputation via MF-PoP.
-     *
-     * After verification, updates cluster head reputation — this is the
-     * Layer 2 MF-PoP update (improvement doc Section 3.2 step 4).
+     *   update cluster head's reputation via Canonical MF-PoP.
      */
     function verifyClusterCommit(bytes32 commitId) external {
         // SECURITY: Require caller to be the audit contract or owner
-        // In production, this should be restricted to auditors registered in AuditContractV2
         require(msg.sender == owner, "Not authorized");
         ClusterCommit storage cc = clusterCommits[commitId];
         require(!cc.isVerified, "Already verified");
-        // In production: verify aggregated ZKP proof here
-        // For experiment: simulate acceptance (trusted auditor call)
+        
         cc.isVerified = true;
 
-        // Update cluster head reputation (consistent + alive)
-        reputationRegistry.updateReputation(cc.clusterHead, true, true);
+        // Update cluster head reputation (EventType.VALID)
+        reputationRegistry.updateState(cc.clusterHead, ReputationRegistry.EventType.VALID, cc.aggregatedRoot);
 
         emit ClusterCommitVerified(commitId, cc.clusterId);
     }
@@ -296,12 +287,10 @@ contract ClusterManager {
      * @notice Cross-reference state roots submitted by multiple committers
      *         for the same chain, computing consistency score.
      *
-     * @dev Implements Section 1.3.2 of improvement doc (enhanced Ψ.Commit):
-     *   - Collect {root_new} from ≥ 2/3 committers for same chain+block range
+     * @dev Implements Section 4.1 Canonical MF-PoP evaluation logic:
      *   - expected_root = majority root among submissions
-     *   - C^t_i = 1 if committer's root matched expected_root, else 0
-     *
-     * Then calls Ψ.UpdateReputation for each committer.
+     *   - Converts to Canonical EventType: VALID, INVALID, or MISSING
+     *   - Then calls updateState for each committer.
      *
      * @param committerAddrs  Array of committer addresses who submitted
      * @param submittedRoots  Corresponding roots each committer submitted
@@ -319,10 +308,20 @@ contract ClusterManager {
         // Find majority root (2/3 threshold)
         bytes32 expectedRoot = _majorityRoot(submittedRoots);
 
-        // Update reputation for each committer
+        // Update Canonical State Machine for each committer
         for (uint256 i = 0; i < committerAddrs.length; i++) {
             bool consistent = (submittedRoots[i] == expectedRoot);
-            reputationRegistry.updateReputation(committerAddrs[i], consistent, aliveFlags[i]);
+            ReputationRegistry.EventType ev;
+            
+            if (!aliveFlags[i]) {
+                ev = ReputationRegistry.EventType.MISSING;
+            } else if (consistent) {
+                ev = ReputationRegistry.EventType.VALID;
+            } else {
+                ev = ReputationRegistry.EventType.INVALID;
+            }
+
+            reputationRegistry.updateState(committerAddrs[i], ev, submittedRoots[i]);
         }
     }
 
@@ -333,14 +332,6 @@ contract ClusterManager {
 
     /**
      * @notice Xáo trộn ngẫu nhiên việc gán Chain vào Cluster bằng VRF
-     *
-     * @dev [SỬA LỖI B2] Implements VRF epoch shuffling:
-     *   - Mỗi EPOCH_LENGTH rounds, tất cả chains được gán lại vào clusters
-     *   - Sử dụng VRF seed từ block hash + epoch number
-     *   - Fisher-Yates shuffle để đảm bảo uniform distribution
-     *   - Ngăn chặn 1 nhóm thao túng 1 tập hợp chains cố định
-     *
-     * @param allChainIds Danh sách tất cả chain IDs cần xáo trộn
      */
     function reshuffleClusters(uint256[] calldata allChainIds) external {
         require(msg.sender == owner, "Not owner");
@@ -402,16 +393,6 @@ contract ClusterManager {
 
     /**
      * @notice Node bình thường tố cáo Cluster Head giấu dữ liệu
-     *
-     * @dev [SỬA LỖI B2] Implements challenge window + fraud proofs:
-     *   - Cluster Head PHẢI submit proof cho TẤT CẢ chains trong cluster
-     *   - Nếu thiếu chain nào, bất kỳ node nào cũng có thể file challenge
-     *   - Challenge phải được file trong CHALLENGE_WINDOW rounds
-     *   - Nếu challenge hợp lệ: CH bị phạt reputation + re-election
-     *
-     * @param clusterId    Cluster bị tố cáo
-     * @param missingChainId Chain bị giấu dữ liệu
-     * @param round        Round xảy ra vi phạm
      */
     function fileDAChallenge(uint256 clusterId, uint256 missingChainId, uint256 round) external {
         require(currentRound <= round + CHALLENGE_WINDOW, "Challenge window expired");
@@ -450,9 +431,9 @@ contract ClusterManager {
 
     /**
      * @notice Xử lý DA challenge (owner/Global Chain)
-     * @dev [SỬA LỖI B2] Nếu challenge hợp lệ:
-     *   - Phạt CH reputation (gọi ReputationRegistry)
-     *   - Trigger re-election cho cluster
+     * @dev Một khi Challenge hợp lệ, Cluster Head bị xác định là gian lận giấu dữ liệu (Censorship).
+     *      Hành vi này được quy vào SAFETY FAULT (EventType.INVALID) để trừng phạt mạnh tay,
+     *      sau đó loại bỏ Cluster Head đó bằng cách bầu lại.
      */
     function resolveDAChallenge(bytes32 challengeId, bool valid) external {
         require(msg.sender == owner, "Not owner");
@@ -463,9 +444,9 @@ contract ClusterManager {
         c.valid = valid;
 
         if (valid) {
-            // Phạt Cluster Head: chấm C=0 (inconsistent) + L=0
+            // Phạt Cluster Head vì giấu dữ liệu (Proven Fraud) -> INVALID Event
             address ch = clusters[c.clusterId].clusterHead;
-            reputationRegistry.updateReputation(ch, false, false);
+            reputationRegistry.updateState(ch, ReputationRegistry.EventType.INVALID, challengeId);
 
             // Trigger re-election
             _electClusterHead(c.clusterId);
@@ -515,12 +496,6 @@ contract ClusterManager {
         return clusterIds.length;
     }
 
-    /**
-     * @notice Get cluster commit scalar fields (excludes chainRoots bytes32[] for ABI compat)
-     * @dev Used by AuditContractV2.acceptClusterCommit() to retrieve commit metadata.
-     *   chainRoots must be supplied separately by the caller (from event logs).
-     *   Reference: improvement doc §3.1 (integrated end-to-end flow)
-     */
     function getClusterCommitInfo(bytes32 commitId) external view returns (
         uint256 clusterId,
         address clusterHead,
@@ -531,12 +506,6 @@ contract ClusterManager {
         return (cc.clusterId, cc.clusterHead, cc.aggregatedRoot, cc.isVerified);
     }
 
-    /**
-     * @notice Compute theoretical workload complexity
-     * @param totalChains k (total ordinary chains)
-     * @return clusterCount M = √k (number of clusters)
-     * @return proofPerAuditor O(√k) proofs per auditor vs O(k) in original
-     */
     function getComplexityInfo(uint256 totalChains)
         external
         pure
@@ -555,14 +524,14 @@ contract ClusterManager {
         Cluster storage c = clusters[clusterId];
         require(c.members.length > 0, "No members");
 
-        // Compute total quadratic weight
+        // Compute total capped linear weight (UPDATED to getElectionWeight)
         uint256 totalWeight = 0;
         for (uint256 i = 0; i < c.members.length; i++) {
-            totalWeight += reputationRegistry.getQuadraticWeight(c.members[i]);
+            totalWeight += reputationRegistry.getElectionWeight(c.members[i]);
         }
 
         if (totalWeight == 0) {
-            // Fallback: elect first member if all have zero weight
+            // Fallback: elect first member if all have zero weight (e.g., everyone jailed)
             c.clusterHead = c.members[0];
             c.lastElectionRound = currentRound;
             emit ClusterHeadElected(clusterId, c.members[0], currentRound);
@@ -577,7 +546,7 @@ contract ClusterManager {
         uint256 cumulative = 0;
         address winner = c.members[0];
         for (uint256 i = 0; i < c.members.length; i++) {
-            cumulative += reputationRegistry.getQuadraticWeight(c.members[i]);
+            cumulative += reputationRegistry.getElectionWeight(c.members[i]);
             if (rand < cumulative) {
                 winner = c.members[i];
                 break;

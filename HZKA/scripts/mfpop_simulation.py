@@ -1,204 +1,175 @@
 #!/usr/bin/env python3
 import json
 import os
-import random
-import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
-# Canonical MF-PoP Constants
 R_MIN, R_MAX, R_JAIL = 0.01, 1.0, 0.015
-R_INITIAL = 0.5
+R_INITIAL, A_H, GAMMA, Q_L, Q_S, SIGMA = 0.5, 0.016, 0.70, 0.95, 0.50, 0.10
 
-# Convex & Geometric update factors
-A_H = 0.016
-GAMMA = 0.70
-Q_L = 0.95
-Q_S = 0.50
-SIGMA = 0.10
-
-class CanonicalStateMachine:
+class MFPoPMachine:
     def __init__(self, is_attacker=False):
-        self.is_attacker = is_attacker
-        self.r_base = R_INITIAL
-        self.h = R_INITIAL
-        self.phi = 1.0
-        self.v = 0
-        self.s = 1.0
-        self.j = False
+        self.is_attacker, self.r_base, self.h, self.phi, self.v, self.s, self.j = is_attacker, R_INITIAL, R_INITIAL, 1.0, 0, 1.0, False
 
     def get_effective_r(self):
-        if self.j: return R_MIN
-        return max(R_MIN, self.r_base * self.phi)
+        return R_MIN if self.j else max(R_MIN, self.r_base * self.phi)
 
     def transition(self, event: str) -> float:
-        """Returns slashed stake amount."""
-        if self.j: return 0.0 # Absorbing state
-        
+        if self.j: return 0.0 
         slashed = 0.0
         
-        # 1. History
+        new_h = GAMMA * self.h + (1 - GAMMA) if event == "valid" else (GAMMA * self.h if event == "invalid" else self.h)
         if event == "valid":
-            self.h = GAMMA * self.h + (1 - GAMMA)
-        elif event == "invalid":
-            self.h = GAMMA * self.h
-
-        # 2. Base Reputation & Tax
-        if event == "valid":
-            self.r_base = (1 - A_H) * self.r_base + A_H * 1.0
-            if self.r_base > 0.5:
-                self.r_base -= (self.r_base - 0.5) / 100
-            self.r_base = min(self.r_base, R_MAX)
+            self.r_base = min(R_MAX, (1 - A_H) * self.r_base + A_H * (0.7 + 0.3 * new_h))
         elif event == "missing":
             self.r_base = Q_L * self.r_base
+        self.h = new_h
             
-        # 3. Safety Transition
         if event == "invalid":
-            self.phi = Q_S * self.phi
+            self.phi *= Q_S
             self.v += 1
             slashed = SIGMA * self.s
             self.s -= slashed
             
-        # 4. Trust Jail Trigger
-        if self.get_effective_r() <= R_JAIL:
+        if event == "invalid" and self.get_effective_r() <= R_JAIL:
             self.j = True
-            
         return slashed
 
-class OldBaselineStateMachine:
-    """The original vulnerable algorithm (without safety multiplier)"""
+class NonMFPoPMachine:
     def __init__(self, is_attacker=False):
-        self.is_attacker = is_attacker
-        self.r = R_INITIAL
-        self.h = R_INITIAL
+        self.is_attacker, self.r, self.h = is_attacker, R_INITIAL, R_INITIAL
 
     def transition(self, event: str):
         C = 1.0 if event == "valid" else 0.0
-        Q = 0.6 * C + 0.3 * self.h + 0.1 * 1.0 # Baseline included 0.1 liveness floor
-        
         beta = 0.3 if event == "valid" else 0.4
-        self.r = (1 - 0.2*beta) * self.r + (0.2*beta) * Q
-        
-        if self.r > 0.5:
-            self.r -= (self.r - 0.5) / 100
+        self.r = (1 - 0.2*beta) * self.r + (0.2*beta) * (0.6 * C + 0.3 * self.h + 0.1)
+        if self.r > 0.5: self.r -= (self.r - 0.5) / 100
         self.r = max(R_MIN, min(R_MAX, self.r))
         self.h = GAMMA * self.h + (1 - GAMMA) * C
         return 0.0
     
-    def get_effective_r(self):
-        return self.r
+    def get_effective_r(self): return self.r
 
-def run_simulation(n_rounds, attacker_cycle_N=6, use_canonical=True):
-    nodes = [CanonicalStateMachine() if use_canonical else OldBaselineStateMachine() for _ in range(10)]
-    nodes.append(CanonicalStateMachine(is_attacker=True) if use_canonical else OldBaselineStateMachine(is_attacker=True))
-    
-    history = {'rounds': [], 'hon_r': [], 'atk_r': [], 'atk_w': [], 'acc': [], 'slashed': []}
-    total_slashed = 0.0
+def run_simulation(n_rounds, osc_n, n_seeds=30, base_seed=42):
+    res = {k: np.zeros((n_seeds, n_rounds)) for k in ['hon', 'atk_c', 'atk_o', 'w', 'acc_c', 'acc_o', 'slash']}
+    raw_data = []
 
-    for t in range(1, n_rounds + 1):
-        for n in nodes:
-            event = "valid"
-            if n.is_attacker and (t % attacker_cycle_N == 0):
-                event = "invalid"
+    for i in range(n_seeds):
+        np.random.seed(base_seed + i)
+        n_c = [MFPoPMachine() for _ in range(10)] + [MFPoPMachine(True)]
+        n_o = [NonMFPoPMachine() for _ in range(10)] + [NonMFPoPMachine(True)]
+        t_slash = 0.0
+
+        for t in range(1, n_rounds + 1):
+            is_miss = np.random.rand() < 0.05
+            hon_ev = "missing" if is_miss else "valid"
+            atk_ev = "missing" if is_miss else ("invalid" if t % osc_n == 0 else "valid")
             
-            slashed = n.transition(event)
-            total_slashed += slashed
+            for j in range(10):
+                n_c[j].transition(hon_ev)
+                n_o[j].transition(hon_ev)
             
-        hon_r = np.mean([n.get_effective_r() for n in nodes if not n.is_attacker])
-        atk_r = nodes[-1].get_effective_r()
-        
-        total_rep = sum(n.get_effective_r() for n in nodes)
-        atk_w = atk_r / total_rep if atk_r > R_MIN * 1.01 else 0.0
-        
-        contamination = min(1.0, atk_w ** 1.5)
-        acc = 1.0 - contamination
-        
-        history['rounds'].append(t)
-        history['hon_r'].append(hon_r)
-        history['atk_r'].append(atk_r)
-        history['atk_w'].append(atk_w)
-        history['acc'].append(acc)
-        history['slashed'].append(total_slashed)
-        
-    return history
+            t_slash += n_c[-1].transition(atk_ev)
+            n_o[-1].transition(atk_ev)
+                
+            res['hon'][i, t-1] = np.mean([n.get_effective_r() for n in n_c[:-1]])
+            res['atk_c'][i, t-1] = n_c[-1].get_effective_r()
+            res['atk_o'][i, t-1] = n_o[-1].get_effective_r()
+            res['slash'][i, t-1] = t_slash
+            
+            atk_w_c = res['atk_c'][i, t-1] / sum(n.get_effective_r() for n in n_c) if res['atk_c'][i, t-1] > R_MIN else 0.0
+            res['w'][i, t-1] = atk_w_c
+            res['acc_c'][i, t-1] = 1.0 - min(1.0, atk_w_c)
+            
+            atk_w_o = res['atk_o'][i, t-1] / sum(n.get_effective_r() for n in n_o) if res['atk_o'][i, t-1] > R_MIN else 0.0
+            res['acc_o'][i, t-1] = 1.0 - min(1.0, atk_w_o)
 
-def plot_reputation_recovery(h_new, h_old, out_path='results/mfpop_reputation_recovery.png'):
+            raw_data.append({"seed": base_seed + i, "round": t, "honest": res['hon'][i, t-1], "slash": t_slash})
+
+    out = {'rounds': np.arange(1, n_rounds + 1), 'raw_data': raw_data, 'raw_atk_c': res['atk_c']}
+    for k in res:
+        out[k] = np.mean(res[k], axis=0)
+        out[k+'_ci'] = 1.96 * np.std(res[k], axis=0) / np.sqrt(n_seeds)
+    return out
+
+def plot_all(data):
     os.makedirs('results', exist_ok=True)
-    fig, axes = plt.subplots(3, 1, figsize=(14, 12))
+    r = data['rounds']
+
+    # --- Hình 1: Multi-plot ---
+    fig, axes = plt.subplots(3, 1, figsize=(10, 14))
     
-    # 1. Reputation
+    # 1. Rep Plot
     ax1 = axes[0]
-    ax1.plot(h_new['rounds'], h_new['hon_r'], label='Honest Committer', color='#2ca02c', lw=2.2)
-    ax1.plot(h_new['rounds'], h_new['atk_r'], label='Attacker (Canonical Machine)', color='#d62728', lw=2.0, ls='--')
-    ax1.plot(h_new['rounds'], h_old['atk_r'], label='Attacker (Old Baseline)', color='#ff7f0e', lw=2.0, ls=':')
-    ax1.axhline(R_JAIL, color='gray', ls=':', label='Trust Jail Threshold', alpha=0.5)
-    ax1.set_ylabel('Effective Reputation')
-    ax1.set_title('Reputation Trajectory: Oscillating Attack (5 Valid, 1 Invalid)')
-    ax1.legend()
+    ax1.plot(r, data['hon'], label='Honest committer', color='#55a868', lw=2.5)
+    ax1.fill_between(r, data['hon'] - data['hon_ci'], data['hon'] + data['hon_ci'], color='#55a868', alpha=0.15)
+    
+    ax1.plot(r, data['atk_c'], label='Attacker (oscillating)', color='#c44e52', ls='--', lw=2.5)
+    ax1.fill_between(r, data['atk_c'] - data['atk_c_ci'], data['atk_c'] + data['atk_c_ci'], color='#c44e52', alpha=0.15)
+    
+    ax1.plot(r, data['atk_o'], label='Attacker (non MF-PoP)', color='#dd8452', ls=':', lw=2.5)
+    ax1.fill_between(r, data['atk_o'] - data['atk_o_ci'], data['atk_o'] + data['atk_o_ci'], color='#dd8452', alpha=0.15)
+    
+    ax1.axhline(R_MIN, color='gray', ls='-.', label='$R_{\\min} = 0.01$')
+    
+    # FIX: Tính toán và vẽ đường đỏ gạch dọc (Mean Isolation Round)
+    iso_rounds = [np.where(data['raw_atk_c'][i] <= R_MIN)[0][0] + 1 for i in range(30) if len(np.where(data['raw_atk_c'][i] <= R_MIN)[0]) > 0]
+    if len(iso_rounds) > 0:
+        mean_iso = np.mean(iso_rounds)
+        ax1.axvline(mean_iso, color="#e8a39c", ls="--", lw=1.5, label=f"Mean isolation (round {mean_iso:.1f})")
+
+    ax1.set_ylabel('Effective Reputation', fontsize=16)
+    ax1.legend(loc='center right', bbox_to_anchor=(0.99, 0.45), fontsize=14, framealpha=1.0)
     ax1.grid(True, alpha=0.3)
     ax1.set_xlim(0, 200)
 
-    # 2. Weight
+    # 2. Weight Plot
     ax2 = axes[1]
-    ax2.plot(h_new['rounds'], h_new['atk_w'], label='Attacker Voting Weight', color='#8b0000', lw=2.0)
-    ax2.set_ylabel('Voting Weight')
-    ax2.set_title('Attacker Voting Power Over Time')
-    ax2.legend()
+    ax2.plot(r, data['w'], label='Attacker voting weight', color='#8c2d04', lw=2.5)
+    ax2.fill_between(r, data['w'] - data['w_ci'], data['w'] + data['w_ci'], color='#8c2d04', alpha=0.15)
+    ax2.axhline(0.00, color='#b491c8', ls='--', label='Isolation threshold', lw=2.0)
+    ax2.set_ylabel('Linear Voting Weight', fontsize=16)
+    ax2.legend(loc='upper right', fontsize=14, framealpha=1.0)
     ax2.grid(True, alpha=0.3)
     ax2.set_xlim(0, 200)
 
-    # 3. Accuracy
+    # 3. Acc Plot
     ax3 = axes[2]
-    r_50 = [r for r in h_new['rounds'] if r <= 50]
-    ax3.plot(r_50, h_new['acc'][:50], label='With Canonical MF-PoP', color='#1f77b4', marker='o', markersize=4)
-    ax3.plot(r_50, h_old['acc'][:50], label='Old Baseline', color='#d62728', marker='x', markersize=4)
-    ax3.axhline(1.0, color='green', ls='--', alpha=0.5)
-    ax3.set_xlabel('Round $t$')
-    ax3.set_ylabel('System Accuracy')
-    ax3.set_title('Accuracy Recovery (Rounds 1-50)')
-    ax3.legend()
+    ax3.plot(r, data['acc_c'], label='With MF-PoP', color='#4c72b0', marker='o', markevery=10, lw=2)
+    ax3.plot(r, data['acc_o'], label='Non MF-PoP', color='#c44e52', marker='x', markevery=10, lw=2)
+    ax3.axhline(1.0, color='#8de5a1', ls='--', label='Perfect accuracy', lw=2.0)
+    ax3.set_xlabel('Round $t$', fontsize=16)
+    ax3.set_ylabel('System Accuracy', fontsize=16)
+    
+    # FIX: Đặt legend vào khoảng trống ở giữa bên phải để không đè lên đường Non MF-PoP
+    ax3.legend(loc='center right', bbox_to_anchor=(0.99, 0.45), fontsize=14, framealpha=1.0)
+    
     ax3.grid(True, alpha=0.3)
-    ax3.set_xlim(1, 50)
+    ax3.set_xlim(0, 200)
 
     plt.tight_layout()
-    plt.savefig(out_path, dpi=300)
+    plt.savefig('results/mfpop_reputation_recovery.pdf')
+    plt.savefig('results/mfpop_reputation_recovery.png', dpi=300)
     plt.close()
 
-def plot_stake_slashing(h_new, out_path='results/mfpop_stake_slashing.png'):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(h_new['rounds'], h_new['slashed'], label='Total Stake Slashed', color='red', lw=2)
-    ax.set_xlabel('Round $t$', fontsize=12)
-    ax.set_ylabel('Total Stake Slashed (ETH)', fontsize=12)
-    ax.set_title('Cumulative Stake Slashing Under Canonical MF-PoP', fontsize=13)
-    ax.legend()
+    # --- Hình 2: Slashed Stake ---
+    fig2, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(r, data['slash'], label='Total Stake Slashed', color='red', lw=2.5)
+    ax.fill_between(r, data['slash'] - data['slash_ci'], data['slash'] + data['slash_ci'], color='red', alpha=0.15)
+    ax.set_xlabel('Round $t$', fontsize=16)
+    ax.set_ylabel('Total Stake Slashed (ETH)', fontsize=16)
+    ax.legend(loc='lower right', fontsize=14, framealpha=1.0)
     ax.grid(True, alpha=0.3)
+    ax.set_xlim(0, 200)
+
     plt.tight_layout()
-    plt.savefig(out_path, dpi=300)
-    plt.savefig(out_path.replace('.png', '.pdf')) # Lưu thêm bản PDF cho bài báo
+    plt.savefig('results/mfpop_stake_slashing.pdf')
+    plt.savefig('results/mfpop_stake_slashing.png', dpi=300)
     plt.close()
 
-def main():
-    print("="*70)
-    print("  Canonical MF-PoP Reputation System Simulation")
-    print("  Scenario: Oscillating Attack (N=6)")
-    print("="*70)
-    
-    hist_new = run_simulation(200, attacker_cycle_N=6, use_canonical=True)
-    hist_old = run_simulation(200, attacker_cycle_N=6, use_canonical=False)
-    
-    print("\n--- RESULTS AFTER 200 ROUNDS ---")
-    print(f"1. OLD Baseline: Attacker Rep = {hist_old['atk_r'][-1]:.4f} (EVADED)")
-    print(f"2. NEW Canonical: Attacker Rep = {hist_new['atk_r'][-1]:.4f}")
-    if hist_new['atk_r'][-1] <= R_MIN + 1e-6:
-        print("   -> ✓ PASS: Attacker fully jailed via geometric slash.")
-        jail_round = next(r for r, val in zip(hist_new['rounds'], hist_new['atk_r']) if val <= R_MIN + 1e-6)
-        print(f"   -> Jailed exactly at Round {jail_round}")
-    
-    # --- PHẦN GỌI HÀM VẼ ĐỒ THỊ ---
-    plot_reputation_recovery(hist_new, hist_old)
-    print("\nChart saved to results/mfpop_reputation_recovery.png")
-    
-    plot_stake_slashing(hist_new)
-    print("Chart saved to results/mfpop_stake_slashing.png")
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    d = run_simulation(200, 6)
+    pd.DataFrame(d['raw_data']).to_csv('results/raw_analysis.csv', index=False)
+    plot_all(d)
+    print("✅ Sinh thành công đồ thị Analysis (Đã hiển thị đường cách ly và fix lỗi chú thích).")
