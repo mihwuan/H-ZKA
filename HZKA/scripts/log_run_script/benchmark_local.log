@@ -1,34 +1,3 @@
-mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$ node scripts/benchmark_2M_local.cjs
-======================================================================
-  Groth16 Prover Benchmark (RAPIDSNARK C++ ACCELERATED)
-======================================================================
-[2026-05-04T02:49:37.269Z] System: 13th Gen Intel(R) Core(TM) i5-13500H, 16 threads, 11.7 GB RAM
-[2026-05-04T02:49:37.428Z] Using snarkjs path: node --max-old-space-size=16384 /home/mihwuan/.nvm/versions/node/v24.15.0/bin/snarkjs
-[2026-05-04T02:49:37.428Z] 
-════════════════════════════════════════════════════════════
-[2026-05-04T02:49:37.428Z] BENCHMARKING: 2.0M constraints
-[2026-05-04T02:49:37.428Z] ════════════════════════════════════════════════════════════
-[2026-05-04T02:49:37.429Z]   Compiling circom...
-[2026-05-04T03:09:51.432Z]   Compiled in 20.2m
-[2026-05-04T03:10:06.867Z]   Actual constraints: 2,000,000
-[2026-05-04T03:10:06.868Z]   Downloading ptau 21 from https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_21.ptau...
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100 2304M  100 2304M    0     0  4350k      0  0:09:02  0:09:02 --:--:-- 4461k
-[2026-05-04T03:19:09.901Z]   Groth16 setup (Node.js)...
-[2026-05-04T03:25:50.970Z]   Setup done in 6.7m
-[2026-05-04T03:25:51.831Z]   Prove run 1/3 (Rapidsnark C++)...
-[sudo] password for mihwuan: 
-[2026-05-04T04:07:18.464Z]   Run 1: 21.3s
-[2026-05-04T04:07:18.464Z]   Prove run 2/3 (Rapidsnark C++)...
-[2026-05-04T04:07:37.091Z]   Run 2: 18.5s
-[2026-05-04T04:07:37.091Z]   Prove run 3/3 (Rapidsnark C++)...
-[2026-05-04T04:07:56.182Z]   Run 3: 19.0s
-[2026-05-04T04:07:56.612Z]   Verify: OK ✓ (429ms)
-[2026-05-04T04:07:56.612Z]   Cleaning up large circuit files to save disk space...
-[2026-05-04T04:07:56.665Z] 
-══════════════════════════════════════════════════════════════════════
-
 ======================================================================
   Groth16 Prover Benchmark (RAPIDSNARK C++ ACCELERATED)
 ======================================================================
@@ -85,4 +54,31 @@ mihwuan@LAPTOP-4OTK8GAL:~/Project/zkCross$ node scripts/benchmark_2M_local.cjs
 [2026-05-04T04:38:35.493Z]   Verify: OK ✓ (558ms)
 [2026-05-04T04:38:35.493Z]   Cleaning up large circuit files to save disk space...
 [2026-05-04T04:38:35.535Z] 
+══════════════════════════════════════════════════════════════════════
+
+[2026-05-04T02:49:37.269Z] System: 13th Gen Intel(R) Core(TM) i5-13500H, 16 threads, 11.7 GB RAM
+[2026-05-04T02:49:37.428Z] Using snarkjs path: node --max-old-space-size=16384 /home/mihwuan/.nvm/versions/node/v24.15.0/bin/snarkjs
+[2026-05-04T02:49:37.428Z] 
+════════════════════════════════════════════════════════════
+[2026-05-04T02:49:37.428Z] BENCHMARKING: 2.0M constraints
+[2026-05-04T02:49:37.428Z] ════════════════════════════════════════════════════════════
+[2026-05-04T02:49:37.429Z]   Compiling circom...
+[2026-05-04T03:09:51.432Z]   Compiled in 20.2m
+[2026-05-04T03:10:06.867Z]   Actual constraints: 2,000,000
+[2026-05-04T03:10:06.868Z]   Downloading ptau 21 from https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_21.ptau...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 2304M  100 2304M    0     0  4350k      0  0:09:02  0:09:02 --:--:-- 4461k
+[2026-05-04T03:19:09.901Z]   Groth16 setup (Node.js)...
+[2026-05-04T03:25:50.970Z]   Setup done in 6.7m
+[2026-05-04T03:25:51.831Z]   Prove run 1/3 (Rapidsnark C++)...
+[sudo] password for mihwuan: 
+[2026-05-04T04:07:18.464Z]   Run 1: 21.3s
+[2026-05-04T04:07:18.464Z]   Prove run 2/3 (Rapidsnark C++)...
+[2026-05-04T04:07:37.091Z]   Run 2: 18.5s
+[2026-05-04T04:07:37.091Z]   Prove run 3/3 (Rapidsnark C++)...
+[2026-05-04T04:07:56.182Z]   Run 3: 19.0s
+[2026-05-04T04:07:56.612Z]   Verify: OK ✓ (429ms)
+[2026-05-04T04:07:56.612Z]   Cleaning up large circuit files to save disk space...
+[2026-05-04T04:07:56.665Z] 
 ══════════════════════════════════════════════════════════════════════

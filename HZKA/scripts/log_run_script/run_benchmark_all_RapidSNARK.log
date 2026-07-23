@@ -1,0 +1,197 @@
+uitchain@bcm-headnode:/datastore/uitchain/hzka_benchmark$ cat logs/bench_rapid_37485.out
+======================================================================
+  Groth16 Prover Benchmark (RAPIDSNARK C++ ACCELERATED)
+======================================================================
+[2026-07-11T17:25:37.743Z] 
+[2026-07-11T17:25:37.751Z]
+════════════════════════════════════════════════════════════
+[2026-07-11T17:25:37.751Z] BENCHMARKING: 0.5M constraints
+[2026-07-11T17:25:37.751Z] ════════════════════════════════════════════════════════════
+[2026-07-11T17:25:37.752Z]   Compiling circom...
+[2026-07-11T17:27:47.738Z]   Compiled in 2.2m
+[2026-07-11T17:27:54.724Z]   Actual constraints: 500,000
+[2026-07-11T17:27:54.726Z]   Downloading ptau 19 from https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_19.ptau...
+[2026-07-11T17:28:47.024Z]   Groth16 setup (Node.js)...
+[2026-07-11T17:29:31.305Z]   Setup done in 44.3s
+[2026-07-11T17:29:32.192Z]   Prove run 1/3 (Rapidsnark C++)...
+[2026-07-11T17:29:34.775Z]   Run 1: 2.5s
+[2026-07-11T17:29:34.775Z]   Prove run 2/3 (Rapidsnark C++)...
+[2026-07-11T17:29:37.344Z]   Run 2: 2.5s
+[2026-07-11T17:29:37.345Z]   Prove run 3/3 (Rapidsnark C++)...
+[2026-07-11T17:29:40.005Z]   Run 3: 2.4s
+[2026-07-11T17:29:40.814Z]   Verify: OK ✓ (809ms)
+[2026-07-11T17:29:40.814Z]   Cleaning up large circuit files to save disk space...
+[2026-07-11T17:29:40.908Z]
+════════════════════════════════════════════════════════════
+[2026-07-11T17:29:40.908Z] BENCHMARKING: 1.0M constraints
+[2026-07-11T17:29:40.909Z] ════════════════════════════════════════════════════════════
+[2026-07-11T17:29:40.912Z]   Compiling circom...
+[2026-07-11T17:36:32.926Z]   Compiled in 6.9m
+[2026-07-11T17:36:43.276Z]   Actual constraints: 1,000,000
+[2026-07-11T17:36:43.279Z]   ptau 20 exists (1208.0 MB) in cache
+[2026-07-11T17:36:43.279Z]   Groth16 setup (Node.js)...
+[2026-07-11T17:37:57.774Z]   Setup done in 1.2m
+[2026-07-11T17:37:58.618Z]   Prove run 1/3 (Rapidsnark C++)...
+[2026-07-11T17:38:03.340Z]   Run 1: 4.4s
+[2026-07-11T17:38:03.340Z]   Prove run 2/3 (Rapidsnark C++)...
+[2026-07-11T17:38:08.043Z]   Run 2: 4.6s
+[2026-07-11T17:38:08.044Z]   Prove run 3/3 (Rapidsnark C++)...
+[2026-07-11T17:38:12.552Z]   Run 3: 4.4s
+[2026-07-11T17:38:13.233Z]   Verify: OK ✓ (681ms)
+[2026-07-11T17:38:13.233Z]   Cleaning up large circuit files to save disk space...
+[2026-07-11T17:38:13.343Z]
+════════════════════════════════════════════════════════════
+[2026-07-11T17:38:13.343Z] BENCHMARKING: 2.0M constraints
+[2026-07-11T17:38:13.343Z] ════════════════════════════════════════════════════════════
+[2026-07-11T17:38:13.345Z]   Compiling circom...
+[2026-07-11T18:08:18.717Z]   Compiled in 30.1m
+[2026-07-11T18:08:43.241Z]   Actual constraints: 2,000,000
+[2026-07-11T18:08:43.242Z]   ptau 21 exists (2416.0 MB) in cache
+[2026-07-11T18:08:43.242Z]   Groth16 setup (Node.js)...
+[2026-07-11T18:11:09.411Z]   Setup done in 2.4m
+[2026-07-11T18:11:10.305Z]   Prove run 1/3 (Rapidsnark C++)...
+[2026-07-11T18:11:18.536Z]   Run 1: 8.1s
+[2026-07-11T18:11:18.536Z]   Prove run 2/3 (Rapidsnark C++)...
+[2026-07-11T18:11:26.416Z]   Run 2: 7.9s
+[2026-07-11T18:11:26.416Z]   Prove run 3/3 (Rapidsnark C++)...
+[2026-07-11T18:11:33.189Z]   Run 3: 6.7s
+[2026-07-11T18:11:33.783Z]   Verify: OK ✓ (594ms)
+[2026-07-11T18:11:33.784Z]   Cleaning up large circuit files to save disk space...
+[2026-07-11T18:11:33.947Z]
+════════════════════════════════════════════════════════════
+[2026-07-11T18:11:33.947Z] BENCHMARKING: 4.0M constraints
+[2026-07-11T18:11:33.947Z] ════════════════════════════════════════════════════════════
+[2026-07-11T18:11:33.950Z]   Compiling circom...
+[2026-07-11T20:01:18.900Z]   Compiled in 109.7m
+[2026-07-11T20:02:12.679Z]   Actual constraints: 4,000,000
+[2026-07-11T20:02:12.681Z]   ptau 22 exists (4831.9 MB) in cache
+[2026-07-11T20:02:12.681Z]   Groth16 setup (Node.js)...
+[2026-07-11T20:09:04.972Z]   Setup done in 6.9m
+[2026-07-11T20:09:06.129Z]   Prove run 1/3 (Rapidsnark C++)...
+[2026-07-11T20:09:24.718Z]   Run 1: 18.3s
+[2026-07-11T20:09:24.718Z]   Prove run 2/3 (Rapidsnark C++)...
+[2026-07-11T20:09:43.524Z]   Run 2: 18.6s
+[2026-07-11T20:09:43.524Z]   Prove run 3/3 (Rapidsnark C++)...
+[2026-07-11T20:10:02.209Z]   Run 3: 18.7s
+[2026-07-11T20:10:03.146Z]   Verify: OK ✓ (937ms)
+[2026-07-11T20:10:03.146Z]   Cleaning up large circuit files to save disk space...
+[2026-07-11T20:10:03.453Z]
+════════════════════════════════════════════════════════════
+[2026-07-11T20:10:03.453Z] BENCHMARKING: 5.0M constraints
+[2026-07-11T20:10:03.453Z] ════════════════════════════════════════════════════════════
+[2026-07-11T20:10:03.454Z]   Compiling circom...
+[2026-07-11T23:17:58.590Z]   Compiled in 187.9m
+[2026-07-11T23:19:40.604Z]   Actual constraints: 5,000,000
+[2026-07-11T23:19:40.606Z]   ptau 23 exists (9663.8 MB) in cache
+[2026-07-11T23:19:40.606Z]   Groth16 setup (Node.js)...
+[2026-07-11T23:30:15.242Z]   Setup done in 10.6m
+[2026-07-11T23:30:16.410Z]   Prove run 1/3 (Rapidsnark C++)...
+[2026-07-11T23:30:43.090Z]   Run 1: 26.2s
+[2026-07-11T23:30:43.090Z]   Prove run 2/3 (Rapidsnark C++)...
+[2026-07-11T23:31:11.345Z]   Run 2: 27.7s
+[2026-07-11T23:31:11.345Z]   Prove run 3/3 (Rapidsnark C++)...
+[2026-07-11T23:31:38.494Z]   Run 3: 26.7s
+[2026-07-11T23:31:39.687Z]   Verify: OK ✓ (1.2s)
+[2026-07-11T23:31:39.688Z]   Cleaning up large circuit files to save disk space...
+[2026-07-11T23:31:40.129Z]
+══════════════════════════════════════════════════════════════════════
+
+ Circuit Size     | Prove Time (C++) | µs/constraint
+-------------------------------------------------------
+    0.5M       |         2.5s | 4.99
+    1.0M       |         4.5s | 4.47
+    2.0M       |         7.6s | 3.78
+    4.0M       |        18.5s | 4.63
+    5.0M       |        26.9s | 5.37
+
+uitchain@bcm-headnode:/datastore/uitchain/hzka_benchmark$ cat logs/bench_rapid_37551.out
+======================================================================
+  Groth16 Prover Benchmark (RAPIDSNARK C++ ACCELERATED)
+======================================================================
+[2026-07-12T07:58:45.751Z] 
+[2026-07-12T07:58:45.776Z]
+════════════════════════════════════════════════════════════
+[2026-07-12T07:58:45.776Z] BENCHMARKING: 8.0M constraints
+[2026-07-12T07:58:45.776Z] ════════════════════════════════════════════════════════════
+[2026-07-12T07:58:45.778Z]   Compiling circom...
+[2026-07-12T13:53:29.534Z]   Compiled in 354.7m
+[2026-07-12T13:55:32.974Z]   Actual constraints: 8,000,000
+[2026-07-12T13:55:32.977Z]   ptau 23 exists (9663.8 MB) in cache
+[2026-07-12T13:55:32.977Z]   Groth16 setup (Node.js)...
+[2026-07-12T14:09:30.490Z]   Setup done in 14.0m
+[2026-07-12T14:09:31.277Z]   Prove run 1/3 (Rapidsnark C++)...
+[2026-07-12T14:10:05.356Z]   Run 1: 34.0s
+[2026-07-12T14:10:05.356Z]   Prove run 2/3 (Rapidsnark C++)...
+[2026-07-12T14:10:38.446Z]   Run 2: 33.1s
+[2026-07-12T14:10:38.446Z]   Prove run 3/3 (Rapidsnark C++)...
+[2026-07-12T14:11:11.934Z]   Run 3: 33.4s
+[2026-07-12T14:11:12.628Z]   Verify: OK ✓ (694ms)
+[2026-07-12T14:11:12.629Z]   Cleaning up large circuit files to save disk space...
+[2026-07-12T14:11:13.028Z]
+════════════════════════════════════════════════════════════
+[2026-07-12T14:11:13.028Z] BENCHMARKING: 10.0M constraints
+[2026-07-12T14:11:13.028Z] ════════════════════════════════════════════════════════════
+[2026-07-12T14:11:13.031Z]   Compiling circom...
+[2026-07-13T02:11:06.173Z]   Compiled in 719.9m
+[2026-07-13T02:13:50.469Z]   Actual constraints: 10,000,000
+[2026-07-13T02:13:50.487Z]   Downloading ptau 24 from https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_24.ptau...
+[2026-07-13T02:36:57.837Z]   Groth16 setup (Node.js)...
+[2026-07-13T02:57:51.808Z]   Setup done in 20.9m
+[2026-07-13T02:57:52.615Z]   Prove run 1/3 (Rapidsnark C++)...
+[2026-07-13T02:58:37.732Z]   Run 1: 44.8s
+[2026-07-13T02:58:37.733Z]   Prove run 2/3 (Rapidsnark C++)...
+[2026-07-13T02:59:22.844Z]   Run 2: 45.1s
+[2026-07-13T02:59:22.844Z]   Prove run 3/3 (Rapidsnark C++)...
+[2026-07-13T03:00:05.653Z]   Run 3: 42.8s
+[2026-07-13T03:00:06.401Z]   Verify: OK ✓ (748ms)
+[2026-07-13T03:00:06.401Z]   Cleaning up large circuit files to save disk space...
+[2026-07-13T03:00:07.301Z]
+══════════════════════════════════════════════════════════════════════
+
+ Circuit Size     | Prove Time (C++) | µs/constraint
+-------------------------------------------------------
+    8.0M       |        33.5s | 4.19
+   10.0M       |        44.2s | 4.42
+
+uitchain@bcm-headnode:/datastore/uitchain/hzka_benchmark$ cat logs/bench_rapid_37746.out
+======================================================================
+  Groth16 Prover Benchmark (RAPIDSNARK C++ ACCELERATED)
+======================================================================
+[2026-07-13T07:16:22.570Z] 
+[2026-07-13T07:16:22.577Z]
+════════════════════════════════════════════════════════════
+[2026-07-13T07:16:22.577Z] BENCHMARKING: 11.0M constraints
+[2026-07-13T07:16:22.577Z] ════════════════════════════════════════════════════════════
+[2026-07-13T07:16:22.579Z]   Compiling circom...
+[2026-07-13T21:54:19.879Z]   Compiled in 878.0m
+[2026-07-13T21:57:12.483Z]   Actual constraints: 11,000,000
+[2026-07-13T21:57:12.489Z]   ptau 24 exists (19327.4 MB) in cache
+[2026-07-13T21:57:12.489Z]   Groth16 setup (Node.js)...
+[2026-07-13T22:19:16.513Z]   Setup done in 22.1m
+[2026-07-13T22:19:17.467Z]   Prove run 1/3 (Rapidsnark C++)...
+[2026-07-13T22:20:13.875Z]   Run 1: 56.4s
+[2026-07-13T22:20:13.875Z]   Prove run 2/3 (Rapidsnark C++)...
+[2026-07-13T22:21:09.894Z]   Run 2: 56.0s
+[2026-07-13T22:21:09.895Z]   Prove run 3/3 (Rapidsnark C++)...
+[2026-07-13T22:22:07.590Z]   Run 3: 57.7s
+[2026-07-13T22:22:09.172Z]   Verify: OK ✓ (1.5s)
+[2026-07-13T22:22:09.173Z]   Cleaning up large circuit files to save disk space...
+[2026-07-13T22:22:09.738Z]
+════════════════════════════════════════════════════════════
+[2026-07-13T22:22:09.739Z] BENCHMARKING: 11.5M constraints
+[2026-07-13T22:22:09.739Z] ════════════════════════════════════════════════════════════
+[2026-07-13T22:22:09.741Z]   Compiling circom...
+[2026-07-14T14:03:52.703Z]   Compiled in 941.7m
+[2026-07-14T14:08:11.197Z]   Actual constraints: 11,500,000
+[2026-07-14T14:08:12.067Z]   ptau 24 exists (19327.4 MB) in cache
+[2026-07-14T14:08:12.067Z]   Groth16 setup (Node.js)...
+[2026-07-14T14:43:58.517Z]   Setup done in 35.8m
+[2026-07-14T14:43:59.989Z]   Prove run 1/3 (Rapidsnark C++)...
+[2026-07-14T14:47:56.275Z]   Run 1: 1.6m
+[2026-07-14T14:47:56.276Z]   Prove run 2/3 (Rapidsnark C++)...
+[2026-07-14T14:49:13.154Z]   Run 2: 1.3m
+[2026-07-14T14:49:13.615Z]   Prove run 3/3 (Rapidsnark C++)...
+[2026-07-14T14:51:02.470Z]   Run 3: 1.4m
+[2026-07-14T14:51:03.997Z]   Verify: OK ✓ (1.3s)
+[2026-07-14T14:51:03.997Z]   Cleaning up large circuit files to save disk space...
+[2026-07-14T14:51:04.644Z]

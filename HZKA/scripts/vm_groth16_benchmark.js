@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 /**
- * VM Groth16 Benchmark (PLAN B - C++ Rapidsnark)
+ * VM Groth16 Benchmark (C++ Rapidsnark)
  * ĐÃ CẬP NHẬT: 
  * 1. Lưu file .ptau ở thư mục riêng (Cache) để không bao giờ bị xóa.
  * 2. Fix lỗi "require is not defined" (CommonJS).
  * 3. Tăng giới hạn RAM cho quá trình tạo Witness để tránh OOM.
- * 4. Chỉ chạy test 2.0M Constraints để tối ưu thời gian trên Azure.
  */
 
 const { execSync } = require('child_process');
