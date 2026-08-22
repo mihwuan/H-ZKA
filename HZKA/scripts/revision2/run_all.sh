@@ -46,4 +46,20 @@ echo "== E6: per-stage communication and storage accounting =="
 python3 exp_overhead_model.py
 
 echo
+echo "== E7: exact on-chain verification cost from the EVM gas schedule =="
+python3 exp_onchain_cost.py
+
+echo
+echo "== E8: two-stage prover accounting (inner proofs + aggregation) =="
+python3 exp_prover_pipeline.py
+
+echo
+echo "== E9: per-cluster BFT condition and captured-cluster behavior =="
+python3 exp_bft_bound.py --seeds "${SEEDS}" --rounds "${ROUNDS}" --k "${K}" --seed "${SEED}"
+
+echo
+echo "== E10: cluster-count and arrival-burstiness sensitivity =="
+python3 exp_config_sensitivity.py --seeds "${SEEDS}" --rounds "${ROUNDS}" --k "${K}" --seed "${SEED}"
+
+echo
 echo "All experiments complete.  Results in ../../result/revision2/"

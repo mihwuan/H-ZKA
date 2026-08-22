@@ -540,6 +540,14 @@ class RoundStats:
     flat_stalled_chains: int = 0
     valid_events: int = 0
     honest_eligible: int = 0
+    failover_attempts: int = 0
+    exhausted_clusters: int = 0
+    captured_clusters: int = 0
+    censored_clusters: int = 0
+    fresh_slots: int = 0
+    round_complete: bool = True
+    within_budget: bool = True
+    accuracy_inbound: float = 1.0
 
 
 @dataclass
@@ -560,10 +568,24 @@ class SimConfig:
     w_max: float = W_MAX
     collusion_size: int = 0        # colluders coordinate head capture
     head_crash_prob: float = 0.0   # cluster-head crash after election
+    # Failover semantics.  A submission attempt has its own deadline
+    # (NetworkProfile.deadline_ms).  A crashed head is detected when that
+    # deadline expires; the cluster then re-elects and makes another attempt.
+    # A cluster that exhausts ``max_attempts`` leaves its slot non-fresh, and
+    # the round is not globally complete.  The whole round must finish inside
+    # ``round_budget_ms``, the audit cadence.
+    max_attempts: int = 3
+    round_budget_ms: float = 120_000.0
     workload_dynamic: bool = False
     partition_frac: float = 0.0    # fraction of chains isolated by a partition
     partition_start: int = 0
     partition_end: int = 0
+    # Captured-cluster behavior.  A cluster whose live Byzantine membership
+    # reaches ceil(|C|/3) violates the per-cluster BFT condition of the threat
+    # model.  When ``model_capture`` is set, such a cluster acts on that power:
+    # it censors adjudication for its members and withholds its round slot.
+    model_capture: bool = False
+    censor_prob: float = 1.0
 
 
 class HZKASimulation:
@@ -598,12 +620,34 @@ class HZKASimulation:
                 colluder=j in colluders))
 
         self._members = self._build_members()
+        self._censoring: Dict[int, bool] = {}
         self.history: List[RoundStats] = []
         self.isolation_round: Dict[int, int] = {}
         self.head_capture_rounds = 0
         self.head_rounds = 0
 
     # -- helpers --------------------------------------------------------------
+
+    def _bft_threshold(self, size: int) -> int:
+        """Smallest Byzantine count that violates f_l < |C_l|/3."""
+        return int(math.ceil(size / 3.0))
+
+    def _captured_clusters(self) -> Dict[int, bool]:
+        """Clusters whose live Byzantine membership breaks the BFT condition.
+
+        A jailed committer has zero election weight and cannot vote, so it is
+        not counted toward the adversarial quorum.
+        """
+        out: Dict[int, bool] = {}
+        for c, members in self._members.items():
+            if not members:
+                out[c] = False
+                continue
+            live_byz = sum(1 for j in members
+                           if self.committers[j].byzantine
+                           and not self.committers[j].state.jailed)
+            out[c] = live_byz >= self._bft_threshold(len(members))
+        return out
 
     def _build_members(self) -> Dict[int, List[int]]:
         members: Dict[int, List[int]] = {c: [] for c in range(self.n_clusters)}
@@ -624,6 +668,11 @@ class HZKASimulation:
         if not delivered:
             return MISSING
         if self.rng.random() < p.unresolved_rate:
+            return UNRESOLVED
+        # A captured cluster can prevent its members' faults from being
+        # adjudicated.  The evidence never reaches a finalized verdict, so the
+        # canonical transition sees an unresolved event and no state moves.
+        if self._censoring.get(int(self.labels[c.chain]), False):
             return UNRESOLVED
         return intent
 
@@ -689,16 +738,24 @@ class HZKASimulation:
                     capacity=cfg.b_max)
                 self._members = self._build_members()
 
+            # Captured-cluster determination precedes election and
+            # adjudication, so a captured cluster can act within this round.
+            captured = self._captured_clusters() if cfg.model_capture else {}
+            self._censoring = {c: (v and self.rng.random() < cfg.censor_prob)
+                               for c, v in captured.items()}
+
             self.current_heads = self._elect_heads()
 
             stats = RoundStats()
+            stats.captured_clusters = sum(1 for v in captured.values() if v)
+            stats.censored_clusters = sum(1 for v in self._censoring.values() if v)
             # head honesty and capture accounting
             honest_heads = 0
             for c, h in self.current_heads.items():
                 self.head_rounds += 1
                 comm = self.committers[h]
-                captured = comm.byzantine and not comm.state.jailed
-                if not captured:
+                head_is_byz = comm.byzantine and not comm.state.jailed
+                if not head_is_byz:
                     honest_heads += 1
                 else:
                     self.head_capture_rounds += 1
@@ -712,20 +769,33 @@ class HZKASimulation:
                 # independently, so the two arms differ only in blast radius.
                 stats.flat_stalled_chains = int(
                     (self.rng.random(cfg.k) < cfg.head_crash_prob).sum())
+                extra_ms = 0.0
                 for c in list(self.current_heads):
-                    if self.rng.random() < cfg.head_crash_prob:
-                        coordination_ms += cfg.profile.deadline_ms  # timeout
-                        stats.stalled_clusters += 1
-                        stats.stalled_chains += len(self._members[c])
+                    attempts = 0
+                    while attempts < cfg.max_attempts:
+                        if self.rng.random() >= cfg.head_crash_prob:
+                            break                       # this attempt succeeds
+                        attempts += 1
+                        extra_ms += cfg.profile.deadline_ms   # detection delay
                         members = [j for j in self._members[c]
                                    if j != self.current_heads[c]]
-                        if members:
-                            w = np.array([
-                                self.committers[j].state.election_weight(
-                                    cfg.nu, cfg.w_max) for j in members])
-                            self.current_heads[c] = (
-                                int(self.rng.choice(members, p=w / w.sum()))
-                                if w.sum() > 0 else int(members[0]))
+                        if not members:
+                            break
+                        w = np.array([
+                            self.committers[j].state.election_weight(
+                                cfg.nu, cfg.w_max) for j in members])
+                        self.current_heads[c] = (
+                            int(self.rng.choice(members, p=w / w.sum()))
+                            if w.sum() > 0 else int(members[0]))
+                    if attempts:
+                        stats.stalled_clusters += 1
+                        stats.stalled_chains += len(self._members[c])
+                    stats.failover_attempts += attempts
+                    if attempts >= cfg.max_attempts:
+                        stats.exhausted_clusters += 1
+                # Attempts within a cluster are sequential; clusters proceed in
+                # parallel, so the round pays the worst cluster's delay.
+                coordination_ms += extra_ms / max(1, self.n_clusters)
             stats.coordination_ms = coordination_ms
 
             # adjudicate every committer and apply the canonical transition
@@ -757,6 +827,23 @@ class HZKASimulation:
             stats.ineligible_honest = sum(1 for c in self.committers
                                           if (not c.byzantine) and not c.state.eligible)
             stats.offline = sum(1 for c in self.committers if not c.online)
+            # A censored cluster withholds its slot, so the slot is not fresh
+            # and the round is not globally complete (Section 5.6).
+            stats.fresh_slots = self.n_clusters - stats.censored_clusters
+            stats.within_budget = coordination_ms <= cfg.round_budget_ms
+            stats.round_complete = (stats.censored_clusters == 0
+                                    and stats.exhausted_clusters == 0
+                                    and stats.within_budget)
+            # Accuracy restricted to clusters that satisfy the BFT condition.
+            inbound = [c for c in range(self.n_clusters)
+                       if not captured.get(c, False)]
+            if inbound:
+                inbound_chains = [j for c in inbound for j in self._members[c]]
+                bad = sum(1 for j in inbound_chains
+                          if self.committers[j].byzantine
+                          and not self.committers[j].state.jailed
+                          and self.committers[j].state.eligible)
+                stats.accuracy_inbound = 1.0 - bad / max(1, len(inbound_chains))
             stats.valid_events = self._valid_events
             stats.honest_eligible = sum(
                 1 for c in self.committers if (not c.byzantine) and c.state.eligible)

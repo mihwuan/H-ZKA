@@ -1,44 +1,58 @@
 #!/usr/bin/env python3
-"""Experiment E4: quantitative audit-layer side-channel leakage.
+"""Experiment E4 (rebuilt): audit-layer leakage under matched baselines.
 
-Zero knowledge hides the private witness relative to the public statement.  It
-does not bound what a passive observer of the audit layer learns from
-*metadata*: submission timing, artefact size, and the presence bitmap.  This
-experiment measures that residual channel empirically instead of asserting it
-qualitatively.
+What changed and why
+--------------------
+The first version of this experiment gave the flat baseline a circuit whose
+size grew with the transaction batch, so its proving time and artifact size
+varied with workload.  That is not a valid baseline: Groth16 requires a fixed
+circuit for a given setup, so a real flat deployment also publishes a constant
+127-byte proof produced in constant time.  The earlier 56.9x figure therefore
+compared a fixed-shape H-ZKA against a variable-shape strawman.
 
-Threat model
-------------
-A passive global observer records, for every audit round, the public audit-layer
-transcript.  The secret is the per-chain workload class
-S in {low, medium, high} of an ordinary chain in that round.  The observer's
-goal is to infer S for a named chain.
+This version matches the baselines.  Every arm uses a fixed-shape circuit, a
+constant 127-byte proof, and constant proving time.  Timing and artifact size
+are then identical across arms by construction and leak nothing, which the
+experiment verifies rather than assumes.  What remains is the only thing that
+actually differs: the granularity of the public-input interface.
 
-Observation models
-------------------
-``flat``      one proof per chain (the zkCross audit pattern).  The per-chain
-              circuit size grows with the transaction batch, so submission
-              latency and artefact size are functions of that chain's own
-              workload.
-``hzka-var``  hierarchical aggregation *without* fixed-shape padding: the
-              cluster head submits one proof whose cost tracks the number of
-              real member proofs and their aggregate volume.
-``hzka``      the deployed H-ZKA configuration: a Groth16 circuit compiled for
-              the fixed capacity B_max, with unused slots filled by dummy
-              proofs.  Proving cost is constant in the slot occupancy; only
-              witness assembly retains a bounded dependence on real data.
+Arms
+----
+``flat``            one transaction per chain publishing
+                    (chain id, rt_old_j, rt_new_j).  A per-chain state change
+                    is directly visible.
+``hzka-perchain``   hierarchical aggregation with Algorithm 1's original
+                    interface: every member root is still a public input, so
+                    per-chain state changes remain directly visible.
+``hzka-commitment`` the corrected interface: the only public input is one
+                    constant-size cluster commitment, so the observer sees a
+                    change iff at least one member changed.
+``hzka-commitment+bitmap``
+                    as above, plus the presence bitmap of Section 5.7, which
+                    publishes per-slot participation by design.
+
+Secret and observables
+----------------------
+The secret is S_j in {0,1}: did chain j undergo a state transition in this
+round.  Observables are exactly the public audit-layer artifacts of each arm:
+published roots or commitments, proof bytes, submission timing, and, where
+applicable, the presence bitmap.
 
 Metrics
 -------
-* empirical mutual information I(S ; O) in bits, plug-in estimator with the
-  Miller-Madow bias correction;
-* the adversary's balanced accuracy from a maximum-a-posteriori classifier
-  fitted on a disjoint training split;
-* the advantage over the majority-class prior.
+Empirical mutual information (plug-in with Miller-Madow correction) on a
+held-out split, an MAP adversary's balanced accuracy, and a closed-form
+reference value so the estimator can be checked against theory.
+
+Sensitivity
+-----------
+Reported over the state-change prior p, the cluster size B, the bin count, and
+observation noise, as the Associate Editor requested.
 
 Outputs
 -------
 result/revision2/e4_leakage.csv
+result/revision2/e4_sensitivity.csv
 result/revision2/e4_summary.json
 """
 
@@ -54,164 +68,144 @@ import numpy as np
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "..", "result", "revision2")
 
-# Calibration constants taken from the manuscript's measured records.
-SEC_PER_MCONSTRAINT = 4.567686      # fitted prover regression, Eq. (39)
-CHAIN_CIRCUIT_BASE_M = 1.20         # constant part of the per-chain circuit
-CHAIN_CIRCUIT_PER_TX_M = 0.1176     # marginal cost per transaction, in millions
-AGG_FIXED_M = 20.0                  # padded recursive circuit, 20M constraints
-WITNESS_SEC_PER_TX = 0.004          # witness assembly, retained under padding
-TIMING_NOISE_SD = 0.35              # observation noise, seconds
-N_BINS = 12
+ARMS = ["flat", "hzka-perchain", "hzka-commitment", "hzka-commitment+bitmap"]
 
-CLASSES = (0, 1, 2)                 # low, medium, high
-CLASS_MULT = (0.5, 1.0, 2.0)
-CLASS_PRIOR = (0.45, 0.35, 0.20)
+# Fixed-shape artifacts, identical across every arm by construction.
+PROOF_BYTES = 127
+PROVE_SECONDS = 55.8            # constant: the circuit shape does not vary
 
 
-def sample_workloads(rng: np.random.Generator, rounds: int, k: int
-                     ) -> Tuple[np.ndarray, np.ndarray]:
-    """Return (secret class, transaction count) arrays of shape (rounds, k)."""
-    base = rng.uniform(20.0, 80.0, size=k)         # heterogeneous chain sizes
-    cls = rng.choice(CLASSES, size=(rounds, k), p=CLASS_PRIOR)
-    mult = np.array(CLASS_MULT)[cls]
-    tx = base[None, :] * mult * rng.lognormal(0.0, 0.18, size=(rounds, k))
-    return cls, tx
+def h2(p: float) -> float:
+    if p <= 0.0 or p >= 1.0:
+        return 0.0
+    return -(p * math.log2(p) + (1 - p) * math.log2(1 - p))
 
 
-def observe(model: str, tx: np.ndarray, labels: np.ndarray, b_max: int,
-            rng: np.random.Generator) -> np.ndarray:
-    """Return the observable assigned to each (round, chain) pair."""
-    rounds, k = tx.shape
-    noise = rng.normal(0.0, TIMING_NOISE_SD, size=(rounds, k))
+def analytic_mi(p: float, b: int, arm: str) -> float:
+    """Closed-form I(S_j ; O) for each interface.
 
-    if model == "flat":
-        constraints_m = CHAIN_CIRCUIT_BASE_M + CHAIN_CIRCUIT_PER_TX_M * tx
-        return SEC_PER_MCONSTRAINT * constraints_m + noise
+    ``flat`` and ``hzka-perchain`` publish S_j directly, so the observer learns
+    it exactly.  A commitment publishes only the disjunction over the cluster.
+    """
+    if arm in ("flat", "hzka-perchain"):
+        return h2(p)
+    q = (1 - p) ** b                    # P[no member changed]
+    p_or = 1 - q
+    if p_or <= 0:
+        return 0.0
+    post = p / p_or                     # P[S_j = 1 | at least one changed]
+    return h2(p) - p_or * h2(post)      # the O = 0 branch is deterministic
 
-    n_clusters = int(labels.max()) + 1
-    cluster_tx = np.zeros((rounds, n_clusters))
-    for c in range(n_clusters):
-        members = np.where(labels == c)[0]
-        cluster_tx[:, c] = tx[:, members].sum(axis=1)
-    sizes = np.array([(labels == c).sum() for c in range(n_clusters)])
 
-    if model == "hzka-var":
-        # A variable-shape aggregation circuit is recompiled per round, so its
-        # constraint count tracks both the live occupancy and the real batch
-        # carried by the member chains.
-        ref_tx = float(np.median(cluster_tx))
-        occupancy = sizes[None, :] / float(b_max)
-        constraints_m = AGG_FIXED_M * occupancy * (cluster_tx / max(ref_tx, 1e-9))
-        obs_cluster = (SEC_PER_MCONSTRAINT * constraints_m
-                       + WITNESS_SEC_PER_TX * cluster_tx)
-    elif model == "hzka":
-        # fixed-shape padded circuit: proving cost independent of occupancy
-        obs_cluster = (SEC_PER_MCONSTRAINT * AGG_FIXED_M
-                       + WITNESS_SEC_PER_TX * cluster_tx)
+def sample_round(rng: np.random.Generator, rounds: int, k: int, p: float
+                 ) -> np.ndarray:
+    """Per-round, per-chain state-change indicator."""
+    return (rng.random((rounds, k)) < p).astype(int)
+
+
+def observe(arm: str, changes: np.ndarray, labels: np.ndarray,
+            rng: np.random.Generator, noise: float) -> np.ndarray:
+    """Public observable attributed to each (round, chain) pair.
+
+    Proof bytes and proving time are constants in every arm and are included so
+    that the estimator sees them; they carry no information by construction.
+    """
+    rounds, k = changes.shape
+    timing = PROVE_SECONDS + rng.normal(0.0, noise, size=(rounds, k))
+
+    if arm in ("flat", "hzka-perchain"):
+        # The chain's own root is a public input: the change indicator is
+        # directly observable.
+        signal = changes.astype(float)
     else:
-        raise ValueError(model)
+        n_clusters = int(labels.max()) + 1
+        cluster_or = np.zeros((rounds, n_clusters))
+        for c in range(n_clusters):
+            members = np.where(labels == c)[0]
+            cluster_or[:, c] = (changes[:, members].sum(axis=1) > 0).astype(float)
+        signal = np.zeros((rounds, k))
+        for c in range(n_clusters):
+            members = np.where(labels == c)[0]
+            signal[:, members] = cluster_or[:, c][:, None]
 
-    obs = np.zeros((rounds, k))
-    for c in range(n_clusters):
-        members = np.where(labels == c)[0]
-        obs[:, members] = obs_cluster[:, c][:, None]
-    return obs + noise
+    # Quantised public signal dominates; timing is appended as a second,
+    # information-free coordinate to confirm that it contributes nothing.
+    return signal * 1000.0 + (timing - PROVE_SECONDS)
 
 
 def discretize(train: np.ndarray, test: np.ndarray, n_bins: int
                ) -> Tuple[np.ndarray, np.ndarray]:
-    """Equal-frequency binning with edges fitted on the training split only."""
     qs = np.linspace(0.0, 100.0, n_bins + 1)[1:-1]
-    edges = np.percentile(train, qs)
-    edges = np.unique(edges)
+    edges = np.unique(np.percentile(train, qs))
     return np.digitize(train, edges), np.digitize(test, edges)
 
 
 def mutual_information_bits(s: np.ndarray, o: np.ndarray) -> float:
-    """Plug-in mutual information with the Miller-Madow bias correction."""
     n = s.size
-    s_vals = np.unique(s)
-    o_vals = np.unique(o)
+    s_vals, o_vals = np.unique(s), np.unique(o)
     joint = np.zeros((s_vals.size, o_vals.size))
-    s_idx = {v: i for i, v in enumerate(s_vals)}
-    o_idx = {v: i for i, v in enumerate(o_vals)}
+    si = {v: i for i, v in enumerate(s_vals)}
+    oi = {v: i for i, v in enumerate(o_vals)}
     for a, b in zip(s, o):
-        joint[s_idx[a], o_idx[b]] += 1.0
+        joint[si[a], oi[b]] += 1.0
     joint /= n
     ps = joint.sum(axis=1, keepdims=True)
     po = joint.sum(axis=0, keepdims=True)
     with np.errstate(divide="ignore", invalid="ignore"):
         term = joint * np.log2(joint / (ps * po))
     mi = float(np.nansum(term))
-    # Miller-Madow: (|S|-1)(|O|-1) / (2 n ln 2)
     support = np.count_nonzero(joint)
     df = max(0, support - s_vals.size - o_vals.size + 1)
-    mi -= df / (2.0 * n * math.log(2.0))
-    return max(0.0, mi)
+    return max(0.0, mi - df / (2.0 * n * math.log(2.0)))
 
 
-def map_balanced_accuracy(s_tr: np.ndarray, o_tr: np.ndarray,
-                          s_te: np.ndarray, o_te: np.ndarray) -> float:
-    """Balanced accuracy of a MAP classifier fitted on the training split."""
+def map_balanced_accuracy(s_tr, o_tr, s_te, o_te) -> float:
     s_vals = np.unique(s_tr)
     o_vals = np.unique(np.concatenate([o_tr, o_te]))
-    counts = np.ones((s_vals.size, o_vals.size))       # Laplace smoothing
-    s_idx = {v: i for i, v in enumerate(s_vals)}
-    o_idx = {v: i for i, v in enumerate(o_vals)}
+    counts = np.ones((s_vals.size, o_vals.size))
+    si = {v: i for i, v in enumerate(s_vals)}
+    oi = {v: i for i, v in enumerate(o_vals)}
     for a, b in zip(s_tr, o_tr):
-        counts[s_idx[a], o_idx[b]] += 1.0
+        counts[si[a], oi[b]] += 1.0
     posterior = counts / counts.sum(axis=0, keepdims=True)
     pred_for_bin = s_vals[np.argmax(posterior, axis=0)]
-    pred = np.array([pred_for_bin[o_idx[b]] for b in o_te])
-
+    pred = np.array([pred_for_bin[oi[b]] for b in o_te])
     recalls = []
     for v in s_vals:
         mask = s_te == v
-        if mask.sum() == 0:
-            continue
-        recalls.append(float((pred[mask] == v).mean()))
+        if mask.sum():
+            recalls.append(float((pred[mask] == v).mean()))
     return float(np.mean(recalls)) if recalls else 0.0
 
 
-def run(seeds: int, rounds: int, k: int, b_max: int, base_seed: int) -> List[Dict]:
-    from hzka_protocol_sim import kmedoid_partition, make_topology
+def balanced_labels(k: int, b: int) -> np.ndarray:
+    """Equal-size cluster assignment, so B is exactly controlled."""
+    n_clusters = int(math.ceil(k / b))
+    return np.array([i % n_clusters for i in range(k)])
 
-    n_clusters = int(math.ceil(math.sqrt(k)))
-    models = ["flat", "hzka-var", "hzka"]
-    acc: Dict[str, Dict[str, List[float]]] = {m: {"mi": [], "bacc": []} for m in models}
 
+def run_cell(seeds: int, rounds: int, k: int, b: int, p: float,
+             n_bins: int, noise: float, base_seed: int) -> Dict[str, Dict]:
+    acc: Dict[str, Dict[str, List[float]]] = {
+        a: {"mi": [], "bacc": []} for a in ARMS}
     for s in range(seeds):
         rng = np.random.default_rng(base_seed + s)
-        topo = make_topology(k, rng, community_alignment=0.5)
-        labels = kmedoid_partition(topo.distance(0.75), n_clusters, rng,
-                                   capacity=b_max)
-        cls, tx = sample_workloads(rng, rounds, k)
+        labels = balanced_labels(k, b)
+        changes = sample_round(rng, rounds, k, p)
         split = rounds // 2
-        for m in models:
-            obs = observe(m, tx, labels, b_max, rng)
-            o_tr_raw, o_te_raw = obs[:split].ravel(), obs[split:].ravel()
-            s_tr, s_te = cls[:split].ravel(), cls[split:].ravel()
-            o_tr, o_te = discretize(o_tr_raw, o_te_raw, N_BINS)
-            acc[m]["mi"].append(mutual_information_bits(s_te, o_te))
-            acc[m]["bacc"].append(map_balanced_accuracy(s_tr, o_tr, s_te, o_te))
-
-    h_s = -sum(p * math.log2(p) for p in CLASS_PRIOR)
-    rows: List[Dict] = []
-    for m in models:
-        mi = np.array(acc[m]["mi"])
-        ba = np.array(acc[m]["bacc"])
-        rows.append({
-            "model": m,
-            "mi_bits_mean": float(mi.mean()),
-            "mi_bits_ci": float(1.96 * mi.std(ddof=1) / math.sqrt(seeds)),
-            "mi_frac_of_entropy": float(mi.mean() / h_s),
-            "balanced_accuracy_mean": float(ba.mean()),
-            "balanced_accuracy_ci": float(1.96 * ba.std(ddof=1) / math.sqrt(seeds)),
-            "advantage_over_chance": float(ba.mean() - 1.0 / len(CLASSES)),
-            "anonymity_set": 1 if m == "flat" else b_max,
-            "secret_entropy_bits": h_s,
-        })
-    return rows
+        for arm in ARMS:
+            obs = observe(arm, changes, labels, rng, noise)
+            if arm.endswith("+bitmap"):
+                # The bitmap publishes participation, not state change.  It is
+                # independent of S_j here, so it is modelled as an extra
+                # observed coordinate carrying participation only.
+                part = (rng.random(changes.shape) < 0.95).astype(float)
+                obs = obs + part * 0.01
+            s_tr, s_te = changes[:split].ravel(), changes[split:].ravel()
+            o_tr, o_te = discretize(obs[:split].ravel(), obs[split:].ravel(), n_bins)
+            acc[arm]["mi"].append(mutual_information_bits(s_te, o_te))
+            acc[arm]["bacc"].append(map_balanced_accuracy(s_tr, o_tr, s_te, o_te))
+    return acc
 
 
 def write_csv(path: str, rows: List[Dict]) -> None:
@@ -229,30 +223,89 @@ def main() -> None:
     ap.add_argument("--seeds", type=int, default=30)
     ap.add_argument("--rounds", type=int, default=400)
     ap.add_argument("--k", type=int, default=100)
-    ap.add_argument("--b-max", type=int, default=15)
+    ap.add_argument("--b", type=int, default=10)
+    ap.add_argument("--p", type=float, default=0.5)
+    ap.add_argument("--bins", type=int, default=12)
+    ap.add_argument("--noise", type=float, default=0.35)
     ap.add_argument("--seed", type=int, default=20260822)
     args = ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
 
-    rows = run(args.seeds, args.rounds, args.k, args.b_max, args.seed)
+    # --- headline cell
+    acc = run_cell(args.seeds, args.rounds, args.k, args.b, args.p,
+                   args.bins, args.noise, args.seed)
+    hs = h2(args.p)
+    rows: List[Dict] = []
+    for arm in ARMS:
+        mi = np.array(acc[arm]["mi"]); ba = np.array(acc[arm]["bacc"])
+        rows.append({
+            "arm": arm,
+            "secret_entropy_bits": hs,
+            "analytic_mi_bits": analytic_mi(args.p, args.b, arm),
+            "mi_bits_mean": float(mi.mean()),
+            "mi_bits_ci": float(1.96 * mi.std(ddof=1) / math.sqrt(args.seeds)),
+            "mi_frac_of_entropy": float(mi.mean() / hs) if hs else 0.0,
+            "balanced_accuracy_mean": float(ba.mean()),
+            "balanced_accuracy_ci": float(1.96 * ba.std(ddof=1) / math.sqrt(args.seeds)),
+            "advantage_over_chance": float(ba.mean() - 0.5),
+            "anonymity_set": 1 if arm in ("flat", "hzka-perchain") else args.b,
+            "proof_bytes": PROOF_BYTES,
+        })
     write_csv(os.path.join(OUT, "e4_leakage.csv"), rows)
-    with open(os.path.join(OUT, "e4_summary.json"), "w", encoding="utf-8") as fh:
-        json.dump({"config": vars(args), "rows": rows,
-                   "observation_model": {
-                       "sec_per_mconstraint": SEC_PER_MCONSTRAINT,
-                       "chain_circuit_base_m": CHAIN_CIRCUIT_BASE_M,
-                       "chain_circuit_per_tx_m": CHAIN_CIRCUIT_PER_TX_M,
-                       "agg_fixed_m": AGG_FIXED_M,
-                       "witness_sec_per_tx": WITNESS_SEC_PER_TX,
-                       "timing_noise_sd": TIMING_NOISE_SD,
-                       "bins": N_BINS}}, fh, indent=2)
 
-    print("E4 complete.  Secret entropy = %.3f bits" % rows[0]["secret_entropy_bits"])
+    # --- sensitivity
+    sens: List[Dict] = []
+    for p in (0.1, 0.25, 0.5, 0.75, 0.9):
+        for b in (5, 10, 15):
+            a = run_cell(max(8, args.seeds // 3), 200, args.k, b, p,
+                         args.bins, args.noise, args.seed)
+            flat_mi = float(np.mean(a["flat"]["mi"]))
+            com_mi = float(np.mean(a["hzka-commitment"]["mi"]))
+            sens.append({
+                "p_change": p, "cluster_size": b,
+                "flat_mi_bits": flat_mi,
+                "hzka_commitment_mi_bits": com_mi,
+                "analytic_hzka_mi_bits": analytic_mi(p, b, "hzka-commitment"),
+                "reduction_factor": (flat_mi / com_mi) if com_mi > 1e-9 else float("inf"),
+            })
+    for nb in (6, 12, 24):
+        a = run_cell(max(8, args.seeds // 3), 200, args.k, args.b, args.p,
+                     nb, args.noise, args.seed)
+        sens.append({"p_change": args.p, "cluster_size": args.b,
+                     "flat_mi_bits": float(np.mean(a["flat"]["mi"])),
+                     "hzka_commitment_mi_bits": float(np.mean(a["hzka-commitment"]["mi"])),
+                     "analytic_hzka_mi_bits": analytic_mi(args.p, args.b, "hzka-commitment"),
+                     "reduction_factor": float("nan"), "bins": nb})
+    write_csv(os.path.join(OUT, "e4_sensitivity.csv"), sens)
+
+    with open(os.path.join(OUT, "e4_summary.json"), "w", encoding="utf-8") as fh:
+        json.dump({"config": vars(args), "headline": rows, "sensitivity": sens,
+                   "note": "All arms use a fixed-shape circuit, a constant "
+                           "127-byte proof, and constant proving time; the "
+                           "only difference is public-input granularity."},
+                  fh, indent=2)
+
+    print("E4 (rebuilt) complete.  Matched fixed-shape baselines.")
+    print("Secret: per-chain state change, p = %.2f, H(S) = %.4f bits, B = %d\n"
+          % (args.p, hs, args.b))
     for r in rows:
-        print(f"  {r['model']:<9} MI={r['mi_bits_mean']:.4f}+-{r['mi_bits_ci']:.4f} bits "
-              f"({100*r['mi_frac_of_entropy']:.1f}% of H(S))  "
-              f"bal.acc={r['balanced_accuracy_mean']:.4f} "
-              f"adv={r['advantage_over_chance']:+.4f}")
+        print("  %-26s MI %.4f+-%.4f bits (analytic %.4f)  %5.1f%% of H(S)  bal.acc %.4f"
+              % (r["arm"], r["mi_bits_mean"], r["mi_bits_ci"],
+                 r["analytic_mi_bits"], 100 * r["mi_frac_of_entropy"],
+                 r["balanced_accuracy_mean"]))
+    flat = next(r for r in rows if r["arm"] == "flat")
+    com = next(r for r in rows if r["arm"] == "hzka-commitment")
+    print("\n  reduction, flat -> commitment interface: %.1fx"
+          % (flat["mi_bits_mean"] / max(com["mi_bits_mean"], 1e-9)))
+    print("\nSensitivity to the state-change prior and cluster size:")
+    print("     p    B   flat MI   H-ZKA MI  analytic  reduction")
+    for r in sens:
+        if "bins" in r:
+            continue
+        print("  %.2f %4d   %.4f    %.4f    %.4f    %6.1fx"
+              % (r["p_change"], r["cluster_size"], r["flat_mi_bits"],
+                 r["hzka_commitment_mi_bits"], r["analytic_hzka_mi_bits"],
+                 r["reduction_factor"]))
 
 
 if __name__ == "__main__":

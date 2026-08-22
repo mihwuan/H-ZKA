@@ -3,51 +3,214 @@
     "seeds": 30,
     "rounds": 400,
     "k": 100,
-    "b_max": 15,
+    "b": 10,
+    "p": 0.5,
+    "bins": 12,
+    "noise": 0.35,
     "seed": 20260822
   },
-  "rows": [
+  "headline": [
     {
-      "model": "flat",
-      "mi_bits_mean": 0.7073947337017348,
-      "mi_bits_ci": 0.011359871463191904,
-      "mi_frac_of_entropy": 0.46757916691252627,
-      "balanced_accuracy_mean": 0.7149439676494309,
-      "balanced_accuracy_ci": 0.008284617220505825,
-      "advantage_over_chance": 0.3816106343160976,
+      "arm": "flat",
+      "secret_entropy_bits": 1.0,
+      "analytic_mi_bits": 1.0,
+      "mi_bits_mean": 0.9846948722024493,
+      "mi_bits_ci": 0.0037267959672496703,
+      "mi_frac_of_entropy": 0.9846948722024493,
+      "balanced_accuracy_mean": 0.9974314000022577,
+      "balanced_accuracy_ci": 0.0007788405116943806,
+      "advantage_over_chance": 0.4974314000022577,
       "anonymity_set": 1,
-      "secret_entropy_bits": 1.5128876215181604
+      "proof_bytes": 127
     },
     {
-      "model": "hzka-var",
-      "mi_bits_mean": 0.015887531142105577,
-      "mi_bits_ci": 0.0014762825453288513,
-      "mi_frac_of_entropy": 0.010501461520428513,
-      "balanced_accuracy_mean": 0.3391102063050425,
-      "balanced_accuracy_ci": 0.0023191546024416794,
-      "advantage_over_chance": 0.0057768729717092016,
-      "anonymity_set": 15,
-      "secret_entropy_bits": 1.5128876215181604
+      "arm": "hzka-perchain",
+      "secret_entropy_bits": 1.0,
+      "analytic_mi_bits": 1.0,
+      "mi_bits_mean": 0.9843226222874599,
+      "mi_bits_ci": 0.0035323136123743396,
+      "mi_frac_of_entropy": 0.9843226222874599,
+      "balanced_accuracy_mean": 0.9973842625018804,
+      "balanced_accuracy_ci": 0.0007161000257678644,
+      "advantage_over_chance": 0.4973842625018804,
+      "anonymity_set": 1,
+      "proof_bytes": 127
     },
     {
-      "model": "hzka",
-      "mi_bits_mean": 0.01243578193983879,
-      "mi_bits_ci": 0.0006360308593073348,
-      "mi_frac_of_entropy": 0.008219898003633387,
-      "balanced_accuracy_mean": 0.336020523965556,
-      "balanced_accuracy_ci": 0.001641003261186099,
-      "advantage_over_chance": 0.002687190632222669,
-      "anonymity_set": 15,
-      "secret_entropy_bits": 1.5128876215181604
+      "arm": "hzka-commitment",
+      "secret_entropy_bits": 1.0,
+      "analytic_mi_bits": 0.0009772511031771458,
+      "mi_bits_mean": 0.00011640689856235912,
+      "mi_bits_ci": 6.192372167300868e-05,
+      "mi_frac_of_entropy": 0.00011640689856235912,
+      "balanced_accuracy_mean": 0.5002773306226481,
+      "balanced_accuracy_ci": 0.0013316433499111974,
+      "advantage_over_chance": 0.0002773306226481198,
+      "anonymity_set": 10,
+      "proof_bytes": 127
+    },
+    {
+      "arm": "hzka-commitment+bitmap",
+      "secret_entropy_bits": 1.0,
+      "analytic_mi_bits": 0.0009772511031771458,
+      "mi_bits_mean": 9.696128137549668e-05,
+      "mi_bits_ci": 5.929459752522246e-05,
+      "mi_frac_of_entropy": 9.696128137549668e-05,
+      "balanced_accuracy_mean": 0.5000611570238946,
+      "balanced_accuracy_ci": 0.0014187255341073625,
+      "advantage_over_chance": 6.115702389464239e-05,
+      "anonymity_set": 10,
+      "proof_bytes": 127
     }
   ],
-  "observation_model": {
-    "sec_per_mconstraint": 4.567686,
-    "chain_circuit_base_m": 1.2,
-    "chain_circuit_per_tx_m": 0.1176,
-    "agg_fixed_m": 20.0,
-    "witness_sec_per_tx": 0.004,
-    "timing_noise_sd": 0.35,
-    "bins": 12
-  }
+  "sensitivity": [
+    {
+      "p_change": 0.1,
+      "cluster_size": 5,
+      "flat_mi_bits": 0.4109294875029965,
+      "hzka_commitment_mi_bits": 0.13731811229996066,
+      "analytic_hzka_mi_bits": 0.14059071808806567,
+      "reduction_factor": 2.992536677210893
+    },
+    {
+      "p_change": 0.1,
+      "cluster_size": 10,
+      "flat_mi_bits": 0.4109294875029965,
+      "hzka_commitment_mi_bits": 0.06220077168851819,
+      "analytic_hzka_mi_bits": 0.06607901229309632,
+      "reduction_factor": 6.606501436361619
+    },
+    {
+      "p_change": 0.1,
+      "cluster_size": 15,
+      "flat_mi_bits": 0.4109294875029965,
+      "hzka_commitment_mi_bits": 0.0320793169661408,
+      "analytic_hzka_mi_bits": 0.03528343076461615,
+      "reduction_factor": 12.809795418547282
+    },
+    {
+      "p_change": 0.25,
+      "cluster_size": 5,
+      "flat_mi_bits": 0.7964157010233471,
+      "hzka_commitment_mi_bits": 0.10102564711917553,
+      "analytic_hzka_mi_bits": 0.11520639799594323,
+      "reduction_factor": 7.8833021488479105
+    },
+    {
+      "p_change": 0.25,
+      "cluster_size": 10,
+      "flat_mi_bits": 0.7964157010233471,
+      "hzka_commitment_mi_bits": 0.011039685131290843,
+      "analytic_hzka_mi_bits": 0.02416988365880246,
+      "reduction_factor": 72.14116087115468
+    },
+    {
+      "p_change": 0.25,
+      "cluster_size": 15,
+      "flat_mi_bits": 0.7964157010233471,
+      "hzka_commitment_mi_bits": 0.0008694333852260073,
+      "analytic_hzka_mi_bits": 0.0055897289858911625,
+      "reduction_factor": 916.0169307465926
+    },
+    {
+      "p_change": 0.5,
+      "cluster_size": 5,
+      "flat_mi_bits": 0.9830417642637886,
+      "hzka_commitment_mi_bits": 0.007377701855341812,
+      "analytic_hzka_mi_bits": 0.031977291004207764,
+      "reduction_factor": 133.2449838091545
+    },
+    {
+      "p_change": 0.5,
+      "cluster_size": 10,
+      "flat_mi_bits": 0.9830417642637886,
+      "hzka_commitment_mi_bits": 0.0001279587614904034,
+      "analytic_hzka_mi_bits": 0.0009772511031771458,
+      "reduction_factor": 7682.488895748764
+    },
+    {
+      "p_change": 0.5,
+      "cluster_size": 15,
+      "flat_mi_bits": 0.9830417642637886,
+      "hzka_commitment_mi_bits": 0.0001363660575643486,
+      "analytic_hzka_mi_bits": 3.051824995270458e-05,
+      "reduction_factor": 7208.8449414907345
+    },
+    {
+      "p_change": 0.75,
+      "cluster_size": 5,
+      "flat_mi_bits": 0.792180370599362,
+      "hzka_commitment_mi_bits": 0.00021358685469851824,
+      "analytic_hzka_mi_bits": 0.0019551921577516396,
+      "reduction_factor": 3708.9378544271326
+    },
+    {
+      "p_change": 0.75,
+      "cluster_size": 10,
+      "flat_mi_bits": 0.792180370599362,
+      "hzka_commitment_mi_bits": 0.00016631288640500373,
+      "analytic_hzka_mi_bits": 1.907350601015878e-06,
+      "reduction_factor": 4763.192965518325
+    },
+    {
+      "p_change": 0.75,
+      "cluster_size": 15,
+      "flat_mi_bits": 0.792180370599362,
+      "hzka_commitment_mi_bits": 0.00016631288640500373,
+      "analytic_hzka_mi_bits": 1.862645149230957e-09,
+      "reduction_factor": 4763.192965518325
+    },
+    {
+      "p_change": 0.9,
+      "cluster_size": 5,
+      "flat_mi_bits": 0.41013675451930665,
+      "hzka_commitment_mi_bits": 0.00012454529097176073,
+      "analytic_hzka_mi_bits": 3.321993018512437e-05,
+      "reduction_factor": 3293.073156915267
+    },
+    {
+      "p_change": 0.9,
+      "cluster_size": 10,
+      "flat_mi_bits": 0.41013675451930665,
+      "hzka_commitment_mi_bits": 0.00012454529097176073,
+      "analytic_hzka_mi_bits": 3.3219277328910835e-10,
+      "reduction_factor": 3293.073156915267
+    },
+    {
+      "p_change": 0.9,
+      "cluster_size": 15,
+      "flat_mi_bits": 0.41013675451930665,
+      "hzka_commitment_mi_bits": 0.00012454529097176073,
+      "analytic_hzka_mi_bits": 3.219646771412954e-15,
+      "reduction_factor": 3293.073156915267
+    },
+    {
+      "p_change": 0.5,
+      "cluster_size": 10,
+      "flat_mi_bits": 0.9801389752443228,
+      "hzka_commitment_mi_bits": 7.850902368186337e-05,
+      "analytic_hzka_mi_bits": 0.0009772511031771458,
+      "reduction_factor": NaN,
+      "bins": 6
+    },
+    {
+      "p_change": 0.5,
+      "cluster_size": 10,
+      "flat_mi_bits": 0.9830417642637886,
+      "hzka_commitment_mi_bits": 0.0001279587614904034,
+      "analytic_hzka_mi_bits": 0.0009772511031771458,
+      "reduction_factor": NaN,
+      "bins": 12
+    },
+    {
+      "p_change": 0.5,
+      "cluster_size": 10,
+      "flat_mi_bits": 0.9859382683324958,
+      "hzka_commitment_mi_bits": 0.00015255020989117773,
+      "analytic_hzka_mi_bits": 0.0009772511031771458,
+      "reduction_factor": NaN,
+      "bins": 24
+    }
+  ],
+  "note": "All arms use a fixed-shape circuit, a constant 127-byte proof, and constant proving time; the only difference is public-input granularity."
 }

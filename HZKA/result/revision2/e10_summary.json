@@ -1,0 +1,199 @@
+{
+  "config": {
+    "seeds": 30,
+    "rounds": 260,
+    "k": 100,
+    "byz": 0.2,
+    "seed": 20260822
+  },
+  "cluster_config": [
+    {
+      "k": 100,
+      "clusters_m": 4,
+      "cluster_size_b": 25,
+      "is_sqrt_rule": 0,
+      "agg_constraints_millions": 32.818,
+      "agg_prover_seconds": 149.902319148,
+      "agg_memory_gib": 98.454,
+      "onchain_gas_round": 970124,
+      "onchain_pairing_gas": 724000,
+      "bft_threshold": 9,
+      "capture_prob": 0.024954840403821028,
+      "expected_captured_clusters": 0.09981936161528411,
+      "total_agg_work_seconds": 599.609276592
+    },
+    {
+      "k": 100,
+      "clusters_m": 5,
+      "cluster_size_b": 20,
+      "is_sqrt_rule": 0,
+      "agg_constraints_millions": 26.418000000000003,
+      "agg_prover_seconds": 120.66912874800002,
+      "agg_memory_gib": 79.254,
+      "onchain_gas_round": 1212655,
+      "onchain_pairing_gas": 905000,
+      "bft_threshold": 7,
+      "capture_prob": 0.06366899842499928,
+      "expected_captured_clusters": 0.3183449921249964,
+      "total_agg_work_seconds": 603.3456437400001
+    },
+    {
+      "k": 100,
+      "clusters_m": 8,
+      "cluster_size_b": 13,
+      "is_sqrt_rule": 0,
+      "agg_constraints_millions": 17.4544,
+      "agg_prover_seconds": 79.7262185184,
+      "agg_memory_gib": 52.3632,
+      "onchain_gas_round": 1940248,
+      "onchain_pairing_gas": 1448000,
+      "bft_threshold": 5,
+      "capture_prob": 0.19365665487499528,
+      "expected_captured_clusters": 1.5492532389999623,
+      "total_agg_work_seconds": 637.8097481472
+    },
+    {
+      "k": 100,
+      "clusters_m": 10,
+      "cluster_size_b": 10,
+      "is_sqrt_rule": 1,
+      "agg_constraints_millions": 13.614400000000002,
+      "agg_prover_seconds": 62.18630427840001,
+      "agg_memory_gib": 40.8432,
+      "onchain_gas_round": 2425310,
+      "onchain_pairing_gas": 1810000,
+      "bft_threshold": 4,
+      "capture_prob": 0.1095718509592766,
+      "expected_captured_clusters": 1.095718509592766,
+      "total_agg_work_seconds": 621.8630427840002
+    },
+    {
+      "k": 100,
+      "clusters_m": 13,
+      "cluster_size_b": 8,
+      "is_sqrt_rule": 0,
+      "agg_constraints_millions": 11.0508,
+      "agg_prover_seconds": 50.476584448800004,
+      "agg_memory_gib": 33.1524,
+      "onchain_gas_round": 3152903,
+      "onchain_pairing_gas": 2353000,
+      "bft_threshold": 3,
+      "capture_prob": 0.14076081847522953,
+      "expected_captured_clusters": 1.829890640177984,
+      "total_agg_work_seconds": 656.1955978344001
+    },
+    {
+      "k": 100,
+      "clusters_m": 20,
+      "cluster_size_b": 5,
+      "is_sqrt_rule": 0,
+      "agg_constraints_millions": 7.2108,
+      "agg_prover_seconds": 32.9366702088,
+      "agg_memory_gib": 21.6324,
+      "onchain_gas_round": 4850620,
+      "onchain_pairing_gas": 3620000,
+      "bft_threshold": 2,
+      "capture_prob": 0.26054655539191623,
+      "expected_captured_clusters": 5.2109311078383245,
+      "total_agg_work_seconds": 658.733404176
+    },
+    {
+      "k": 100,
+      "clusters_m": 25,
+      "cluster_size_b": 4,
+      "is_sqrt_rule": 0,
+      "agg_constraints_millions": 5.9272,
+      "agg_prover_seconds": 27.0735884592,
+      "agg_memory_gib": 17.7816,
+      "onchain_gas_round": 6063275,
+      "onchain_pairing_gas": 4525000,
+      "bft_threshold": 2,
+      "capture_prob": 0.17760903799195404,
+      "expected_captured_clusters": 4.440225949798851,
+      "total_agg_work_seconds": 676.83971148
+    }
+  ],
+  "burstiness": [
+    {
+      "target_utilisation": 0.5,
+      "arrival_mode": "poisson",
+      "burst_ratio": 1.0,
+      "capacity_jobs_per_round": 200.0,
+      "mean_backlog_jobs": 0.0,
+      "backlog_p95_jobs": 0.0,
+      "round_on_time_frac": 1.0
+    },
+    {
+      "target_utilisation": 0.5,
+      "arrival_mode": "bursty-3x",
+      "burst_ratio": 3.0,
+      "capacity_jobs_per_round": 200.0,
+      "mean_backlog_jobs": 59.92307692307691,
+      "backlog_p95_jobs": 257.55833333333317,
+      "round_on_time_frac": 0.9066666666666667
+    },
+    {
+      "target_utilisation": 0.5,
+      "arrival_mode": "bursty-6x",
+      "burst_ratio": 6.0,
+      "capacity_jobs_per_round": 200.0,
+      "mean_backlog_jobs": 194.77897435897438,
+      "backlog_p95_jobs": 825.6549999999999,
+      "round_on_time_frac": 0.6596153846153847
+    },
+    {
+      "target_utilisation": 0.7,
+      "arrival_mode": "poisson",
+      "burst_ratio": 1.0,
+      "capacity_jobs_per_round": 142.85714285714286,
+      "mean_backlog_jobs": 0.0,
+      "backlog_p95_jobs": 0.0,
+      "round_on_time_frac": 1.0
+    },
+    {
+      "target_utilisation": 0.7,
+      "arrival_mode": "bursty-3x",
+      "burst_ratio": 3.0,
+      "capacity_jobs_per_round": 142.85714285714286,
+      "mean_backlog_jobs": 199.08743589743574,
+      "backlog_p95_jobs": 687.6271428571421,
+      "round_on_time_frac": 0.49717948717948723
+    },
+    {
+      "target_utilisation": 0.7,
+      "arrival_mode": "bursty-6x",
+      "burst_ratio": 6.0,
+      "capacity_jobs_per_round": 142.85714285714286,
+      "mean_backlog_jobs": 554.4190293040296,
+      "backlog_p95_jobs": 1741.7414285714287,
+      "round_on_time_frac": 0.38307692307692304
+    },
+    {
+      "target_utilisation": 0.9,
+      "arrival_mode": "poisson",
+      "burst_ratio": 1.0,
+      "capacity_jobs_per_round": 111.11111111111111,
+      "mean_backlog_jobs": 1.0561538461538453,
+      "backlog_p95_jobs": 7.700925925925912,
+      "round_on_time_frac": 1.0
+    },
+    {
+      "target_utilisation": 0.9,
+      "arrival_mode": "bursty-3x",
+      "burst_ratio": 3.0,
+      "capacity_jobs_per_round": 111.11111111111111,
+      "mean_backlog_jobs": 644.967905982906,
+      "backlog_p95_jobs": 1555.4990740740734,
+      "round_on_time_frac": 0.21025641025641023
+    },
+    {
+      "target_utilisation": 0.9,
+      "arrival_mode": "bursty-6x",
+      "burst_ratio": 6.0,
+      "capacity_jobs_per_round": 111.11111111111111,
+      "mean_backlog_jobs": 1121.0677492877471,
+      "backlog_p95_jobs": 2826.0948148148095,
+      "round_on_time_frac": 0.22666666666666666
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface,tx_base,calldata,verify,storage,event,total
+Flat, per chain,21000,5444,204450,10000,1637,242531
+H-ZKA, commitment,21000,5444,204450,10000,1637,242531
+H-ZKA, per-chain inputs,21000,12288,290550,10000,1637,335475

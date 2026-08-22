@@ -334,15 +334,34 @@ The values below are aligned with the claims in `main.tex`.
 
 ### TN4 - Gas Consumption (RQ4)
 
-The manuscript summarizes the gas results with the following figures:
+> **Important:** the per-cluster figure below was recorded with
+> `enableMockVerifier()` active (see `scripts/deploy_global_audit.cjs`), so it
+> measures contract bookkeeping, calldata, storage, and events **only**. The
+> Groth16 check was bypassed. It cannot be read as end-to-end verification
+> cost, and the earlier 13.8x end-to-end claim derived from it has been
+> withdrawn.
 
-| Measurement | Gas |
-| --- | --- |
-| Individual audit (Psi) | 555,202 |
-| Aggregated verification | 324,145 |
-| Reputation update + slashing | 772,621 |
-| Total per round at k=100 | 4,014,071 |
-| Baseline per round at k=100 | 55,520,200 |
+Measured contract bookkeeping:
+
+| Measurement | Gas | Includes proof verification? |
+| --- | --- | --- |
+| Individual audit (Psi) | 555,202 | see caveat above |
+| Aggregated submission bookkeeping | 324,145 | **no** (verifier mocked) |
+| Reputation update + slashing | 772,621 | n/a |
+
+Verification cost is instead derived exactly from the EVM gas schedule by
+`scripts/revision2/exp_onchain_cost.py`, using constants fixed by EIP-196/197
+(repriced by EIP-1108), EIP-2028, and EIP-2929/3529:
+
+| Interface | Public inputs | Verify gas | Round total at k=100 |
+| --- | --- | --- | --- |
+| Flat, per chain | 3 | 204,450 | 24.25 Mgas |
+| H-ZKA, cluster commitment | 3 | 204,450 | 2.43 Mgas (10.0x less) |
+| H-ZKA, per-chain public inputs | 17 | 290,550 | 3.35 Mgas (7.2x less) |
+
+The third row is why Algorithm 1 was corrected to publish a constant-size
+cluster commitment: exposing every member root keeps the pairing count at
+O(sqrt k) but makes the scalar-multiplication and calldata terms Theta(k).
 
 The internal source artifacts for these numbers are:
 
@@ -351,13 +370,21 @@ The internal source artifacts for these numbers are:
 | Deploy gas and deploy cost | `result/sepolia/sepolia_gas_report.json` |
 | Per-round global audit gas and latency | `result/global_audit/global_audit_report.json`, `result/global_audit/global_audit_rounds.csv`, `scripts/log_run_script/global-audit.log` |
 
-The aggregate reduction is 13.8x at k=100. The exact per-round internal CSV/log values vary slightly by round, while the manuscript reports the summarized round-level figures in Table 10.
+The verification reduction is 10.0x at k=100 and 13.3x at k=200 under the
+commitment interface. The exact per-round internal CSV/log values vary slightly
+by round.
 
 ### Benchmark Regression and Capacity Model
 
 - The paper's benchmark regression uses nine measured circuits up to 11.5 million constraints.
-- The 20-million-constraint recursive proof is predicted at 90.2 s with a 95% prediction interval of [74.9, 105.4] s.
-- Under a 120 s audit cadence, the capacity model requires 8 dedicated H-ZKA workers instead of 47 baseline workers.
+- The 20-million-constraint recursive proof is predicted at 90.2 s (linear fit)
+  with a 95% prediction interval of [74.9, 105.4] s; across three model forms
+  the union interval is [54.6, 122.5] s.
+- Under a 120 s audit cadence and counting **both** proving stages, H-ZKA needs
+  55 workers at k=100 against the flat baseline's 47: the same 47 inner-proof
+  workers plus 8 aggregation workers. The earlier "8 instead of 47" comparison
+  omitted the k per-chain proofs that H-ZKA also requires. See
+  `scripts/revision2/exp_prover_pipeline.py`.
 - The artifact set for these runs is stored under `result/vm_benchmark/`, `result/ram_benchmark/`, and `scripts/log_run_script/`.
 
 ### TN6 - Byzantine Resilience (RQ2)
@@ -377,9 +404,10 @@ The aggregate reduction is 13.8x at k=100. The exact per-round internal CSV/log 
 | TN1 | 6 confirmed safety faults to jail; 69 rounds for omission-only ineligibility |
 | TN2 | 10x proof reduction at k=100 |
 | TN3 | 12.1x speedup at k=100 |
-| TN4 | 13.8x gas reduction at k=100 |
-| Benchmark regression | 90.2 s at 20M constraints; 8 workers vs 47 |
-| TN6 | 100% final accuracy after MF-PoP isolation |
+| TN4 | 10.0x on-chain verification gas reduction at k=100 (exact gas model) |
+| Benchmark regression | 20M proof in [54.6, 122.5] s across three model forms |
+| Capacity | 55 H-ZKA workers vs 47 flat at k=100, counting both proving stages |
+| TN6 | 100% final accuracy within the per-cluster BFT condition |
 
 ---
 
@@ -410,6 +438,22 @@ See `scripts/revision2/README.md` for the full parameter set.
 - Replayed against a convex-only update with no safety multiplier, the same
   periodic schedule leaves the attacker at 82.0% of honest election weight.
 
+### TN8b - Corrections applied after Associate Editor review
+
+Four results published in an earlier state of this repository were corrected.
+Both the old and new values are recorded here so that anyone who cloned the
+earlier state can see what changed.
+
+| Quantity | Earlier | Corrected | Cause |
+| --- | --- | --- | --- |
+| Prover workers at k=100 | 8 vs 47 (83% fewer) | 55 vs 47 (17% more) | The earlier model omitted the k per-chain proofs H-ZKA also requires |
+| On-chain gas reduction | 13.8x (measured) | 10.0x (exact model) | The measured run had `enableMockVerifier()` active, so no proof was verified |
+| Metadata leakage reduction | 56.9x | 3.0x worst case | The flat baseline had a variable-size circuit, which Groth16 does not permit |
+| Byzantine recovery | full at 50% | conditioned on the per-cluster BFT bound | Captured clusters were not modelled and can censor adjudication |
+
+See `HZKA/scripts/revision2/README.md` for the reproduction commands behind
+each corrected value.
+
 ### TN9 - Byzantine ratio, churn, and partitions
 
 | Byzantine % | Honest weight share, round 1 | Round 5 | Honest heads, round 1 | Round 5 |
@@ -420,9 +464,12 @@ See `scripts/revision2/README.md` for the full parameter set.
 | 40% | 0.7482 | 0.9788 | 0.613 | 0.937 |
 | 50% | 0.6659 | 0.9688 | 0.470 | 0.883 |
 
-Both quantities reach 1.000 by round 10 at every ratio. Across 900 churn runs
-and 720 partition runs, including 120-round outages, zero honest committers
-were jailed and zero honest stake was slashed. Election ineligibility begins at
+Both quantities reach 1.000 by round 10 at every ratio **within the
+per-cluster BFT condition**. That condition is the binding constraint: it fails
+for 1.8 of 10 clusters at a 20% global Byzantine ratio, and a cluster that
+breaks it can censor adjudication. See `exp_bft_bound.py`. Across 900 churn
+runs and 720 partition runs, including 120-round outages, zero honest
+committers were jailed and zero honest stake was slashed. Election ineligibility begins at
 exactly 69 consecutive missed rounds at the default `r_0 = 0.5` and 76 for an
 established committer; one valid submission restores it in every case.
 
@@ -454,25 +501,33 @@ A balanced random partition is dominated on every axis.
 
 | Publication pattern | Leak (bits) | Share of H(S) | Adversary bal. acc. |
 | --- | --- | --- | --- |
-| Flat, per chain | 0.7074 | 46.8% | 0.715 |
-| Hierarchical, variable shape | 0.0159 | 1.1% | 0.339 |
-| Hierarchical, fixed shape | 0.0124 | 0.8% | 0.336 |
+| Flat, per chain | 0.9847 | 98.5% | 0.997 |
+| Hierarchical, per-chain public inputs | 0.9843 | 98.4% | 0.997 |
+| Hierarchical, cluster commitment | 0.0001 | 0.01% | 0.500 |
 
-Chance is 0.333. Aggregating by chain cluster reduces measured leakage by a
-factor of 56.9; fixed-shape padding accounts for a further 21.7% of the
-residual.
+All arms use a fixed-shape circuit and a constant 127-byte proof, so timing and
+artifact size are identical by construction. Chance is 0.500. Hierarchical
+aggregation with per-chain public inputs leaks exactly as much as flat
+publication; only the constant-size cluster commitment changes anything. The
+reduction ranges from 3.0x (sparse activity, small clusters) to three orders of
+magnitude (dense activity), so the worst case is the figure claimed.
 
 ### TN13 - Fault recovery and failure concentration
 
-| p(crash) | Coordination | Stalled mean, H-ZKA / flat | Stalled s.d., H-ZKA / flat |
+| p(crash) | Coordination | Lost rounds | Stalled s.d., H-ZKA / flat |
 | --- | --- | --- | --- |
-| 0.01 | 1160 ms | 1.03 / 1.00 | 3.43 / 1.00 |
-| 0.05 | 2351 ms | 5.03 / 4.99 | 7.51 / 2.16 |
-| 0.10 | 3936 ms | 10.26 / 9.96 | 10.24 / 2.98 |
+| 0.01 | 884 ms | 0.0000 | 3.30 / 1.00 |
+| 0.05 | 1,021 ms | 0.0004 | 7.43 / 2.16 |
+| 0.10 | 1,184 ms | 0.0131 | 10.01 / 3.02 |
+| 0.20 | 1,595 ms | 0.0850 | 13.57 / 4.08 |
 
-The mean is unchanged; the standard deviation is 3.4x higher. Hierarchy
-converts many small independent interruptions into fewer, larger, correlated
-bursts. This is reported as a structural cost, not a benefit.
+Columns are crash probability, coordination latency, lost-round fraction, and
+stalled-chain standard deviation (H-ZKA / flat). A submission attempt has a
+3 s deadline and a round has the 120 s cadence as its budget; a cluster gets
+three attempts. Coordination never exceeds 1.4% of the round budget, but
+rounds are lost when a cluster exhausts its attempts. The stalled-chain mean is
+unchanged versus flat; the standard deviation is 3.3x higher, which is the
+structural cost of hierarchy.
 
 ### TN14 - Communication and storage
 

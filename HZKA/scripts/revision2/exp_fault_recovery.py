@@ -42,8 +42,9 @@ def run_grid(seeds: int, rounds: int, k: int, base_seed: int) -> List[Dict]:
 
     for crash in [0.0, 0.01, 0.05, 0.10, 0.20]:
         coord, acc, recov = [], [], []
-        stalled_mean, stalled_sd, flat_mean, flat_sd = [], [], [], []
-        worst, cluster_out = [], []
+        stalled_sd, flat_sd, worst = [], [], []
+        complete, exhausted, attempts, budget = [], [], [], []
+        stalled_mean, flat_mean = [], []
         for s in range(seeds):
             cfg = SimConfig(k=k, rounds=rounds, byz_frac=0.20,
                             head_crash_prob=crash,
@@ -56,11 +57,14 @@ def run_grid(seeds: int, rounds: int, k: int, base_seed: int) -> List[Dict]:
             stalls = np.array([h.stalled_chains for h in hist], dtype=float)
             flats = np.array([h.flat_stalled_chains for h in hist], dtype=float)
             stalled_mean.append(stalls.mean())
-            stalled_sd.append(stalls.std(ddof=1) if stalls.size > 1 else 0.0)
             flat_mean.append(flats.mean())
+            stalled_sd.append(stalls.std(ddof=1) if stalls.size > 1 else 0.0)
             flat_sd.append(flats.std(ddof=1) if flats.size > 1 else 0.0)
             worst.append(float(np.percentile(stalls, 95)))
-            cluster_out.append(np.mean([h.stalled_clusters > 0 for h in hist]))
+            complete.append(np.mean([h.round_complete for h in hist]))
+            exhausted.append(np.mean([h.exhausted_clusters for h in hist]))
+            attempts.append(np.mean([h.failover_attempts for h in hist]))
+            budget.append(np.mean([h.within_budget for h in hist]))
             traj = np.array([h.audit_accuracy for h in hist])
             target = 0.99 * traj[rounds // 2:].mean()
             idx = np.where(traj >= target)[0]
@@ -70,6 +74,13 @@ def run_grid(seeds: int, rounds: int, k: int, base_seed: int) -> List[Dict]:
             "head_crash_prob": crash,
             "coordination_ms_mean": float(np.mean(coord)),
             "coordination_ms_ci": float(1.96 * np.std(coord, ddof=1) / np.sqrt(seeds)),
+            "round_budget_ms": 120000.0,
+            "budget_utilisation": float(np.mean(coord)) / 120000.0,
+            "within_budget_frac": float(np.mean(budget)),
+            "round_complete_frac": float(np.mean(complete)),
+            "lost_round_frac": 1.0 - float(np.mean(complete)),
+            "exhausted_clusters_per_round": float(np.mean(exhausted)),
+            "failover_attempts_per_round": float(np.mean(attempts)),
             "steady_accuracy_mean": float(np.mean(acc)),
             "stalled_chains_mean_hzka": float(np.mean(stalled_mean)),
             "stalled_chains_sd_hzka": float(np.mean(stalled_sd)),
@@ -78,7 +89,6 @@ def run_grid(seeds: int, rounds: int, k: int, base_seed: int) -> List[Dict]:
             "burst_amplification": (float(np.mean(stalled_sd) / np.mean(flat_sd))
                                     if np.mean(flat_sd) > 0 else 0.0),
             "p95_stalled_chains_hzka": float(np.mean(worst)),
-            "rounds_with_cluster_outage": float(np.mean(cluster_out)),
             "avg_cluster_size": float(b),
             "recovery_round_mean": float(np.mean(recov)),
         })
@@ -117,9 +127,12 @@ def main() -> None:
     for r in rows:
         print(f"  p_crash={r['head_crash_prob']:.2f} coord={r['coordination_ms_mean']:8.1f}ms "
               f"(+{r['coordination_overhead_pct']:5.1f}%) "
-              f"stall mu={r['stalled_chains_mean_hzka']:.2f}/{r['stalled_chains_mean_flat']:.2f} "
+              f"util={100*r['budget_utilisation']:.2f}% "
+              f"complete={r['round_complete_frac']:.4f} "
+              f"lost={r['lost_round_frac']:.4f} "
+              f"exh/rd={r['exhausted_clusters_per_round']:.3f} "
               f"sd={r['stalled_chains_sd_hzka']:.2f}/{r['stalled_chains_sd_flat']:.2f} "
-              f"burst={r['burst_amplification']:.2f}x acc={r['steady_accuracy_mean']:.4f}")
+              f"burst={r['burst_amplification']:.2f}x")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,142 @@
+{
+  "config": {
+    "b_max": 15
+  },
+  "gas_schedule": {
+    "source": "EIP-196/197 repriced by EIP-1108; EIP-2028; EIP-2929/3529; Ethereum Yellow Paper",
+    "ecAdd": 150,
+    "ecMul": 6000,
+    "pairing_base": 45000,
+    "pairing_per_pair": 34000,
+    "calldata_nonzero": 16,
+    "calldata_zero": 4,
+    "tx_base": 21000,
+    "groth16_pairs": 4
+  },
+  "per_tx_breakdown": [
+    {
+      "interface": "Flat, per chain",
+      "tx_base": 21000,
+      "calldata": 5444,
+      "verify": 204450,
+      "storage": 10000,
+      "event": 1637,
+      "total": 242531
+    },
+    {
+      "interface": "H-ZKA, commitment",
+      "tx_base": 21000,
+      "calldata": 5444,
+      "verify": 204450,
+      "storage": 10000,
+      "event": 1637,
+      "total": 242531
+    },
+    {
+      "interface": "H-ZKA, per-chain inputs",
+      "tx_base": 21000,
+      "calldata": 12288,
+      "verify": 290550,
+      "storage": 10000,
+      "event": 1637,
+      "total": 335475
+    }
+  ],
+  "rounds": [
+    {
+      "k": 25,
+      "clusters": 5,
+      "b_max": 15,
+      "flat_per_tx": 242531,
+      "hzka_commitment_per_tx": 242531,
+      "hzka_perchain_per_tx": 335475,
+      "flat_round": 6063275,
+      "hzka_commitment_round": 1212655,
+      "hzka_perchain_round": 1677375,
+      "reduction_commitment": 5.0,
+      "reduction_perchain": 3.614740293613533,
+      "flat_pairing_gas": 4525000,
+      "hzka_pairing_gas": 905000,
+      "flat_scalar_gas": 461250,
+      "hzka_commitment_scalar_gas": 92250,
+      "hzka_perchain_scalar_gas": 522750,
+      "perchain_scalar_share": 0.3116476637603398
+    },
+    {
+      "k": 50,
+      "clusters": 8,
+      "b_max": 15,
+      "flat_per_tx": 242531,
+      "hzka_commitment_per_tx": 242531,
+      "hzka_perchain_per_tx": 335475,
+      "flat_round": 12126550,
+      "hzka_commitment_round": 1940248,
+      "hzka_perchain_round": 2683800,
+      "reduction_commitment": 6.25,
+      "reduction_perchain": 4.518425367016916,
+      "flat_pairing_gas": 9050000,
+      "hzka_pairing_gas": 1448000,
+      "flat_scalar_gas": 922500,
+      "hzka_commitment_scalar_gas": 147600,
+      "hzka_perchain_scalar_gas": 836400,
+      "perchain_scalar_share": 0.3116476637603398
+    },
+    {
+      "k": 100,
+      "clusters": 10,
+      "b_max": 15,
+      "flat_per_tx": 242531,
+      "hzka_commitment_per_tx": 242531,
+      "hzka_perchain_per_tx": 335475,
+      "flat_round": 24253100,
+      "hzka_commitment_round": 2425310,
+      "hzka_perchain_round": 3354750,
+      "reduction_commitment": 10.0,
+      "reduction_perchain": 7.229480587227066,
+      "flat_pairing_gas": 18100000,
+      "hzka_pairing_gas": 1810000,
+      "flat_scalar_gas": 1845000,
+      "hzka_commitment_scalar_gas": 184500,
+      "hzka_perchain_scalar_gas": 1045500,
+      "perchain_scalar_share": 0.3116476637603398
+    },
+    {
+      "k": 150,
+      "clusters": 13,
+      "b_max": 15,
+      "flat_per_tx": 242531,
+      "hzka_commitment_per_tx": 242531,
+      "hzka_perchain_per_tx": 335475,
+      "flat_round": 36379650,
+      "hzka_commitment_round": 3152903,
+      "hzka_perchain_round": 4361175,
+      "reduction_commitment": 11.538461538461538,
+      "reduction_perchain": 8.341708369877384,
+      "flat_pairing_gas": 27150000,
+      "hzka_pairing_gas": 2353000,
+      "flat_scalar_gas": 2767500,
+      "hzka_commitment_scalar_gas": 239850,
+      "hzka_perchain_scalar_gas": 1359150,
+      "perchain_scalar_share": 0.3116476637603398
+    },
+    {
+      "k": 200,
+      "clusters": 15,
+      "b_max": 15,
+      "flat_per_tx": 242531,
+      "hzka_commitment_per_tx": 242531,
+      "hzka_perchain_per_tx": 335475,
+      "flat_round": 48506200,
+      "hzka_commitment_round": 3637965,
+      "hzka_perchain_round": 5032125,
+      "reduction_commitment": 13.333333333333334,
+      "reduction_perchain": 9.639307449636089,
+      "flat_pairing_gas": 36200000,
+      "hzka_pairing_gas": 2715000,
+      "flat_scalar_gas": 3690000,
+      "hzka_commitment_scalar_gas": 276750,
+      "hzka_perchain_scalar_gas": 1568250,
+      "perchain_scalar_share": 0.3116476637603398
+    }
+  ]
+}

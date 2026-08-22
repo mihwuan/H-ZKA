@@ -1,4 +1,5 @@
-model,mi_bits_mean,mi_bits_ci,mi_frac_of_entropy,balanced_accuracy_mean,balanced_accuracy_ci,advantage_over_chance,anonymity_set,secret_entropy_bits
-flat,0.707395,0.011360,0.467579,0.714944,0.008285,0.381611,1,1.512888
-hzka-var,0.015888,0.001476,0.010501,0.339110,0.002319,0.005777,15,1.512888
-hzka,0.012436,0.000636,0.008220,0.336021,0.001641,0.002687,15,1.512888
+arm,secret_entropy_bits,analytic_mi_bits,mi_bits_mean,mi_bits_ci,mi_frac_of_entropy,balanced_accuracy_mean,balanced_accuracy_ci,advantage_over_chance,anonymity_set,proof_bytes
+flat,1.000000,1.000000,0.984695,0.003727,0.984695,0.997431,0.000779,0.497431,1,127
+hzka-perchain,1.000000,1.000000,0.984323,0.003532,0.984323,0.997384,0.000716,0.497384,1,127
+hzka-commitment,1.000000,0.000977,0.000116,0.000062,0.000116,0.500277,0.001332,0.000277,10,127
+hzka-commitment+bitmap,1.000000,0.000977,0.000097,0.000059,0.000097,0.500061,0.001419,0.000061,10,127
