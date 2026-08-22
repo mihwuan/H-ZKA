@@ -1,0 +1,4 @@
+model,mi_bits_mean,mi_bits_ci,mi_frac_of_entropy,balanced_accuracy_mean,balanced_accuracy_ci,advantage_over_chance,anonymity_set,secret_entropy_bits
+flat,0.707395,0.011360,0.467579,0.714944,0.008285,0.381611,1,1.512888
+hzka-var,0.015888,0.001476,0.010501,0.339110,0.002319,0.005777,15,1.512888
+hzka,0.012436,0.000636,0.008220,0.336021,0.001641,0.002687,15,1.512888

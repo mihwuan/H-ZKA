@@ -1,0 +1,53 @@
+{
+  "config": {
+    "seeds": 30,
+    "rounds": 400,
+    "k": 100,
+    "b_max": 15,
+    "seed": 20260822
+  },
+  "rows": [
+    {
+      "model": "flat",
+      "mi_bits_mean": 0.7073947337017348,
+      "mi_bits_ci": 0.011359871463191904,
+      "mi_frac_of_entropy": 0.46757916691252627,
+      "balanced_accuracy_mean": 0.7149439676494309,
+      "balanced_accuracy_ci": 0.008284617220505825,
+      "advantage_over_chance": 0.3816106343160976,
+      "anonymity_set": 1,
+      "secret_entropy_bits": 1.5128876215181604
+    },
+    {
+      "model": "hzka-var",
+      "mi_bits_mean": 0.015887531142105577,
+      "mi_bits_ci": 0.0014762825453288513,
+      "mi_frac_of_entropy": 0.010501461520428513,
+      "balanced_accuracy_mean": 0.3391102063050425,
+      "balanced_accuracy_ci": 0.0023191546024416794,
+      "advantage_over_chance": 0.0057768729717092016,
+      "anonymity_set": 15,
+      "secret_entropy_bits": 1.5128876215181604
+    },
+    {
+      "model": "hzka",
+      "mi_bits_mean": 0.01243578193983879,
+      "mi_bits_ci": 0.0006360308593073348,
+      "mi_frac_of_entropy": 0.008219898003633387,
+      "balanced_accuracy_mean": 0.336020523965556,
+      "balanced_accuracy_ci": 0.001641003261186099,
+      "advantage_over_chance": 0.002687190632222669,
+      "anonymity_set": 15,
+      "secret_entropy_bits": 1.5128876215181604
+    }
+  ],
+  "observation_model": {
+    "sec_per_mconstraint": 4.567686,
+    "chain_circuit_base_m": 1.2,
+    "chain_circuit_per_tx_m": 0.1176,
+    "agg_fixed_m": 20.0,
+    "witness_sec_per_tx": 0.004,
+    "timing_noise_sd": 0.35,
+    "bins": 12
+  }
+}

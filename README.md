@@ -10,6 +10,7 @@
 - [Quick Start](#quick-start)
 - [Scripts Reference](#scripts-reference)
 - [Experimental Results](#experimental-results)
+- [Second-Revision Protocol Experiments](#second-revision-protocol-experiments)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -122,6 +123,16 @@ HZKA/
 │   ├── run_global_audit.sh
 │   ├── stop_docker.sh
 │   ├── vm_groth16_benchmark.js
+│   ├── revision2/
+│   │   ├── hzka_protocol_sim.py
+│   │   ├── exp_byzantine_churn.py
+│   │   ├── exp_adaptive_adversary.py
+│   │   ├── exp_clustering_ablation.py
+│   │   ├── exp_leakage.py
+│   │   ├── exp_fault_recovery.py
+│   │   ├── exp_overhead_model.py
+│   │   ├── run_all.sh
+│   │   └── README.md
 │   └── log_run_script/
 │       ├── benchmark_azure.log
 │       ├── benchmark_local.log
@@ -140,6 +151,7 @@ HZKA/
 │   ├── network_latency/
 │   ├── ram_benchmark/
 │   ├── sepolia/
+│   ├── revision2/
 │   ├── simulation/
 │   └── vm_benchmark/
 ├── zkp/
@@ -157,6 +169,7 @@ Notable benchmark and analysis artifacts:
 - `result/ram_benchmark/groth16_ram_report.json`
 - `result/ram_benchmark/groth16_ram_report.csv`
 - `result/simulation/raw_mfpop_analysis.json`
+- `result/revision2/` (second-revision protocol simulations, E1 to E6)
 
 ---
 
@@ -273,6 +286,20 @@ The repository keeps paper-relevant logs under `scripts/log_run_script/`:
 | `scripts/log_run_script/run_all_vms_experiments.log` | TN2 and TN3 multi-VM log |
 | `scripts/log_run_script/run_azure_scenario1.log` | Network latency scenario log |
 
+### Second-revision protocol simulations
+
+| Path | Purpose |
+| --- | --- |
+| `scripts/revision2/hzka_protocol_sim.py` | Core discrete-round simulator: canonical MF-PoP transition, capacitated k-medoid formation, capped VRF election, calibrated audit-layer network model |
+| `scripts/revision2/exp_byzantine_churn.py` | E1: Byzantine ratio, churn, outage length, latency and loss sweeps; partition study |
+| `scripts/revision2/exp_adaptive_adversary.py` | E2: six adversarial strategies, fault ceiling, coordinated collusion |
+| `scripts/revision2/exp_clustering_ablation.py` | E3: eta sweep and five-policy clustering ablation |
+| `scripts/revision2/exp_leakage.py` | E4: audit-layer metadata leakage (mutual information, adversary advantage) |
+| `scripts/revision2/exp_fault_recovery.py` | E5: cluster-head failure, blast radius, failover cost |
+| `scripts/revision2/exp_overhead_model.py` | E6: per-stage communication, storage, and prover-memory accounting |
+| `scripts/revision2/run_all.sh` | Reproduce E1 to E6 end to end |
+| `scripts/revision2/README.md` | Full description, parameters, and headline results |
+
 ---
 
 ## Experimental Results
@@ -353,6 +380,107 @@ The aggregate reduction is 13.8x at k=100. The exact per-round internal CSV/log 
 | TN4 | 13.8x gas reduction at k=100 |
 | Benchmark regression | 90.2 s at 20M constraints; 8 workers vs 47 |
 | TN6 | 100% final accuracy after MF-PoP isolation |
+
+---
+
+## Second-Revision Protocol Experiments
+
+Seeded discrete-round simulations of the audit layer, added for the second
+revision. They are protocol simulations calibrated to the same `tc/netem`
+profile as the measured coordination results, not hardware measurements; the
+proving, gas, and coordination numbers above are unchanged by them.
+
+Reproduce everything with:
+
+```bash
+cd HZKA/scripts/revision2
+bash run_all.sh
+```
+
+Base seed `20260822`, 30 seeds per cell. Outputs land in `result/revision2/`.
+See `scripts/revision2/README.md` for the full parameter set.
+
+### TN8 - Fault ceiling and adaptive adversaries
+
+- No strategy, adaptive or patient, lands more than six confirmed safety faults
+  before the absorbing jail; the seventh always triggers it.
+- The strongest evader forfeits 46.9% of stake and must perform 158 consecutive
+  honest rounds to buy its sixth fault, after which its election weight is
+  capped at 1.6% of an honest committer's.
+- Replayed against a convex-only update with no safety multiplier, the same
+  periodic schedule leaves the attacker at 82.0% of honest election weight.
+
+### TN9 - Byzantine ratio, churn, and partitions
+
+| Byzantine % | Honest weight share, round 1 | Round 5 | Honest heads, round 1 | Round 5 |
+| --- | --- | --- | --- | --- |
+| 10% | 0.9478 | 0.9964 | 0.873 | 0.990 |
+| 20% | 0.8882 | 0.9919 | 0.777 | 0.977 |
+| 30% | 0.8226 | 0.9862 | 0.717 | 0.980 |
+| 40% | 0.7482 | 0.9788 | 0.613 | 0.937 |
+| 50% | 0.6659 | 0.9688 | 0.470 | 0.883 |
+
+Both quantities reach 1.000 by round 10 at every ratio. Across 900 churn runs
+and 720 partition runs, including 120-round outages, zero honest committers
+were jailed and zero honest stake was slashed. Election ineligibility begins at
+exactly 69 consecutive missed rounds at the default `r_0 = 0.5` and 76 for an
+established committer; one valid submission restores it in every case.
+
+### TN10 - Coordinated collusion
+
+| Colluders | Population share | Head-capture rate |
+| --- | --- | --- |
+| 10 | 10% | 0.0033 |
+| 20 | 20% | 0.0082 |
+| 30 | 30% | 0.0154 |
+| 40 | 40% | 0.0241 |
+
+Capture is strongly sub-proportional: a 40% coalition takes 2.41% of
+cluster-head slots, a factor of 16.6 below its population share.
+
+### TN11 - Clustering ablation
+
+| Policy | Intra-cluster RTT | Tx-cut ratio | Coordination |
+| --- | --- | --- | --- |
+| Random, balanced | 219.5 ms | 0.909 | 873.4 ms |
+| Flow only (eta = 0) | 181.9 ms | 0.670 | 829.3 ms |
+| k-medoid (eta = 0.50) | 144.1 ms | 0.645 | 679.3 ms |
+| k-medoid (eta = 0.75) | 104.3 ms | 0.704 | 620.1 ms |
+| RTT only (eta = 1) | 62.7 ms | 0.837 | 530.1 ms |
+
+A balanced random partition is dominated on every axis.
+
+### TN12 - Audit-layer metadata leakage
+
+| Publication pattern | Leak (bits) | Share of H(S) | Adversary bal. acc. |
+| --- | --- | --- | --- |
+| Flat, per chain | 0.7074 | 46.8% | 0.715 |
+| Hierarchical, variable shape | 0.0159 | 1.1% | 0.339 |
+| Hierarchical, fixed shape | 0.0124 | 0.8% | 0.336 |
+
+Chance is 0.333. Aggregating by chain cluster reduces measured leakage by a
+factor of 56.9; fixed-shape padding accounts for a further 21.7% of the
+residual.
+
+### TN13 - Fault recovery and failure concentration
+
+| p(crash) | Coordination | Stalled mean, H-ZKA / flat | Stalled s.d., H-ZKA / flat |
+| --- | --- | --- | --- |
+| 0.01 | 1160 ms | 1.03 / 1.00 | 3.43 / 1.00 |
+| 0.05 | 2351 ms | 5.03 / 4.99 | 7.51 / 2.16 |
+| 0.10 | 3936 ms | 10.26 / 9.96 | 10.24 / 2.98 |
+
+The mean is unchanged; the standard deviation is 3.4x higher. Hierarchy
+converts many small independent interruptions into fewer, larger, correlated
+bursts. This is reported as a structural cost, not a benefit.
+
+### TN14 - Communication and storage
+
+| k | On-chain B/round, flat | H-ZKA | Ratio | Storage GiB/yr, flat | H-ZKA |
+| --- | --- | --- | --- | --- | --- |
+| 25 | 6,496 | 1,386 | 4.7x | 0.97 | 0.20 |
+| 100 | 25,696 | 2,676 | 9.6x | 3.89 | 0.39 |
+| 200 | 51,296 | 3,966 | 12.9x | 7.78 | 0.59 |
 
 ---
 

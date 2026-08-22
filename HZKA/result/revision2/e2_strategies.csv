@@ -1,0 +1,7 @@
+strategy,confirmed_faults,jail_round,stake_destroyed_frac,final_raw_reputation,eligible_rounds,eligible_frac,mean_weight_ratio,final_weight_ratio,honest_rounds_spent,honest_rounds_per_fault,max_gap_between_faults,baseline_final_reputation,baseline_eligible,baseline_weight_ratio
+Always invalid,6,6,0.468559,0.007812,5,0.010000,0.001892,0.000000,0,0.000000,1,0.100000,True,0.100017
+Periodic (N=6),6,36,0.468559,0.010558,35,0.070000,0.021333,0.000000,417,69.500000,6,0.819543,True,0.819673
+Periodic (N=20),6,120,0.468559,0.014247,119,0.238000,0.076216,0.000000,475,79.166667,20,0.924060,True,0.924207
+Omission only,0,,0.000000,0.010000,68,0.136000,0.030678,0.000000,0,,,0.100000,True,0.100017
+Farm then betray,6,106,0.468559,0.014050,105,0.210000,0.201931,0.000000,100,16.666667,1,0.100000,True,0.100017
+Threshold-adaptive,6,,0.468559,0.015622,497,0.994000,0.021980,0.015625,494,82.333333,159,1.000000,True,1.000158

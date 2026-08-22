@@ -1,0 +1,1220 @@
+{
+  "config": {
+    "seeds": 30,
+    "rounds": 260,
+    "k": 100,
+    "base_seed": 20260822
+  },
+  "byzantine": {
+    "0.00": {
+      "accuracy_at": {
+        "1": [
+          1.0,
+          0.0
+        ],
+        "5": [
+          1.0,
+          0.0
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "head_honest_at": {
+        "1": [
+          1.0,
+          0.0
+        ],
+        "5": [
+          1.0,
+          0.0
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "honest_weight_share_at": {
+        "1": [
+          1.0,
+          0.0
+        ],
+        "5": [
+          1.0,
+          0.0
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "mean_isolation_round": null,
+      "max_isolation_round": null,
+      "mean_confirmed_faults_per_byz": 0.0,
+      "max_confirmed_faults_per_byz": 0.0,
+      "honest_jailed_total": 0.0
+    },
+    "0.10": {
+      "accuracy_at": {
+        "1": [
+          0.8999999999999996,
+          1.6163198016761878e-16
+        ],
+        "5": [
+          0.8999999999999996,
+          1.6163198016761878e-16
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "head_honest_at": {
+        "1": [
+          0.8733333333333332,
+          0.03507833379617264
+        ],
+        "5": [
+          0.9899999999999999,
+          0.010918885884810648
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "honest_weight_share_at": {
+        "1": [
+          0.947814787927495,
+          0.00032110646863204353
+        ],
+        "5": [
+          0.9964011395164291,
+          0.0001066955020590636
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "mean_isolation_round": 6.13,
+      "max_isolation_round": 8.0,
+      "mean_confirmed_faults_per_byz": 6.0,
+      "max_confirmed_faults_per_byz": 6.0,
+      "honest_jailed_total": 0.0
+    },
+    "0.20": {
+      "accuracy_at": {
+        "1": [
+          0.8000000000000004,
+          1.2122398512571408e-16
+        ],
+        "5": [
+          0.8000000000000004,
+          1.2122398512571408e-16
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "head_honest_at": {
+        "1": [
+          0.7766666666666668,
+          0.0494448010663449
+        ],
+        "5": [
+          0.9766666666666666,
+          0.015393903356082187
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "honest_weight_share_at": {
+        "1": [
+          0.8881598498671096,
+          0.0011700364925698716
+        ],
+        "5": [
+          0.9918910560045283,
+          0.00022779556073802774
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "mean_isolation_round": 6.13,
+      "max_isolation_round": 8.0,
+      "mean_confirmed_faults_per_byz": 6.0,
+      "max_confirmed_faults_per_byz": 6.0,
+      "honest_jailed_total": 0.0
+    },
+    "0.30": {
+      "accuracy_at": {
+        "1": [
+          0.6999999999999996,
+          1.2122398512571408e-16
+        ],
+        "5": [
+          0.6999999999999996,
+          1.2122398512571408e-16
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "head_honest_at": {
+        "1": [
+          0.7166666666666669,
+          0.04515030666087311
+        ],
+        "5": [
+          0.98,
+          0.01732809823684488
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "honest_weight_share_at": {
+        "1": [
+          0.8225996887030121,
+          0.0012401441960109073
+        ],
+        "5": [
+          0.9861646495009857,
+          0.0003242293710902315
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "mean_isolation_round": 6.134444444444444,
+      "max_isolation_round": 8.0,
+      "mean_confirmed_faults_per_byz": 6.0,
+      "max_confirmed_faults_per_byz": 6.0,
+      "honest_jailed_total": 0.0
+    },
+    "0.40": {
+      "accuracy_at": {
+        "1": [
+          0.6,
+          0.0
+        ],
+        "5": [
+          0.6,
+          0.0
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "head_honest_at": {
+        "1": [
+          0.6133333333333333,
+          0.05458094765340095
+        ],
+        "5": [
+          0.9366666666666666,
+          0.031845306167537696
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "honest_weight_share_at": {
+        "1": [
+          0.7481502170712511,
+          0.0013230130899882617
+        ],
+        "5": [
+          0.9788047209825035,
+          0.0003859276980357706
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "mean_isolation_round": 6.128333333333333,
+      "max_isolation_round": 8.0,
+      "mean_confirmed_faults_per_byz": 6.0,
+      "max_confirmed_faults_per_byz": 6.0,
+      "honest_jailed_total": 0.0
+    },
+    "0.50": {
+      "accuracy_at": {
+        "1": [
+          0.5,
+          0.0
+        ],
+        "5": [
+          0.5,
+          0.0
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "head_honest_at": {
+        "1": [
+          0.4699999999999999,
+          0.05410696940257359
+        ],
+        "5": [
+          0.8833333333333333,
+          0.031285755024179136
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "honest_weight_share_at": {
+        "1": [
+          0.6658924330213127,
+          0.0017445564635273348
+        ],
+        "5": [
+          0.9688447385328213,
+          0.0004806080245286955
+        ],
+        "10": [
+          1.0,
+          0.0
+        ],
+        "20": [
+          1.0,
+          0.0
+        ],
+        "50": [
+          1.0,
+          0.0
+        ],
+        "100": [
+          1.0,
+          0.0
+        ]
+      },
+      "mean_isolation_round": 6.113333333333333,
+      "max_isolation_round": 9.0,
+      "mean_confirmed_faults_per_byz": 6.0,
+      "max_confirmed_faults_per_byz": 6.0,
+      "honest_jailed_total": 0.0
+    }
+  },
+  "churn_grid": [
+    {
+      "churn_rate": 0.0,
+      "rejoin_rate": 0.3,
+      "mean_outage_rounds": 0.0,
+      "latency_ms": "50",
+      "loss": 0.0,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.7839820512820513,
+      "round_completeness_ci": 0.0003563955577120311,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 0.0,
+      "coordination_ms_mean": 857.044399377171,
+      "recovery_round_mean": 6.666666666666667
+    },
+    {
+      "churn_rate": 0.0,
+      "rejoin_rate": 0.3,
+      "mean_outage_rounds": 0.0,
+      "latency_ms": "200",
+      "loss": 0.025,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.7839948717948716,
+      "round_completeness_ci": 0.00030753842069870016,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 0.0,
+      "coordination_ms_mean": 925.6525641486661,
+      "recovery_round_mean": 6.766666666666667
+    },
+    {
+      "churn_rate": 0.0,
+      "rejoin_rate": 0.3,
+      "mean_outage_rounds": 0.0,
+      "latency_ms": "500",
+      "loss": 0.05,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.784046153846154,
+      "round_completeness_ci": 0.00031114220162499625,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 0.0,
+      "coordination_ms_mean": 1513.9238277827646,
+      "recovery_round_mean": 6.6
+    },
+    {
+      "churn_rate": 0.01,
+      "rejoin_rate": 0.3,
+      "mean_outage_rounds": 3.3333333333333335,
+      "latency_ms": "50",
+      "loss": 0.0,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.7584974358974358,
+      "round_completeness_ci": 0.0011515356600188724,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 3.2774358974358977,
+      "coordination_ms_mean": 864.1754348112212,
+      "recovery_round_mean": 6.666666666666667
+    },
+    {
+      "churn_rate": 0.01,
+      "rejoin_rate": 0.3,
+      "mean_outage_rounds": 3.3333333333333335,
+      "latency_ms": "200",
+      "loss": 0.025,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.7576051282051282,
+      "round_completeness_ci": 0.0013298836260091519,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 3.3046153846153845,
+      "coordination_ms_mean": 929.4275339419225,
+      "recovery_round_mean": 7.4
+    },
+    {
+      "churn_rate": 0.01,
+      "rejoin_rate": 0.3,
+      "mean_outage_rounds": 3.3333333333333335,
+      "latency_ms": "500",
+      "loss": 0.05,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.7585256410256409,
+      "round_completeness_ci": 0.0013300476669448344,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 3.205897435897436,
+      "coordination_ms_mean": 1515.0500018574808,
+      "recovery_round_mean": 7.266666666666667
+    },
+    {
+      "churn_rate": 0.01,
+      "rejoin_rate": 0.1,
+      "mean_outage_rounds": 10.0,
+      "latency_ms": "50",
+      "loss": 0.0,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.7101000000000002,
+      "round_completeness_ci": 0.0028119331499379197,
+      "honest_ineligible_mean": 0.0028205128205128207,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 9.312820512820515,
+      "coordination_ms_mean": 855.8547081966547,
+      "recovery_round_mean": 7.333333333333333
+    },
+    {
+      "churn_rate": 0.01,
+      "rejoin_rate": 0.1,
+      "mean_outage_rounds": 10.0,
+      "latency_ms": "200",
+      "loss": 0.025,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.7121897435897435,
+      "round_completeness_ci": 0.003097153387319046,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 9.121025641025643,
+      "coordination_ms_mean": 929.6499518348734,
+      "recovery_round_mean": 7.6
+    },
+    {
+      "churn_rate": 0.01,
+      "rejoin_rate": 0.1,
+      "mean_outage_rounds": 10.0,
+      "latency_ms": "500",
+      "loss": 0.05,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.7129282051282051,
+      "round_completeness_ci": 0.0036637050256965787,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 9.09051282051282,
+      "coordination_ms_mean": 1507.7462460713052,
+      "recovery_round_mean": 8.133333333333333
+    },
+    {
+      "churn_rate": 0.01,
+      "rejoin_rate": 0.02,
+      "mean_outage_rounds": 50.0,
+      "latency_ms": "50",
+      "loss": 0.0,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.5195871794871796,
+      "round_completeness_ci": 0.009880055236013858,
+      "honest_ineligible_mean": 6.1664102564102565,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 33.66538461538461,
+      "coordination_ms_mean": 855.351040959352,
+      "recovery_round_mean": 10.366666666666667
+    },
+    {
+      "churn_rate": 0.01,
+      "rejoin_rate": 0.02,
+      "mean_outage_rounds": 50.0,
+      "latency_ms": "200",
+      "loss": 0.025,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.521202564102564,
+      "round_completeness_ci": 0.010464655265131377,
+      "honest_ineligible_mean": 6.1512820512820525,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 33.52384615384616,
+      "coordination_ms_mean": 925.5063643942088,
+      "recovery_round_mean": 11.133333333333333
+    },
+    {
+      "churn_rate": 0.01,
+      "rejoin_rate": 0.02,
+      "mean_outage_rounds": 50.0,
+      "latency_ms": "500",
+      "loss": 0.05,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.5181358974358975,
+      "round_completeness_ci": 0.009801398770247468,
+      "honest_ineligible_mean": 6.372820512820512,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 33.78076923076923,
+      "coordination_ms_mean": 1515.801584419389,
+      "recovery_round_mean": 10.466666666666667
+    },
+    {
+      "churn_rate": 0.05,
+      "rejoin_rate": 0.3,
+      "mean_outage_rounds": 3.3333333333333335,
+      "latency_ms": "50",
+      "loss": 0.0,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.6729025641025642,
+      "round_completeness_ci": 0.001712469299697195,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 14.123333333333331,
+      "coordination_ms_mean": 860.0768920377396,
+      "recovery_round_mean": 9.0
+    },
+    {
+      "churn_rate": 0.05,
+      "rejoin_rate": 0.3,
+      "mean_outage_rounds": 3.3333333333333335,
+      "latency_ms": "200",
+      "loss": 0.025,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.6705820512820513,
+      "round_completeness_ci": 0.0017243555990882036,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 14.335641025641022,
+      "coordination_ms_mean": 932.7327079582099,
+      "recovery_round_mean": 9.2
+    },
+    {
+      "churn_rate": 0.05,
+      "rejoin_rate": 0.3,
+      "mean_outage_rounds": 3.3333333333333335,
+      "latency_ms": "500",
+      "loss": 0.05,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.6709564102564103,
+      "round_completeness_ci": 0.001934069506522741,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 14.341538461538464,
+      "coordination_ms_mean": 1513.4012324182106,
+      "recovery_round_mean": 9.1
+    },
+    {
+      "churn_rate": 0.05,
+      "rejoin_rate": 0.1,
+      "mean_outage_rounds": 10.0,
+      "latency_ms": "50",
+      "loss": 0.0,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.5199769230769231,
+      "round_completeness_ci": 0.004054015673737366,
+      "honest_ineligible_mean": 0.029487179487179487,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 33.614615384615384,
+      "coordination_ms_mean": 858.1899412193912,
+      "recovery_round_mean": 17.266666666666666
+    },
+    {
+      "churn_rate": 0.05,
+      "rejoin_rate": 0.1,
+      "mean_outage_rounds": 10.0,
+      "latency_ms": "200",
+      "loss": 0.025,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.5203564102564102,
+      "round_completeness_ci": 0.004507415347097171,
+      "honest_ineligible_mean": 0.0541025641025641,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 33.407435897435896,
+      "coordination_ms_mean": 928.5864880616278,
+      "recovery_round_mean": 17.5
+    },
+    {
+      "churn_rate": 0.05,
+      "rejoin_rate": 0.1,
+      "mean_outage_rounds": 10.0,
+      "latency_ms": "500",
+      "loss": 0.05,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.520302564102564,
+      "round_completeness_ci": 0.004695574913742549,
+      "honest_ineligible_mean": 0.06076923076923077,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 33.81692307692308,
+      "coordination_ms_mean": 1519.1472483849673,
+      "recovery_round_mean": 16.9
+    },
+    {
+      "churn_rate": 0.05,
+      "rejoin_rate": 0.02,
+      "mean_outage_rounds": 50.0,
+      "latency_ms": "50",
+      "loss": 0.0,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.2254051282051282,
+      "round_completeness_ci": 0.0065639099279868034,
+      "honest_ineligible_mean": 19.94923076923077,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 71.20256410256411,
+      "coordination_ms_mean": 858.4739363565831,
+      "recovery_round_mean": 40.4
+    },
+    {
+      "churn_rate": 0.05,
+      "rejoin_rate": 0.02,
+      "mean_outage_rounds": 50.0,
+      "latency_ms": "200",
+      "loss": 0.025,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.2216,
+      "round_completeness_ci": 0.0057564214559488085,
+      "honest_ineligible_mean": 20.252564102564108,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 71.49897435897437,
+      "coordination_ms_mean": 936.2185860850952,
+      "recovery_round_mean": 36.46666666666667
+    },
+    {
+      "churn_rate": 0.05,
+      "rejoin_rate": 0.02,
+      "mean_outage_rounds": 50.0,
+      "latency_ms": "500",
+      "loss": 0.05,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.22488205128205133,
+      "round_completeness_ci": 0.004999345666187424,
+      "honest_ineligible_mean": 19.697948717948716,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 71.49717948717948,
+      "coordination_ms_mean": 1515.192183982533,
+      "recovery_round_mean": 35.7
+    },
+    {
+      "churn_rate": 0.1,
+      "rejoin_rate": 0.3,
+      "mean_outage_rounds": 3.3333333333333335,
+      "latency_ms": "50",
+      "loss": 0.0,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.5898282051282051,
+      "round_completeness_ci": 0.0027203820467889255,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 24.841538461538466,
+      "coordination_ms_mean": 858.6093693366507,
+      "recovery_round_mean": 11.866666666666667
+    },
+    {
+      "churn_rate": 0.1,
+      "rejoin_rate": 0.3,
+      "mean_outage_rounds": 3.3333333333333335,
+      "latency_ms": "200",
+      "loss": 0.025,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.5862282051282051,
+      "round_completeness_ci": 0.0024064244534688353,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 25.138717948717947,
+      "coordination_ms_mean": 932.9160547356237,
+      "recovery_round_mean": 11.833333333333334
+    },
+    {
+      "churn_rate": 0.1,
+      "rejoin_rate": 0.3,
+      "mean_outage_rounds": 3.3333333333333335,
+      "latency_ms": "500",
+      "loss": 0.05,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.5869487179487181,
+      "round_completeness_ci": 0.0020999267649914185,
+      "honest_ineligible_mean": 0.0,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 25.027948717948718,
+      "coordination_ms_mean": 1517.7417765669993,
+      "recovery_round_mean": 11.6
+    },
+    {
+      "churn_rate": 0.1,
+      "rejoin_rate": 0.1,
+      "mean_outage_rounds": 10.0,
+      "latency_ms": "50",
+      "loss": 0.0,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.3954230769230769,
+      "round_completeness_ci": 0.004212286280275662,
+      "honest_ineligible_mean": 0.19615384615384618,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 49.65205128205129,
+      "coordination_ms_mean": 861.9559360633954,
+      "recovery_round_mean": 23.6
+    },
+    {
+      "churn_rate": 0.1,
+      "rejoin_rate": 0.1,
+      "mean_outage_rounds": 10.0,
+      "latency_ms": "200",
+      "loss": 0.025,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.39426153846153844,
+      "round_completeness_ci": 0.0035008044138510022,
+      "honest_ineligible_mean": 0.1784615384615385,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 49.88615384615384,
+      "coordination_ms_mean": 928.4748021128273,
+      "recovery_round_mean": 23.566666666666666
+    },
+    {
+      "churn_rate": 0.1,
+      "rejoin_rate": 0.1,
+      "mean_outage_rounds": 10.0,
+      "latency_ms": "500",
+      "loss": 0.05,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.39240769230769235,
+      "round_completeness_ci": 0.0045436994471750244,
+      "honest_ineligible_mean": 0.17435897435897438,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 50.08435897435897,
+      "coordination_ms_mean": 1514.1874965449642,
+      "recovery_round_mean": 22.766666666666666
+    },
+    {
+      "churn_rate": 0.1,
+      "rejoin_rate": 0.02,
+      "mean_outage_rounds": 50.0,
+      "latency_ms": "50",
+      "loss": 0.0,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.1264871794871795,
+      "round_completeness_ci": 0.003927453613361056,
+      "honest_ineligible_mean": 30.326410256410263,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 83.64615384615385,
+      "coordination_ms_mean": 868.288964005427,
+      "recovery_round_mean": 50.8
+    },
+    {
+      "churn_rate": 0.1,
+      "rejoin_rate": 0.02,
+      "mean_outage_rounds": 50.0,
+      "latency_ms": "200",
+      "loss": 0.025,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.12831794871794872,
+      "round_completeness_ci": 0.003626948481155087,
+      "honest_ineligible_mean": 28.939743589743593,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 83.52384615384612,
+      "coordination_ms_mean": 932.7838079021374,
+      "recovery_round_mean": 50.666666666666664
+    },
+    {
+      "churn_rate": 0.1,
+      "rejoin_rate": 0.02,
+      "mean_outage_rounds": 50.0,
+      "latency_ms": "500",
+      "loss": 0.05,
+      "steady_accuracy_mean": 1.0,
+      "steady_accuracy_ci": 0.0,
+      "round_completeness_mean": 0.13183846153846154,
+      "round_completeness_ci": 0.0037637391152407214,
+      "honest_ineligible_mean": 28.495128205128207,
+      "honest_jailed_total": 0.0,
+      "mean_offline_nodes": 83.30615384615383,
+      "coordination_ms_mean": 1513.8084921604377,
+      "recovery_round_mean": 49.93333333333333
+    }
+  ],
+  "partition": [
+    {
+      "regime": "fresh",
+      "outage_rounds": 60,
+      "honest_ineligible_at_heal": 0.0,
+      "honest_ineligible_frac": 0.0,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "fresh",
+      "outage_rounds": 65,
+      "honest_ineligible_at_heal": 0.0,
+      "honest_ineligible_frac": 0.0,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "fresh",
+      "outage_rounds": 68,
+      "honest_ineligible_at_heal": 0.0,
+      "honest_ineligible_frac": 0.0,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "fresh",
+      "outage_rounds": 69,
+      "honest_ineligible_at_heal": 15.933333333333334,
+      "honest_ineligible_frac": 0.7966666666666666,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "fresh",
+      "outage_rounds": 70,
+      "honest_ineligible_at_heal": 15.933333333333334,
+      "honest_ineligible_frac": 0.7966666666666666,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "fresh",
+      "outage_rounds": 75,
+      "honest_ineligible_at_heal": 15.933333333333334,
+      "honest_ineligible_frac": 0.7966666666666666,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "fresh",
+      "outage_rounds": 76,
+      "honest_ineligible_at_heal": 15.933333333333334,
+      "honest_ineligible_frac": 0.7966666666666666,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "fresh",
+      "outage_rounds": 80,
+      "honest_ineligible_at_heal": 15.933333333333334,
+      "honest_ineligible_frac": 0.7966666666666666,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "fresh",
+      "outage_rounds": 82,
+      "honest_ineligible_at_heal": 15.933333333333334,
+      "honest_ineligible_frac": 0.7966666666666666,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "fresh",
+      "outage_rounds": 83,
+      "honest_ineligible_at_heal": 15.933333333333334,
+      "honest_ineligible_frac": 0.7966666666666666,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "fresh",
+      "outage_rounds": 90,
+      "honest_ineligible_at_heal": 15.933333333333334,
+      "honest_ineligible_frac": 0.7966666666666666,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "fresh",
+      "outage_rounds": 120,
+      "honest_ineligible_at_heal": 15.933333333333334,
+      "honest_ineligible_frac": 0.7966666666666666,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "established",
+      "outage_rounds": 60,
+      "honest_ineligible_at_heal": 0.0,
+      "honest_ineligible_frac": 0.0,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "established",
+      "outage_rounds": 65,
+      "honest_ineligible_at_heal": 0.0,
+      "honest_ineligible_frac": 0.0,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "established",
+      "outage_rounds": 68,
+      "honest_ineligible_at_heal": 0.0,
+      "honest_ineligible_frac": 0.0,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "established",
+      "outage_rounds": 69,
+      "honest_ineligible_at_heal": 0.0,
+      "honest_ineligible_frac": 0.0,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "established",
+      "outage_rounds": 70,
+      "honest_ineligible_at_heal": 0.0,
+      "honest_ineligible_frac": 0.0,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "established",
+      "outage_rounds": 75,
+      "honest_ineligible_at_heal": 0.0,
+      "honest_ineligible_frac": 0.0,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "established",
+      "outage_rounds": 76,
+      "honest_ineligible_at_heal": 15.833333333333334,
+      "honest_ineligible_frac": 0.7916666666666667,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "established",
+      "outage_rounds": 80,
+      "honest_ineligible_at_heal": 15.833333333333334,
+      "honest_ineligible_frac": 0.7916666666666667,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "established",
+      "outage_rounds": 82,
+      "honest_ineligible_at_heal": 15.833333333333334,
+      "honest_ineligible_frac": 0.7916666666666667,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "established",
+      "outage_rounds": 83,
+      "honest_ineligible_at_heal": 15.833333333333334,
+      "honest_ineligible_frac": 0.7916666666666667,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "established",
+      "outage_rounds": 90,
+      "honest_ineligible_at_heal": 15.833333333333334,
+      "honest_ineligible_frac": 0.7916666666666667,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    },
+    {
+      "regime": "established",
+      "outage_rounds": 120,
+      "honest_ineligible_at_heal": 15.833333333333334,
+      "honest_ineligible_frac": 0.7916666666666667,
+      "rounds_to_regain_eligibility": 1.0,
+      "honest_jailed_total": 0.0,
+      "honest_stake_slashed_total": 0.0
+    }
+  ]
+}
