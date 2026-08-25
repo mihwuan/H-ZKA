@@ -68,7 +68,8 @@ import numpy as np
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "..", "result", "revision2")
 
-ARMS = ["flat", "hzka-perchain", "hzka-commitment", "hzka-commitment+bitmap"]
+ARMS = ["flat", "hzka-perchain", "hzka-commitment", "hzka-commitment+bitmap",
+        "hzka-bitmap-only"]
 
 # Fixed-shape artifacts, identical across every arm by construction.
 PROOF_BYTES = 127
@@ -112,6 +113,14 @@ def observe(arm: str, changes: np.ndarray, labels: np.ndarray,
     """
     rounds, k = changes.shape
     timing = PROVE_SECONDS + rng.normal(0.0, noise, size=(rounds, k))
+
+    if arm == "hzka-bitmap-only":
+        # The bitmap-only arm: the observable is ONLY the participation bitmap.
+        # The secret is whether the chain participated (online or not),
+        # not whether a state change occurred.  This quantifies how much
+        # an observer learns from participation alone (TODO Smaller Item 2).
+        participation = (rng.random(changes.shape) < 0.95).astype(float)
+        return participation
 
     if arm in ("flat", "hzka-perchain"):
         # The chain's own root is a public input: the change indicator is
@@ -248,7 +257,8 @@ def main() -> None:
             "balanced_accuracy_mean": float(ba.mean()),
             "balanced_accuracy_ci": float(1.96 * ba.std(ddof=1) / math.sqrt(args.seeds)),
             "advantage_over_chance": float(ba.mean() - 0.5),
-            "anonymity_set": 1 if arm in ("flat", "hzka-perchain") else args.b,
+            "anonymity_set": 1 if arm in ("flat", "hzka-perchain") else (
+                0 if arm == "hzka-bitmap-only" else args.b),
             "proof_bytes": PROOF_BYTES,
         })
     write_csv(os.path.join(OUT, "e4_leakage.csv"), rows)

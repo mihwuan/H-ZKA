@@ -168,7 +168,8 @@ def fault_ceiling(max_farm: int = 4000) -> Dict:
 # ---------------------------------------------------------------------------
 
 
-def collusion_sweep(seeds: int, rounds: int, k: int, base_seed: int) -> List[Dict]:
+def collusion_sweep(seeds: int, rounds: int, k: int, base_seed: int,
+                    topology_file: str = None) -> List[Dict]:
     rows: List[Dict] = []
     n_clusters = int(math.ceil(math.sqrt(k)))
     for c_size in [0, 5, 10, 20, 30, 40]:
@@ -179,7 +180,8 @@ def collusion_sweep(seeds: int, rounds: int, k: int, base_seed: int) -> List[Dic
                 byz_frac=max(0.05, c_size / float(k)),
                 collusion_size=c_size,
                 adversary=Adversary(kind="adaptive"),
-                profile=NetworkProfile(loss=0.02))
+                profile=NetworkProfile(loss=0.02),
+                topology_file=topology_file)
             sim = HZKASimulation(cfg, seed=base_seed + 7000 + s)
             hist = sim.run()
             cap_rate.append(sim.head_capture_rounds / max(1, sim.head_rounds))
@@ -224,6 +226,8 @@ def main() -> None:
     ap.add_argument("--rounds", type=int, default=500)
     ap.add_argument("--k", type=int, default=100)
     ap.add_argument("--seed", type=int, default=20260822)
+    ap.add_argument("--topology-file", type=str, default=None,
+                    help="JSON topology file for trace-calibrated simulation")
     args = ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
 
@@ -236,7 +240,8 @@ def main() -> None:
     write_csv(os.path.join(OUT, "e2_strategies.csv"), strat_rows)
 
     ceiling = fault_ceiling()
-    coll = collusion_sweep(args.seeds, min(args.rounds, 300), args.k, args.seed)
+    coll = collusion_sweep(args.seeds, min(args.rounds, 300), args.k, args.seed,
+                            topology_file=args.topology_file)
     write_csv(os.path.join(OUT, "e2_collusion.csv"), coll)
 
     with open(os.path.join(OUT, "e2_summary.json"), "w", encoding="utf-8") as fh:

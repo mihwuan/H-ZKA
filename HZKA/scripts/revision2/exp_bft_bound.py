@@ -67,7 +67,8 @@ def analytic_capture_prob(k: int, m: int, f: float) -> float:
     return sum(hypergeom_pmf(k, kk, b, x) for x in range(thr, b + 1))
 
 
-def occupancy(seeds: int, k: int, base_seed: int) -> List[Dict]:
+def occupancy(seeds: int, k: int, base_seed: int,
+              topology_file: str = None) -> List[Dict]:
     rows: List[Dict] = []
     m = int(math.ceil(math.sqrt(k)))
     for f in FRACTIONS:
@@ -75,7 +76,8 @@ def occupancy(seeds: int, k: int, base_seed: int) -> List[Dict]:
         for s in range(seeds):
             cfg = SimConfig(k=k, rounds=2, byz_frac=f, model_capture=True,
                             adversary=Adversary(kind="naive"),
-                            profile=NetworkProfile(loss=0.0, unresolved_rate=0.0))
+                            profile=NetworkProfile(loss=0.0, unresolved_rate=0.0),
+                            topology_file=topology_file)
             sim = HZKASimulation(cfg, seed=base_seed + 9000 + s)
             hist = sim.run()
             first_round_captured.append(hist[0].captured_clusters)
@@ -93,7 +95,8 @@ def occupancy(seeds: int, k: int, base_seed: int) -> List[Dict]:
     return rows
 
 
-def capture_study(seeds: int, rounds: int, k: int, base_seed: int) -> List[Dict]:
+def capture_study(seeds: int, rounds: int, k: int, base_seed: int,
+                  topology_file: str = None) -> List[Dict]:
     """Compare the in-bound restriction against full captured-cluster behavior."""
     rows: List[Dict] = []
     for f in FRACTIONS:
@@ -104,7 +107,8 @@ def capture_study(seeds: int, rounds: int, k: int, base_seed: int) -> List[Dict]
                 cfg = SimConfig(k=k, rounds=rounds, byz_frac=f,
                                 model_capture=capture,
                                 adversary=Adversary(kind="naive"),
-                                profile=NetworkProfile(loss=0.02))
+                                profile=NetworkProfile(loss=0.02),
+                                topology_file=topology_file)
                 sim = HZKASimulation(cfg, seed=base_seed + 9500 + s)
                 hist = sim.run()
                 tail = slice(rounds // 2, rounds)
@@ -129,7 +133,8 @@ def capture_study(seeds: int, rounds: int, k: int, base_seed: int) -> List[Dict]
     return rows
 
 
-def epoch_healing(seeds: int, k: int, base_seed: int) -> List[Dict]:
+def epoch_healing(seeds: int, k: int, base_seed: int,
+                  topology_file: str = None) -> List[Dict]:
     """Does epoch reassignment dissolve a captured cluster?"""
     rows: List[Dict] = []
     rounds = 260                      # spans two reassignment boundaries
@@ -138,7 +143,8 @@ def epoch_healing(seeds: int, k: int, base_seed: int) -> List[Dict]:
         for s in range(seeds):
             cfg = SimConfig(k=k, rounds=rounds, byz_frac=f, model_capture=True,
                             adversary=Adversary(kind="naive"),
-                            profile=NetworkProfile(loss=0.02))
+                            profile=NetworkProfile(loss=0.02),
+                            topology_file=topology_file)
             sim = HZKASimulation(cfg, seed=base_seed + 9700 + s)
             hist = sim.run()
             pre.append(np.mean([h.captured_clusters for h in hist[:99]]))
@@ -170,16 +176,21 @@ def main() -> None:
     ap.add_argument("--rounds", type=int, default=200)
     ap.add_argument("--k", type=int, default=100)
     ap.add_argument("--seed", type=int, default=20260822)
+    ap.add_argument("--topology-file", type=str, default=None,
+                    help="JSON topology file for trace-calibrated simulation")
     args = ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
 
-    occ = occupancy(args.seeds, args.k, args.seed)
+    occ = occupancy(args.seeds, args.k, args.seed,
+                     topology_file=args.topology_file)
     write_csv(os.path.join(OUT, "e9_bft_occupancy.csv"), occ)
 
-    cap = capture_study(args.seeds, args.rounds, args.k, args.seed)
+    cap = capture_study(args.seeds, args.rounds, args.k, args.seed,
+                         topology_file=args.topology_file)
     write_csv(os.path.join(OUT, "e9_capture.csv"), cap)
 
-    heal = epoch_healing(min(args.seeds, 15), args.k, args.seed)
+    heal = epoch_healing(min(args.seeds, 15), args.k, args.seed,
+                          topology_file=args.topology_file)
     write_csv(os.path.join(OUT, "e9_epoch_healing.csv"), heal)
 
     with open(os.path.join(OUT, "e9_summary.json"), "w", encoding="utf-8") as fh:

@@ -1,0 +1,7 @@
+{
+  "status": "PLACEHOLDER \u2014 no measured data yet",
+  "note": "Execute run_20m_circuit.sh on AsusL40 first, then re-run this script.",
+  "expected_constraint_count": 20000000,
+  "b_max": 15,
+  "public_inputs": 3
+}

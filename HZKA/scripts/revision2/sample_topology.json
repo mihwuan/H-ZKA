@@ -1,0 +1,44 @@
+{
+  "_comment": "Sample topology file for trace-calibrated H-ZKA simulation (TODO Item 7).",
+  "_schema": {
+    "rtt_ms": "Required. k×k matrix of pairwise RTT in milliseconds. Must be symmetric, diagonal = 0.",
+    "corr": "Required. k×k matrix of normalised flow correlation in [0,1]. Must be symmetric, diagonal = 1.",
+    "regions": "Optional. Length-k array of integer region labels. Inferred from RTT if absent.",
+    "churn": "Optional. Dict with 'offline_prob' (float) and 'rejoin_prob' (float) for per-round churn."
+  },
+  "_usage": "python3 exp_byzantine_churn.py --topology-file sample_topology.json --seeds 5 --k 10",
+  "_note": "This 10-chain example uses fabricated data. Replace with real pairwise RTT and bridge-volume correlations.",
+
+  "rtt_ms": [
+    [  0,  15,  18,  90, 120, 200, 210, 310, 350, 400],
+    [ 15,   0,  12,  85, 115, 195, 205, 305, 345, 395],
+    [ 18,  12,   0,  88, 118, 198, 208, 308, 348, 398],
+    [ 90,  85,  88,   0,  20, 150, 160, 280, 320, 370],
+    [120, 115, 118,  20,   0, 145, 155, 275, 315, 365],
+    [200, 195, 198, 150, 145,   0,  25, 180, 220, 270],
+    [210, 205, 208, 160, 155,  25,   0, 175, 215, 265],
+    [310, 305, 308, 280, 275, 180, 175,   0,  30, 100],
+    [350, 345, 348, 320, 315, 220, 215,  30,   0,  80],
+    [400, 395, 398, 370, 365, 270, 265, 100,  80,   0]
+  ],
+
+  "corr": [
+    [1.00, 0.85, 0.82, 0.15, 0.10, 0.08, 0.07, 0.05, 0.04, 0.03],
+    [0.85, 1.00, 0.88, 0.12, 0.09, 0.07, 0.06, 0.04, 0.03, 0.02],
+    [0.82, 0.88, 1.00, 0.14, 0.11, 0.09, 0.08, 0.06, 0.05, 0.04],
+    [0.15, 0.12, 0.14, 1.00, 0.80, 0.20, 0.18, 0.10, 0.08, 0.06],
+    [0.10, 0.09, 0.11, 0.80, 1.00, 0.22, 0.20, 0.12, 0.10, 0.08],
+    [0.08, 0.07, 0.09, 0.20, 0.22, 1.00, 0.85, 0.15, 0.12, 0.10],
+    [0.07, 0.06, 0.08, 0.18, 0.20, 0.85, 1.00, 0.14, 0.11, 0.09],
+    [0.05, 0.04, 0.06, 0.10, 0.12, 0.15, 0.14, 1.00, 0.78, 0.70],
+    [0.04, 0.03, 0.05, 0.08, 0.10, 0.12, 0.11, 0.78, 1.00, 0.82],
+    [0.03, 0.02, 0.04, 0.06, 0.08, 0.10, 0.09, 0.70, 0.82, 1.00]
+  ],
+
+  "regions": [0, 0, 0, 1, 1, 2, 2, 3, 3, 3],
+
+  "churn": {
+    "offline_prob": 0.02,
+    "rejoin_prob": 0.30
+  }
+}

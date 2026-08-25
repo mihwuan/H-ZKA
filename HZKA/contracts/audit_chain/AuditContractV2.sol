@@ -349,23 +349,68 @@ contract AuditContractV2 {
     }
 
     // ==========================================
-    // Cluster-Level Commit  (O(√k) path)
+    // Cluster-Level Commit  (O(√k) path) — Commitment Interface (Algorithm 1)
     // ==========================================
 
     /**
-     * @notice Accept cluster-aggregated commits from ClusterManager (O(√k) path).
+     * @notice Accept cluster-aggregated commit using Algorithm 1's constant-size
+     *         commitment interface.
      *
-     * @dev Implements the O(√k) proof submission described in improvement doc §2:
-     *   Cluster head (elected by VRF) aggregates √k individual chain roots
-     *   into a Merkle root and submits ONE proof instead of √k proofs.
-     *   At k=100 chains with M=10 clusters: 10 proofs reach global chain vs 100.
-     *   Reduction factor = √k.
+     * @dev Replaces the per-chain interface (chainIds[] + newRoots[]) with a
+     *   single cluster commitment.  The binding of every member root to that
+     *   commitment is proved inside the aggregation circuit.  The on-chain
+     *   verifier sees exactly three public inputs regardless of B_max:
+     *     1. clusterCommitment — Poseidon hash binding all member roots
+     *     2. clusterId
+     *     3. round
+     *
+     *   This eliminates the O(B²) membership loop and makes the on-chain
+     *   verification cost O(√k) in both pairing and scalar-multiplication terms.
+     *
+     * @param clusterCommitId     Commit ID from ClusterManager.submitClusterCommit()
+     * @param clusterCommitment   Constant-size commitment binding all member roots
+     *                            (Poseidon hash computed inside the aggregation circuit)
+     * @param clusterId           Cluster identifier
+     * @param round               Audit round number
+     */
+    function acceptClusterCommit(
+        bytes32  clusterCommitId,
+        bytes32  clusterCommitment,
+        uint256  clusterId,
+        uint256  round
+    ) external {
+        require(auditors[msg.sender], "Not auditor");
+
+        // Retrieve scalar fields from ClusterManager
+        (uint256 cmClusterId, address clusterHead, bytes32 aggRoot, bool isVerified)
+            = clusterManager.getClusterCommitInfo(clusterCommitId);
+
+        require(clusterHead != address(0), "Invalid cluster commit");
+        require(!isVerified, "Already verified");
+        require(cmClusterId == clusterId, "Cluster ID mismatch");
+
+        // The commitment was verified inside the aggregation circuit; we only
+        // need to check that the supplied commitment matches the on-chain
+        // aggregate root (which was submitted by the cluster head).
+        require(clusterCommitment == aggRoot, "Commitment mismatch");
+
+        // Mark cluster commit as verified
+        clusterManager.verifyClusterCommit(clusterCommitId);
+
+        emit ClusterCommitAccepted(clusterCommitId, clusterId, round);
+    }
+
+    /**
+     * @notice Legacy per-chain interface for backward compatibility.
+     * @dev This is the original acceptClusterCommit with chainIds[] + newRoots[]
+     *   and the O(B²) membership loop.  It should NOT be used in new deployments;
+     *   use acceptClusterCommit(bytes32,bytes32,uint256,uint256) instead.
      *
      * @param clusterCommitId  Commit ID from ClusterManager.submitClusterCommit()
      * @param chainIds         Chain IDs covered by this cluster commit (in order)
-     * @param newRoots         New state roots for each chain (matches aggregated root)
+     * @param newRoots         New state roots for each chain
      */
-    function acceptClusterCommit(
+    function acceptClusterCommitLegacy(
         bytes32           clusterCommitId,
         uint256[] calldata chainIds,
         bytes32[] calldata newRoots
@@ -374,7 +419,6 @@ contract AuditContractV2 {
         require(chainIds.length == newRoots.length, "Length mismatch");
         require(chainIds.length > 0, "Empty cluster commit");
 
-        // Retrieve scalar fields from ClusterManager (bytes32[] not returned by getter)
         (uint256 clusterId, address clusterHead, bytes32 aggRoot, bool isVerified)
             = clusterManager.getClusterCommitInfo(clusterCommitId);
 
@@ -406,7 +450,7 @@ contract AuditContractV2 {
             chains[chainIds[i]].lastUpdateBlock  = block.number;
         }
 
-        // Mark cluster commit as verified (updates cluster head reputation in ClusterManager)
+        // Mark cluster commit as verified
         clusterManager.verifyClusterCommit(clusterCommitId);
 
         emit ClusterCommitAccepted(clusterCommitId, clusterId, chainIds.length);

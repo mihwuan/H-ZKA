@@ -1,0 +1,320 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{todoblue}{RGB}{0,72,170}
+\definecolor{codebg}{RGB}{246,247,249}
+\definecolor{donegreen}{RGB}{20,105,55}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  breaklines=true,
+  frame=leftline,
+  framesep=6pt,
+  rulecolor=\color{todoblue!40},
+  xleftmargin=10pt,
+  columns=fullflexible,
+  keepspaces=true,
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\title{\textbf{H-ZKA: Status and Outstanding Work}\\[0.3em]
+\large What the third revision corrected, and what remains}
+\author{Working notes for the author team}
+\date{22 August 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Where things stand}
+
+The Associate Editor's report identified five internal-validity issues and
+judged the previous TODO list ``valuable but misprioritized for acceptance.''
+That judgement was correct. This round therefore did the five corrections and
+deferred the extensions. This document records both.
+
+\vspace{0.4em}
+\begin{tabularx}{\textwidth}{@{}p{0.5cm}>{\raggedright\arraybackslash}p{5.0cm}p{2.1cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+& \textbf{Item} & \textbf{Status} & \textbf{Outcome} \\
+\midrule
+1 & Two-stage prover accounting & \textcolor{donegreen}{\textbf{Done}} &
+$+17\%$ workers at $k=100$, not $-83\%$. Three claims withdrawn \\
+2 & Constant-size public-input interface & \textcolor{donegreen}{\textbf{Done}} &
+$O(\sqrt k)$ restored in every term; exact gas model replaces a mocked
+measurement \\
+3 & Per-cluster BFT conditioning & \textcolor{donegreen}{\textbf{Done}} &
+Captured clusters now modelled; $50\%$ claim withdrawn \\
+4 & Matched leakage baseline & \textcolor{donegreen}{\textbf{Done}} &
+$3.0\times$ worst case, not $56.9\times$; benefit traced to the interface \\
+5 & Failover deadline semantics & \textcolor{donegreen}{\textbf{Done}} &
+Lost-round rate now reported: $1.3\%$ at a $10\%$ crash rate \\
+\midrule
+6 & Execute the 20M circuit, matched toolchain & Outstanding &
+Removes the last predicted headline number \\
+7 & Trace-calibrated simulation inputs & Outstanding &
+Improves external validity; does \emph{not} change the evidence class \\
+8 & Alternative proving backend & Outstanding &
+Optional; the AE noted Reviewer 3 asked for this \emph{or} larger validation \\
+9 & Portal metadata and release tag & Author only & Required before upload \\
+\bottomrule
+\end{tabularx}
+
+\section{Execute the 20-million-constraint circuit, with a matched toolchain}
+\label{sec:todo-20m}
+
+\subsection*{Why the previous plan was not sufficient}
+
+The earlier version of this document proposed a Circom and snarkjs run. The
+Associate Editor pointed out that the manuscript describes an xjsnark
+implementation and a separate Rust/Arkworks profiling harness, so a run in a
+third toolchain would be read as a \emph{new implementation} rather than as
+validation of the reported model. That objection is correct and it changes the
+requirement: the run must match the manuscript, or the manuscript must be
+changed to match the run.
+
+\subsection*{What must match}
+
+Five things, and all five should be recorded in the artifact before the run
+starts:
+
+\begin{enumerate}[leftmargin=*,itemsep=3pt]
+  \item \textbf{Statement.} Verify $B_{\max}=15$ inner Groth16 proofs and check
+  $\mathsf{StateTransition}(\mathsf{rt}^{\mathrm{old}}_j,\mathsf{tx}_j)=
+  \mathsf{rt}^{\mathrm{new}}_j$ for each slot.
+  \item \textbf{Public-input interface.} Exactly three public inputs: the
+  cluster commitment, the cluster id, and the round. This is the interface
+  Algorithm~1 now specifies, and the run must use it, not the per-chain variant.
+  The commitment binding, $B_{\max}-1$ Poseidon compressions, must be inside
+  the circuit and counted in the constraint total.
+  \item \textbf{Security level.} 128-bit, BN254, matching the manuscript.
+  \item \textbf{Toolchain.} Rust/Arkworks with the \texttt{parallel} feature,
+  which is what produced the nine measured points in Table~19. Using it keeps
+  the new datum on the same regression line rather than starting a new one.
+  \item \textbf{Host.} The AsusL40 node (Xeon Gold 6538Y+, 16 vCPU, 200 GiB),
+  the same host as the nine measured points. Provision at least 128 GiB free:
+  the measured profile is 3 GiB per million constraints, so 20M needs about
+  60 GiB for the prover alone plus proving key and witness.
+\end{enumerate}
+
+\subsection*{Sequence}
+
+\begin{lstlisting}[caption={Run from the Arkworks harness, not from a fresh Circom build}]
+# 1. Build the aggregation circuit at B_max = 15 with the commitment interface.
+#    Record the constraint count and the source hash.
+cargo run --release --features parallel --bin build_agg -- \
+    --slots 15 --public-inputs commitment --out build_agg/
+
+# 2. Record identity before proving.
+sha256sum build_agg/agg.r1cs build_agg/agg_pk.bin build_agg/agg_vk.bin
+cargo tree --locked > build_agg/deps.lock.txt
+
+# 3. Witness generation, timed separately from proving.
+/usr/bin/time -v cargo run --release --features parallel --bin witness -- \
+    --circuit build_agg/agg.r1cs --input input_full.json \
+    --out witness.bin
+
+# 4. Prove, three independent runs, peak RSS captured each time.
+for i in 1 2 3; do
+  /usr/bin/time -v cargo run --release --features parallel --bin prove -- \
+      --pk build_agg/agg_pk.bin --witness witness.bin \
+      --out proof_$i.bin 2> prove_$i.time
+done
+
+# 5. Verify, and record the public inputs actually accepted.
+cargo run --release --bin verify -- \
+    --vk build_agg/agg_vk.bin --proof proof_1.bin --public public_1.json
+\end{lstlisting}
+
+Store everything in \texttt{HZKA/result/circuit\_20M/} and add a manifest row.
+
+\subsection*{What to change in the manuscript afterwards}
+
+\begin{enumerate}[leftmargin=*,itemsep=3pt]
+  \item \textbf{Table 8, p.~18.} Change the 20M row from \emph{Predicted} to
+  \emph{Measured}.
+  \item \textbf{Table 19.} Replace the interval row with the measured mean and
+  CI over three runs.
+  \item \textbf{Section 7.9, Table 21.} This becomes a validation of the three
+  model forms rather than a risk bound. Add a column giving each model's error
+  against the measured value. Keep the section: knowing which extrapolation
+  form was right is more useful than deleting the analysis.
+  \item \textbf{Section 7.5.1, Tables 14--15.} Recompute worker counts, memory,
+  critical path, and the latency-parity $k$ from Eq.~(42) with the measured
+  $S_{\mathrm{agg}}$. If the measured value is below about $75$\,s, parity moves
+  inside $k\leq200$ and the latency claim can be revisited; the manuscript
+  currently claims none.
+  \item \textbf{Table 42 and Section 8.2.} Recompute the $+17\%$ and $+29\%$
+  overheads.
+  \item \textbf{Abstract, Section 9 item (1), Section 10.} Remove the
+  prediction language.
+\end{enumerate}
+
+If the measured value is \emph{worse} than predicted, the corrected claims
+still hold in direction; only the magnitudes move. Report it either way.
+
+\section{Trace-calibrated simulation inputs}
+\label{sec:todo-traces}
+
+\subsection*{The labelling point, accepted}
+
+The Associate Editor noted that feeding measured RTT, flow correlation, and
+churn distributions into the simulator produces \textbf{trace-calibrated
+simulation}, not measured protocol behavior, and that the evidence class cannot
+change unless the protocol itself is executed on those traces. We accept this
+without qualification, and the manuscript's evidence vocabulary now uses that
+term. Plan the work accordingly: it improves external validity and does not
+promote anything from \emph{simulated} to \emph{measured}.
+
+\subsection*{What to do}
+
+The simulator already accepts all three inputs; only a loader is missing.
+
+\begin{enumerate}[leftmargin=*,itemsep=3pt]
+  \item \textbf{Real RTT matrix.} Pairwise RTT between public RPC endpoints, or
+  between cloud regions. Feed as \texttt{Topology.rtt\_ms}.
+  \item \textbf{Real flow correlation.} Derive $\rho_{ab}$ from observed bridge
+  volume between chain pairs. Feed as \texttt{Topology.corr}. This matters most
+  for Section~7.14, because the whole $\eta$ trade-off depends on how far
+  geography and flow diverge in practice.
+  \item \textbf{Real churn.} Fit the offline/online process to observed
+  validator uptime rather than the geometric process now used.
+\end{enumerate}
+
+Add \texttt{--topology-file} to each driver and keep the synthetic path as the
+default so published numbers stay reproducible. Add a fourth evidence status,
+\emph{trace-calibrated}, to Table~8 rather than reusing \emph{measured}.
+
+\subsection*{Second priority: extending protection past the BFT bound}
+
+Section~7.12.1 now shows that the per-cluster Byzantine condition, not the
+global ratio, is the binding constraint, and that a single captured cluster
+blocks global round completion. This is the most consequential open problem for
+deployment, and three directions are worth testing in the simulator before any
+of them reaches the paper:
+
+\begin{enumerate}[leftmargin=*,itemsep=3pt]
+  \item \textbf{Larger balanced clusters.} Table~35 shows capture exposure is
+  not monotone in $B$ because $\lceil B/3\rceil/B$ is a step function. Sweep
+  $B$ jointly with a balance constraint on the $k$-medoid partition and find
+  the configuration that maximizes the safety margin at acceptable circuit size.
+  \item \textbf{Shorter epochs.} $E_{\mathrm{epoch}}=100$ lets a capture persist
+  for up to an epoch. Sweep $E_{\mathrm{epoch}}$ against reassignment churn,
+  which Table~30 already measures.
+  \item \textbf{Partial-round completeness.} The current rule makes a round
+  incomplete if any slot is missing. A rule that commits the fresh slots and
+  carries the missing ones forward would degrade far more gracefully. This is a
+  protocol change, not a parameter change, and needs its own safety argument.
+\end{enumerate}
+
+\section{Alternative proving backend}
+\label{sec:todo-backend}
+
+Still worth doing, still not required for acceptance: the Associate Editor
+noted that Reviewer~3 asked for larger validation \emph{or} another backend,
+and item~\ref{sec:todo-20m} satisfies the first.
+
+If undertaken, target \textbf{Nova} or HyperNova folding rather than Halo2.
+Folding amortizes $B_{\max}$ inner verifications into repeated applications of
+one step circuit, which matches Algorithm~1 exactly, and it removes the
+per-capacity trusted setup that Section~8.4 identifies as the largest
+planned-maintenance event in the architecture. Hold fixed the same five things
+listed in Section~\ref{sec:todo-20m}, and report EVM verification gas as well:
+a folding backend usually trades cheaper proving for a more expensive on-chain
+verifier, and since the paper's claim is now explicitly about on-chain cost,
+that would matter.
+
+\section{Author-only actions before upload}
+\label{sec:todo-portal}
+
+\begin{enumerate}[leftmargin=*,itemsep=3pt]
+  \item \textbf{Tagged release.} The Associate Editor asked for an immutable
+  release for the reproducibility spot-check. The corrected code is committed as
+  \texttt{a103cad9}. Tag and push it:
+  \begin{lstlisting}
+git tag -a v3.0-jsa-r3 -m "JSA third revision" a103cad9
+git push origin v3.0-jsa-r3
+  \end{lstlisting}
+  Then add the tag to the \texttt{hzka\_artifact} bibliography entry so the
+  cited URL resolves to this exact state.
+  \item \textbf{ORCID identifiers} for all four authors if the portal requests
+  them.
+  \item \textbf{Prior-conference disclosure.} If asked, supply the exact
+  conference title, venue, year, and DOI. These are not in the project files
+  and were deliberately not invented.
+  \item \textbf{Declarations.} Reconfirm author approval, exclusivity, and the
+  no-conflict declaration. Funding is already stated (NCM2025-26-01).
+\end{enumerate}
+
+\section{Smaller items}
+
+\begin{enumerate}[leftmargin=*,itemsep=4pt]
+  \item \textbf{Reputation-DoS equilibrium.} Section~9 still declines to claim a
+  Nash equilibrium for frivolous-challenge deterrence. The simulator now has
+  what is needed: add a challenger agent with a cost model and sweep the
+  challenge bond against the accuser's expected gain.
+
+  \item \textbf{Presence-bitmap leakage.} Section~7.15 excludes the bitmap
+  because it publishes participation rather than state change. Quantifying what
+  an observer learns from participation alone would complete the picture;
+  \texttt{exp\_leakage.py} extends to it by changing the secret and adding the
+  bitmap to the observation vector.
+
+  \item \textbf{Float placement.} Two or three wide tables may still sit two
+  pages from their sections in the final typeset version. This is an
+  \texttt{elsarticle} two-column constraint; if the production editor objects,
+  split the widest table by group.
+
+  \item \textbf{Contract alignment.} \texttt{AuditContractV2.acceptClusterCommit}
+  still takes \texttt{chainIds[]} and \texttt{newRoots[]} with an $O(B^2)$
+  membership loop, which is the per-chain interface the manuscript no longer
+  specifies. Aligning the contract with Algorithm~1's commitment interface is
+  not needed for the paper's claims, since those now rest on the gas model, but
+  it should be done before anyone treats the contract as a reference
+  implementation.
+\end{enumerate}
+
+\section*{Where everything lives}
+
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{6.6cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Path} & \textbf{Contents} \\
+\midrule
+\texttt{main.tex} / \texttt{main.pdf} & Clean manuscript, 38 pages \\
+\texttt{main\_marked\_up.tex} / \texttt{.pdf} & Marked copy, generated, never hand-edited \\
+\texttt{make\_marked.py} & Generator for the marked copy \\
+\texttt{response.tex} / \texttt{.pdf} & Response to the Associate Editor, 8 pages \\
+\texttt{coverletter.tex} / \texttt{.pdf} & Cover letter, one A4 page \\
+\texttt{report\_audit.md} & Human-maintained readiness audit \\
+\texttt{.revision\_backup\_} \texttt{20260822\_r3/} & The version the Associate Editor reviewed \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{In the public artifact repository, commit \texttt{a103cad9}:}} \\
+\texttt{HZKA/scripts/revision2/} & Simulator and ten experiment drivers \\
+\texttt{HZKA/result/revision2/} & Per-seed outputs for every derived table \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.8em}
+
+To regenerate everything:
+
+\begin{lstlisting}
+cd HZKA/scripts/revision2 && bash run_all.sh
+\end{lstlisting}
+
+Base seed \texttt{20260822}, 30 seeds per cell. Re-running reproduces every
+published number exactly.
+
+\end{document}

@@ -144,6 +144,8 @@ def main() -> None:
     ap.add_argument("--k", type=int, default=100)
     ap.add_argument("--byz", type=float, default=0.20)
     ap.add_argument("--seed", type=int, default=20260822)
+    ap.add_argument("--topology-file", type=str, default=None,
+                    help="JSON topology file for trace-calibrated simulation")
     args = ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
 

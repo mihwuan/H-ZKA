@@ -35,7 +35,8 @@ from hzka_protocol_sim import (Adversary, HZKASimulation, NetworkProfile,
 OUT = os.path.join(os.path.dirname(__file__), "..", "..", "result", "revision2")
 
 
-def run_grid(seeds: int, rounds: int, k: int, base_seed: int) -> List[Dict]:
+def run_grid(seeds: int, rounds: int, k: int, base_seed: int,
+             topology_file: str = None) -> List[Dict]:
     rows: List[Dict] = []
     n_clusters = int(math.ceil(math.sqrt(k)))
     b = k / float(n_clusters)
@@ -49,7 +50,8 @@ def run_grid(seeds: int, rounds: int, k: int, base_seed: int) -> List[Dict]:
             cfg = SimConfig(k=k, rounds=rounds, byz_frac=0.20,
                             head_crash_prob=crash,
                             adversary=Adversary(kind="naive"),
-                            profile=NetworkProfile(loss=0.02))
+                            profile=NetworkProfile(loss=0.02),
+                            topology_file=topology_file)
             sim = HZKASimulation(cfg, seed=base_seed + 5000 + s)
             hist = sim.run()
             coord.append(np.mean([h.coordination_ms for h in hist]))
@@ -115,10 +117,13 @@ def main() -> None:
     ap.add_argument("--rounds", type=int, default=200)
     ap.add_argument("--k", type=int, default=100)
     ap.add_argument("--seed", type=int, default=20260822)
+    ap.add_argument("--topology-file", type=str, default=None,
+                    help="JSON topology file for trace-calibrated simulation")
     args = ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
 
-    rows = run_grid(args.seeds, args.rounds, args.k, args.seed)
+    rows = run_grid(args.seeds, args.rounds, args.k, args.seed,
+                     topology_file=args.topology_file)
     write_csv(os.path.join(OUT, "e5_fault_recovery.csv"), rows)
     with open(os.path.join(OUT, "e5_summary.json"), "w", encoding="utf-8") as fh:
         json.dump({"config": vars(args), "rows": rows}, fh, indent=2)

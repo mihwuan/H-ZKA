@@ -43,7 +43,8 @@ def mean_ci(x: np.ndarray, axis: int = 0):
     return m, ci
 
 
-def sweep_byzantine(seeds: int, rounds: int, k: int, base_seed: int) -> Dict:
+def sweep_byzantine(seeds: int, rounds: int, k: int, base_seed: int,
+                    topology_file: str = None) -> Dict:
     fractions = [0.0, 0.10, 0.20, 0.30, 0.40, 0.50]
     rows: List[Dict] = []
     summary: Dict[str, Dict] = {}
@@ -59,7 +60,8 @@ def sweep_byzantine(seeds: int, rounds: int, k: int, base_seed: int) -> Dict:
         for s in range(seeds):
             cfg = SimConfig(k=k, rounds=rounds, byz_frac=f,
                             adversary=Adversary(kind="naive"),
-                            profile=NetworkProfile(loss=0.02))
+                            profile=NetworkProfile(loss=0.02),
+                            topology_file=topology_file)
             sim = HZKASimulation(cfg, seed=base_seed + s)
             hist = sim.run()
             acc[s] = [h.audit_accuracy for h in hist]
@@ -97,7 +99,8 @@ def sweep_byzantine(seeds: int, rounds: int, k: int, base_seed: int) -> Dict:
     return {"rows": rows, "summary": summary}
 
 
-def sweep_churn(seeds: int, rounds: int, k: int, base_seed: int) -> Dict:
+def sweep_churn(seeds: int, rounds: int, k: int, base_seed: int,
+                topology_file: str = None) -> Dict:
     """Churn and heterogeneous-delay grid.
 
     ``rejoin`` controls the mean outage length: a node that leaves returns
@@ -123,7 +126,8 @@ def sweep_churn(seeds: int, rounds: int, k: int, base_seed: int) -> Dict:
                     cfg = SimConfig(k=k, rounds=rounds, byz_frac=0.20,
                                     churn_rate=churn, rejoin_rate=rejoin,
                                     adversary=Adversary(kind="naive"),
-                                    profile=prof, workload_dynamic=True)
+                                    profile=prof, workload_dynamic=True,
+                                    topology_file=topology_file)
                     sim = HZKASimulation(cfg, seed=base_seed + 1000 + s)
                     hist = sim.run()
                     tail = slice(rounds // 2, rounds)
@@ -158,7 +162,8 @@ def sweep_churn(seeds: int, rounds: int, k: int, base_seed: int) -> Dict:
     return {"rows": rows}
 
 
-def partition_study(seeds: int, rounds: int, k: int, base_seed: int) -> Dict:
+def partition_study(seeds: int, rounds: int, k: int, base_seed: int,
+                    topology_file: str = None) -> Dict:
     """Contiguous-outage study of the omission-ineligibility boundary.
 
     A fifth of the chains is isolated for a fixed window and then healed.  Two
@@ -184,7 +189,8 @@ def partition_study(seeds: int, rounds: int, k: int, base_seed: int) -> Dict:
                                 partition_end=start + window,
                                 adversary=Adversary(kind="naive"),
                                 profile=NetworkProfile(loss=0.0,
-                                                       unresolved_rate=0.0))
+                                                       unresolved_rate=0.0),
+                                topology_file=topology_file)
                 sim = HZKASimulation(cfg, seed=base_seed + 3000 + s)
                 hist = sim.run()
                 n_honest = sum(1 for c in sim.committers if not c.byzantine)
@@ -230,17 +236,22 @@ def main() -> None:
     ap.add_argument("--rounds", type=int, default=200)
     ap.add_argument("--k", type=int, default=100)
     ap.add_argument("--seed", type=int, default=20260822)
+    ap.add_argument("--topology-file", type=str, default=None,
+                    help="JSON topology file for trace-calibrated simulation")
     args = ap.parse_args()
 
     os.makedirs(OUT, exist_ok=True)
 
-    byz = sweep_byzantine(args.seeds, args.rounds, args.k, args.seed)
+    byz = sweep_byzantine(args.seeds, args.rounds, args.k, args.seed,
+                           topology_file=args.topology_file)
     write_csv(os.path.join(OUT, "e1_byzantine_recovery.csv"), byz["rows"])
 
-    churn = sweep_churn(args.seeds, args.rounds, args.k, args.seed)
+    churn = sweep_churn(args.seeds, args.rounds, args.k, args.seed,
+                         topology_file=args.topology_file)
     write_csv(os.path.join(OUT, "e1_churn_grid.csv"), churn["rows"])
 
-    part = partition_study(args.seeds, args.rounds, args.k, args.seed)
+    part = partition_study(args.seeds, args.rounds, args.k, args.seed,
+                            topology_file=args.topology_file)
     write_csv(os.path.join(OUT, "e1_partition.csv"), part["rows"])
 
     with open(os.path.join(OUT, "e1_summary.json"), "w", encoding="utf-8") as fh:

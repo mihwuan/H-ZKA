@@ -124,7 +124,8 @@ def policy_comparison(seeds: int, k: int, b_max: int, alignment: float,
     return rows
 
 
-def end_to_end_effect(seeds: int, k: int, base_seed: int) -> List[Dict]:
+def end_to_end_effect(seeds: int, k: int, base_seed: int,
+                      topology_file: str = None) -> List[Dict]:
     """Effect of eta on the simulated audit round, including MF-PoP dynamics."""
     rows: List[Dict] = []
     for eta in ETAS:
@@ -132,7 +133,8 @@ def end_to_end_effect(seeds: int, k: int, base_seed: int) -> List[Dict]:
         for s in range(seeds):
             cfg = SimConfig(k=k, rounds=100, byz_frac=0.20, eta=eta,
                             adversary=Adversary(kind="naive"),
-                            profile=NetworkProfile(loss=0.02))
+                            profile=NetworkProfile(loss=0.02),
+                            topology_file=topology_file)
             sim = HZKASimulation(cfg, seed=base_seed + 900 + s)
             hist = sim.run()
             coord.append(np.mean([h.coordination_ms for h in hist]))
@@ -164,6 +166,8 @@ def main() -> None:
     ap.add_argument("--k", type=int, default=100)
     ap.add_argument("--b-max", type=int, default=15)
     ap.add_argument("--seed", type=int, default=20260822)
+    ap.add_argument("--topology-file", type=str, default=None,
+                    help="JSON topology file for trace-calibrated simulation")
     args = ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
 
@@ -176,7 +180,8 @@ def main() -> None:
     pol = policy_comparison(args.seeds, args.k, args.b_max, 0.5, args.seed)
     write_csv(os.path.join(OUT, "e3_policy_comparison.csv"), pol)
 
-    e2e = end_to_end_effect(min(args.seeds, 15), args.k, args.seed)
+    e2e = end_to_end_effect(min(args.seeds, 15), args.k, args.seed,
+                             topology_file=args.topology_file)
     write_csv(os.path.join(OUT, "e3_end_to_end.csv"), e2e)
 
     with open(os.path.join(OUT, "e3_summary.json"), "w", encoding="utf-8") as fh:

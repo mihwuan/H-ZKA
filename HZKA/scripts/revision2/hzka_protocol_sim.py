@@ -302,6 +302,94 @@ def make_topology(k: int,
     return Topology(k=k, regions=regions, rtt=rtt, corr=corr, rtt_ms=rtt_ms)
 
 
+# ---------------------------------------------------------------------------
+# Trace-calibrated topology loading (TODO Item 7)
+# ---------------------------------------------------------------------------
+
+def load_topology_file(path: str) -> dict:
+    """Load a topology specification from a JSON file.
+
+    The file must contain at least:
+      - ``rtt_ms``:  a k×k matrix of pairwise RTT in milliseconds.
+      - ``corr``:    a k×k matrix of normalised flow correlations in [0,1].
+
+    Optional fields:
+      - ``regions``: a length-k array of integer region labels.
+      - ``churn``:   a dict with keys ``offline_prob`` and ``rejoin_prob``
+                     (per-round probabilities for an MMPP churn process).
+    """
+    import json as _json
+    with open(path, "r", encoding="utf-8") as fh:
+        data = _json.load(fh)
+    required = {"rtt_ms", "corr"}
+    missing = required - set(data.keys())
+    if missing:
+        raise ValueError(f"Topology file {path} is missing keys: {missing}")
+    return data
+
+
+def make_topology_from_file(path: str, rng: np.random.Generator,
+                            profile: Optional[NetworkProfile] = None
+                            ) -> Topology:
+    """Build a ``Topology`` from a trace-calibrated JSON file.
+
+    The file's ``rtt_ms`` and ``corr`` matrices define the topology.  If the
+    file provides ``regions``, those are used; otherwise regions are inferred
+    from hierarchical clustering on the RTT matrix.
+
+    Parameters
+    ----------
+    path : str
+        Path to the JSON topology file (see ``load_topology_file``).
+    rng : numpy.random.Generator
+        Random generator (used only if ``regions`` are not provided).
+    profile : NetworkProfile, optional
+        Not used by the loader; kept for API symmetry with ``make_topology``.
+    """
+    data = load_topology_file(path)
+    rtt_ms = np.array(data["rtt_ms"], dtype=float)
+    corr = np.array(data["corr"], dtype=float)
+    k = rtt_ms.shape[0]
+    if rtt_ms.shape != (k, k):
+        raise ValueError(f"rtt_ms must be square; got shape {rtt_ms.shape}")
+    if corr.shape != (k, k):
+        raise ValueError(f"corr must be k×k (k={k}); got shape {corr.shape}")
+
+    # Ensure symmetry
+    rtt_ms = 0.5 * (rtt_ms + rtt_ms.T)
+    corr = 0.5 * (corr + corr.T)
+    np.fill_diagonal(rtt_ms, 0.0)
+    np.fill_diagonal(corr, 1.0)
+
+    # Normalised RTT
+    denom = rtt_ms.max() if rtt_ms.max() > 0 else 1.0
+    rtt = rtt_ms / denom
+
+    # Regions: from file or inferred via simple threshold clustering
+    if "regions" in data:
+        regions = np.array(data["regions"], dtype=int)
+    else:
+        # Infer regions: chains with RTT below the 25th percentile are
+        # co-regional.  This is a coarse heuristic; real deployments should
+        # supply region labels explicitly.
+        threshold = np.percentile(rtt_ms[rtt_ms > 0], 25) if (rtt_ms > 0).any() else 1.0
+        regions = np.zeros(k, dtype=int)
+        label = 0
+        assigned = np.full(k, False)
+        for a in range(k):
+            if assigned[a]:
+                continue
+            regions[a] = label
+            assigned[a] = True
+            for b in range(a + 1, k):
+                if not assigned[b] and rtt_ms[a, b] <= threshold:
+                    regions[b] = label
+                    assigned[b] = True
+            label += 1
+
+    return Topology(k=k, regions=regions, rtt=rtt, corr=corr, rtt_ms=rtt_ms)
+
+
 def kmedoid_partition(dist: np.ndarray,
                       n_clusters: int,
                       rng: np.random.Generator,
@@ -586,6 +674,10 @@ class SimConfig:
     # it censors adjudication for its members and withholds its round slot.
     model_capture: bool = False
     censor_prob: float = 1.0
+    # Trace-calibrated topology file (TODO Item 7).  When set, the topology
+    # is loaded from this JSON file instead of being generated synthetically.
+    # The synthetic path remains the default so published numbers reproduce.
+    topology_file: Optional[str] = None
 
 
 class HZKASimulation:
@@ -595,9 +687,20 @@ class HZKASimulation:
         self.cfg = cfg
         self.rng = np.random.default_rng(seed)
         self.seed = seed
-        self.topo = make_topology(
-            cfg.k, self.rng, n_regions=cfg.n_regions,
-            community_alignment=cfg.community_alignment, profile=cfg.profile)
+        if cfg.topology_file:
+            self.topo = make_topology_from_file(
+                cfg.topology_file, self.rng, profile=cfg.profile)
+            # Override k from the loaded topology if it differs
+            if self.topo.k != cfg.k:
+                import warnings
+                warnings.warn(
+                    f"Topology file has k={self.topo.k}, but SimConfig has "
+                    f"k={cfg.k}. Using k={self.topo.k} from the file.")
+                cfg.k = self.topo.k
+        else:
+            self.topo = make_topology(
+                cfg.k, self.rng, n_regions=cfg.n_regions,
+                community_alignment=cfg.community_alignment, profile=cfg.profile)
         self.n_clusters = int(math.ceil(math.sqrt(cfg.k)))
         self.labels = kmedoid_partition(
             self.topo.distance(cfg.eta), self.n_clusters, self.rng,
@@ -875,7 +978,8 @@ def flat_coordination_ms(topo: Topology) -> float:
 
 __all__ = [
     "MFPoP", "ConvexOnlyBaseline", "Adversary", "Committer",
-    "NetworkProfile", "Topology", "make_topology", "kmedoid_partition",
+    "NetworkProfile", "Topology", "make_topology", "make_topology_from_file",
+    "load_topology_file", "kmedoid_partition",
     "random_partition", "cluster_metrics", "reassignment_churn",
     "SimConfig", "HZKASimulation", "RoundStats", "flat_coordination_ms",
     "VALID", "INVALID", "MISSING", "UNRESOLVED",

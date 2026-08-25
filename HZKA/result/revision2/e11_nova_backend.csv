@@ -1,0 +1,7 @@
+b_max,groth16_constraints_m,groth16_prove_s,groth16_mem_gib,groth16_verify_gas,groth16_setup,nova_prove_s,nova_mem_gib,nova_verify_gas,nova_setup,nova_speedup,nova_mem_reduction,nova_gas_overhead,hypernova_prove_s,hypernova_mem_gib,hypernova_speedup,hypernova_mem_reduction
+5,7.210800,32.936670,21.632400,204450,Per-circuit trusted setup,21.635372,6.000000,216750,Universal SRS (no per-circuit ceremony),1.522353,3.605400,1.060161,18.135372,6.000000,1.816156,3.605400
+10,13.614400,62.186304,40.843200,204450,Per-circuit trusted setup,34.135372,6.000000,216750,Universal SRS (no per-circuit ceremony),1.821756,6.807200,1.060161,27.135372,6.000000,2.291706,6.807200
+15,20.014400,91.419495,60.043200,204450,Per-circuit trusted setup,46.635372,6.000000,216750,Universal SRS (no per-circuit ceremony),1.960304,10.007200,1.060161,36.135372,6.000000,2.529917,10.007200
+20,26.418000,120.669129,79.254000,204450,Per-circuit trusted setup,59.135372,6.000000,216750,Universal SRS (no per-circuit ceremony),2.040558,13.209000,1.060161,45.135372,6.000000,2.673494,13.209000
+25,32.818000,149.902319,98.454000,204450,Per-circuit trusted setup,71.635372,6.000000,216750,Universal SRS (no per-circuit ceremony),2.092574,16.409000,1.060161,54.135372,6.000000,2.769027,16.409000
+30,39.218000,179.135510,117.654000,204450,Per-circuit trusted setup,84.135372,6.000000,216750,Universal SRS (no per-circuit ceremony),2.129134,19.609000,1.060161,63.135372,6.000000,2.837324,19.609000
