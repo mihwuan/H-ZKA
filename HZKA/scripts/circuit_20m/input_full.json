@@ -1,0 +1,24 @@
+{
+  "_comment": "Input data for the 20M aggregation circuit witness generation.",
+  "_note": "In production, replace inner_proofs with actual Groth16 proofs from chain audits.",
+  "slots": 15,
+  "cluster_id": 1,
+  "round": 42,
+  "inner_proofs": [
+    {"chain_id": 1, "old_root": "0x1111", "new_root": "0x2222"},
+    {"chain_id": 2, "old_root": "0x3333", "new_root": "0x4444"},
+    {"chain_id": 3, "old_root": "0x5555", "new_root": "0x6666"},
+    {"chain_id": 4, "old_root": "0x7777", "new_root": "0x8888"},
+    {"chain_id": 5, "old_root": "0x9999", "new_root": "0xAAAA"},
+    {"chain_id": 6, "old_root": "0xBBBB", "new_root": "0xCCCC"},
+    {"chain_id": 7, "old_root": "0xDDDD", "new_root": "0xEEEE"},
+    {"chain_id": 8, "old_root": "0xFFFF", "new_root": "0x1010"},
+    {"chain_id": 9, "old_root": "0x2020", "new_root": "0x3030"},
+    {"chain_id": 10, "old_root": "0x4040", "new_root": "0x5050"},
+    {"chain_id": 11, "old_root": "0x6060", "new_root": "0x7070"},
+    {"chain_id": 12, "old_root": "0x8080", "new_root": "0x9090"},
+    {"chain_id": 13, "old_root": "0xA0A0", "new_root": "0xB0B0"},
+    {"chain_id": 14, "old_root": "0xC0C0", "new_root": "0xD0D0"},
+    {"chain_id": 15, "old_root": "0xE0E0", "new_root": "0xF0F0"}
+  ]
+}

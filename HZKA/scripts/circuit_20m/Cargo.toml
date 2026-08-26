@@ -1,0 +1,77 @@
+[package]
+name = "hzka-prover"
+version = "0.1.0"
+edition = "2021"
+description = "H-ZKA aggregation circuit prover — Rust/Arkworks harness"
+
+# The `parallel` feature enables Rayon-based parallelism in ark-* crates.
+# This is the feature flag referenced in run_20m_circuit.sh.
+[features]
+default = []
+parallel = [
+    "ark-std/parallel",
+    "ark-ff/parallel",
+    "ark-ec/parallel",
+    "ark-poly/parallel",
+    "ark-groth16/parallel",
+    "ark-r1cs-std/parallel",
+    "ark-crypto-primitives/parallel",
+]
+
+[dependencies]
+# Core Arkworks libraries (BN254 / 128-bit security)
+ark-ff           = { version = "0.4", default-features = false }
+ark-ec           = { version = "0.4", default-features = false }
+ark-poly         = { version = "0.4", default-features = false }
+ark-std          = { version = "0.4", default-features = false }
+ark-serialize    = { version = "0.4", default-features = false }
+ark-relations    = { version = "0.4", default-features = false }
+
+# Groth16 proving system
+ark-groth16      = { version = "0.4", default-features = false }
+
+# BN254 curve (128-bit security, EVM-compatible precompiles)
+ark-bn254        = { version = "0.4", default-features = false, features = ["curve"] }
+
+# R1CS constraint system and standard gadgets
+ark-r1cs-std     = { version = "0.4", default-features = false }
+
+# Cryptographic primitives (Poseidon hash for commitment binding)
+ark-crypto-primitives = { version = "0.4", default-features = false, features = ["r1cs", "sponge"] }
+
+# Utilities
+ark-snark        = { version = "0.4", default-features = false }
+rand             = "0.8"
+rand_chacha      = "0.3"
+serde            = { version = "1", features = ["derive"] }
+serde_json       = "1"
+clap             = { version = "4", features = ["derive"] }
+color-eyre       = "0.6"
+tracing          = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Rayon for parallel proving (only activated by the `parallel` feature)
+rayon            = "1.8"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+# Aggressive optimisation: the prover is CPU-bound and benefits from
+# full LTO and single-codegen-unit builds.
+
+[[bin]]
+name = "build_agg"
+path = "src/bin/build_agg.rs"
+
+[[bin]]
+name = "witness"
+path = "src/bin/witness.rs"
+
+[[bin]]
+name = "prove"
+path = "src/bin/prove.rs"
+
+[[bin]]
+name = "verify"
+path = "src/bin/verify.rs"
