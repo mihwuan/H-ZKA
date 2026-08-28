@@ -39,11 +39,11 @@ fn main() -> color_eyre::Result<()> {
 
     eprintln!("Loading verifying key from {}...", args.vk.display());
     let vk_bytes = fs::read(&args.vk)?;
-    let vk = ark_groth16::VerifyingKey::<Bn254>::deserialize_compressed(&*vk_bytes)?;
+    let vk = ark_groth16::VerifyingKey::<Bn254>::deserialize_compressed(&*vk_bytes).map_err(|e| color_eyre::eyre::eyre!("{:?}", e))?;
 
     eprintln!("Loading proof from {}...", args.proof.display());
     let proof_bytes = fs::read(&args.proof)?;
-    let proof = ark_groth16::Proof::<Bn254>::deserialize_compressed(&*proof_bytes)?;
+    let proof = ark_groth16::Proof::<Bn254>::deserialize_compressed(&*proof_bytes).map_err(|e| color_eyre::eyre::eyre!("{:?}", e))?;
 
     // Reconstruct the public inputs
     // In the commitment interface: [clusterCommitment, clusterId, round]

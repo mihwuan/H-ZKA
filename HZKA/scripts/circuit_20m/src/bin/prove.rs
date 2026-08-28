@@ -56,7 +56,7 @@ fn main() -> color_eyre::Result<()> {
     };
     let circuit = AggregationCircuit::new(config);
 
-    let mut rng = ChaCha20Rng::seed_from_u64(0xPROVE);
+    let mut rng = ChaCha20Rng::seed_from_u64(0x5678);
 
     eprintln!("Generating Groth16 proof...");
     let (proof, elapsed) = timed("proving", || {

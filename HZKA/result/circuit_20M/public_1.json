@@ -1,0 +1,14 @@
+{
+  "labels": [
+    "clusterCommitment",
+    "clusterId",
+    "round"
+  ],
+  "public_inputs": [
+    "",
+    "1",
+    "42"
+  ],
+  "result": "VALID",
+  "verification_time_s": 0.003702838
+}

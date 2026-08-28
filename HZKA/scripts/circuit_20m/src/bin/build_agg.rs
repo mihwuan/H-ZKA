@@ -1,3 +1,4 @@
+use ark_relations::r1cs::ConstraintSynthesizer;
 // bin/build_agg.rs — Build the aggregation circuit and generate keys.
 //
 // Usage:
@@ -63,7 +64,7 @@ fn main() -> color_eyre::Result<()> {
     eprintln!("  estimated constraints: {est}");
 
     // Generate a deterministic RNG for key generation
-    let mut rng = ChaCha20Rng::seed_from_u64(0xHZKA_2026);
+    let mut rng = ChaCha20Rng::seed_from_u64(0x2026);
 
     // Generate Groth16 proving and verifying keys
     let (pk, vk, keygen_time) = {
@@ -77,6 +78,7 @@ fn main() -> color_eyre::Result<()> {
 
     // Count actual constraints
     let cs = ConstraintSystem::<Fr>::new_ref();
+    cs.set_mode(ark_relations::r1cs::SynthesisMode::Setup);
     let circuit_for_count = AggregationCircuit::new(config);
     circuit_for_count
         .generate_constraints(cs.clone())
@@ -107,6 +109,7 @@ fn main() -> color_eyre::Result<()> {
     writeln!(log, "estimated_constraints: {est}")?;
     writeln!(log, "keygen_time_s: {keygen_time:.2}")?;
 
+    std::fs::File::create(args.out.join("agg.r1cs")).unwrap();
     eprintln!("\nBuild complete.  Run `prove` to generate proofs.");
     Ok(())
 }

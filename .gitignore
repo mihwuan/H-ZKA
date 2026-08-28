@@ -9,3 +9,6 @@ Papers/
 zkCross_filemd/
 .cursor/
 .env/
+HZKA/result/**/build_agg/
+*.bin
+*.r1cs

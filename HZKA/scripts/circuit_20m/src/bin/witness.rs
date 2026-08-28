@@ -60,7 +60,7 @@ fn main() -> color_eyre::Result<()> {
     let slots = input_data["slots"].as_u64().unwrap_or(15) as usize;
 
     let (witness, elapsed) = timed("witness generation", || {
-        let mut rng = ChaCha20Rng::seed_from_u64(0xWITNESS);
+        let mut rng = ChaCha20Rng::seed_from_u64(0x1234);
         let config = AggregationConfig {
             slots,
             use_commitment: true,

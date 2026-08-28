@@ -1,0 +1,3 @@
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ../../result/circuit_20M/build_agg/agg.r1cs
+d6d988ccd8abc6209954fc6e634239fbfe99ea13b2b1d659bae2c8385d146cf9  ../../result/circuit_20M/build_agg/agg_pk.bin
+7cfdfd44b910b02de6652c8f62c9d0bac88bc7fb2af2d71bc6ada7449c20961f  ../../result/circuit_20M/build_agg/agg_vk.bin

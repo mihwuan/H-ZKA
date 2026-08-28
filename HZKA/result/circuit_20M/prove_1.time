@@ -1,0 +1,96 @@
+warning: unused import: `Bn254`
+  --> src/aggregation.rs:14:17
+   |
+14 | use ark_bn254::{Bn254, Fr};
+   |                 ^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `ark_ff::Field`
+  --> src/aggregation.rs:15:5
+   |
+15 | use ark_ff::Field;
+   |     ^^^^^^^^^^^^^
+
+warning: unused import: `ark_groth16::Groth16`
+  --> src/aggregation.rs:16:5
+   |
+16 | use ark_groth16::Groth16;
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `ark_std::rand::RngCore`
+  --> src/aggregation.rs:21:5
+   |
+21 | use ark_std::rand::RngCore;
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `ark_ff::Field`
+ --> src/commitment.rs:8:5
+  |
+8 | use ark_ff::Field;
+  |     ^^^^^^^^^^^^^
+
+warning: unused import: `ark_r1cs_std::prelude`
+  --> src/aggregation.rs:17:5
+   |
+17 | use ark_r1cs_std::prelude::*;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `cluster_id_var`
+  --> src/aggregation.rs:89:13
+   |
+89 |         let cluster_id_var = cs.new_input_variable(|| Ok(self.cluster_id))?;
+   |             ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cluster_id_var`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `round_var`
+  --> src/aggregation.rs:90:13
+   |
+90 |         let round_var = cs.new_input_variable(|| Ok(self.round))?;
+   |             ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_round_var`
+
+warning: `hzka-prover` (lib) generated 8 warnings (run `cargo fix --lib -p hzka-prover` to apply 7 suggestions)
+   Compiling hzka-prover v0.1.0 (/datastore/uitchain/hzka_benchmark/H-ZKA/HZKA/scripts/circuit_20m)
+warning: unused import: `Fr`
+ --> src/bin/prove.rs:9:24
+  |
+9 | use ark_bn254::{Bn254, Fr};
+  |                        ^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `hzka-prover` (bin "prove") generated 1 warning (run `cargo fix --bin "prove" -p hzka-prover` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 23.06s
+     Running `target/release/prove --pk ../../result/circuit_20M/build_agg/agg_pk.bin --witness ../../result/circuit_20M/witness.bin --out ../../result/circuit_20M/proof_1.bin`
+Loading proving key from ../../result/circuit_20M/build_agg/agg_pk.bin...
+  PK loaded (4276046288 bytes)
+Loading witness from ../../result/circuit_20M/witness.bin...
+Generating Groth16 proof...
+[proving] completed in 157.86s
+  proof size:   128 bytes
+  written to:   ../../result/circuit_20M/proof_1.bin
+  proving time: 157.86s
+	Command being timed: "cargo run --release --features parallel --bin prove -- --pk ../../result/circuit_20M/build_agg/agg_pk.bin --witness ../../result/circuit_20M/witness.bin --out ../../result/circuit_20M/proof_1.bin"
+	User time (seconds): 9109.42
+	System time (seconds): 154.81
+	Percent of CPU this job got: 105%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:26:19
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 48822928
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 13
+	Minor (reclaiming a frame) page faults: 27740521
+	Voluntary context switches: 16014
+	Involuntary context switches: 81956
+	Swaps: 0
+	File system inputs: 4936
+	File system outputs: 21344
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

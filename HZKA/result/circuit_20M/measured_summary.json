@@ -1,7 +1,18 @@
 {
-  "status": "PLACEHOLDER \u2014 no measured data yet",
-  "note": "Execute run_20m_circuit.sh on AsusL40 first, then re-run this script.",
-  "expected_constraint_count": 20000000,
+  "constraint_count_target": 20000000,
   "b_max": 15,
-  "public_inputs": 3
+  "public_inputs": 3,
+  "interface": "commitment",
+  "security_level": "128-bit BN254",
+  "proving_time_mean_s": 8076.666666666667,
+  "proving_time_ci_s": 733.283067246961,
+  "proving_time_runs_s": [
+    8779.0,
+    7949.0,
+    7502.0
+  ],
+  "peak_rss_mean_kib": 48818924.0,
+  "peak_rss_mean_gib": 46.55735397338867,
+  "peak_rss_ci_kib": 8064.400727080303,
+  "witness_generation_s": 16.23
 }

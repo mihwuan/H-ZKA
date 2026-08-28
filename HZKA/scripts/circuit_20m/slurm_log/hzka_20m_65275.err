@@ -1,0 +1,275 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.47
+   Compiling autocfg v1.5.1
+   Compiling cfg-if v1.0.4
+   Compiling version_check v0.9.5
+   Compiling libc v0.2.189
+   Compiling once_cell v1.21.4
+   Compiling zerocopy v0.8.56
+   Compiling crossbeam-utils v0.8.22
+   Compiling typenum v1.20.1
+   Compiling crossbeam-epoch v0.9.20
+   Compiling syn v1.0.109
+   Compiling crossbeam-deque v0.8.7
+   Compiling rayon-core v1.13.0
+   Compiling subtle v2.6.1
+   Compiling either v1.18.0
+   Compiling paste v1.0.15
+   Compiling pin-project-lite v0.2.17
+   Compiling regex-syntax v0.8.11
+   Compiling log v0.4.34
+   Compiling lazy_static v1.5.0
+   Compiling owo-colors v4.3.0
+   Compiling nu-ansi-term v0.50.3
+   Compiling utf8parse v0.2.2
+   Compiling smallvec v1.15.2
+   Compiling serde_core v1.0.229
+   Compiling memchr v2.8.3
+   Compiling object v0.37.3
+   Compiling gimli v0.32.3
+   Compiling color-spantrace v0.3.0
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling cpufeatures v0.2.17
+   Compiling anstyle-query v1.1.5
+   Compiling colorchoice v1.0.5
+   Compiling anstyle v1.0.14
+   Compiling zmij v1.0.23
+   Compiling adler2 v2.0.1
+   Compiling indenter v0.3.4
+   Compiling clap_lex v1.1.0
+   Compiling serde_json v1.0.151
+   Compiling heck v0.5.0
+   Compiling rustc-demangle v0.1.28
+   Compiling strsim v0.11.1
+   Compiling serde v1.0.229
+   Compiling itoa v1.0.18
+   Compiling sharded-slab v0.1.7
+   Compiling miniz_oxide v0.8.9
+   Compiling anstyle-parse v1.0.0
+   Compiling tracing-core v0.1.36
+   Compiling thread_local v1.1.10
+   Compiling itertools v0.10.5
+   Compiling generic-array v0.14.7
+   Compiling ahash v0.8.12
+   Compiling anstream v1.0.0
+   Compiling num-traits v0.2.19
+   Compiling eyre v0.6.14
+   Compiling tracing-subscriber v0.2.25
+   Compiling tracing-log v0.2.0
+   Compiling regex-automata v0.4.18
+   Compiling clap_builder v4.6.6
+   Compiling addr2line v0.25.1
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling syn v2.0.119
+   Compiling syn v3.0.4
+   Compiling digest v0.10.7
+   Compiling getrandom v0.2.17
+   Compiling num-integer v0.1.47
+   Compiling rand_core v0.6.4
+   Compiling sha2 v0.10.9
+   Compiling blake2 v0.10.6
+   Compiling rayon v1.12.0
+   Compiling num-bigint v0.4.8
+   Compiling matchers v0.2.0
+   Compiling ppv-lite86 v0.2.21
+   Compiling backtrace v0.3.76
+   Compiling hashbrown v0.13.2
+   Compiling rand_chacha v0.3.1
+   Compiling serde_derive v1.0.229
+   Compiling clap_derive v4.6.4
+   Compiling rand v0.8.8
+   Compiling ark-serialize-derive v0.4.2
+   Compiling ark-ff-asm v0.4.2
+   Compiling ark-ff-macros v0.4.2
+   Compiling derivative v2.2.0
+   Compiling tracing-attributes v0.1.31
+   Compiling zeroize_derive v1.5.0
+   Compiling ark-std v0.4.0
+   Compiling ark-serialize v0.4.2
+   Compiling clap v4.6.6
+   Compiling zeroize v1.9.0
+   Compiling tracing v0.1.44
+   Compiling ark-ff v0.4.2
+   Compiling tracing-subscriber v0.3.23
+   Compiling tracing-error v0.2.1
+   Compiling color-eyre v0.6.5
+   Compiling ark-poly v0.4.2
+   Compiling ark-relations v0.4.0
+   Compiling ark-snark v0.4.0
+   Compiling ark-ec v0.4.2
+   Compiling ark-r1cs-std v0.4.0
+   Compiling ark-bn254 v0.4.0
+   Compiling ark-crypto-primitives v0.4.0
+   Compiling ark-groth16 v0.4.0
+   Compiling hzka-prover v0.1.0 (/datastore/uitchain/hzka_benchmark/H-ZKA/HZKA/scripts/circuit_20m)
+warning: unused import: `Bn254`
+  --> src/aggregation.rs:14:17
+   |
+14 | use ark_bn254::{Bn254, Fr};
+   |                 ^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `ark_ff::Field`
+  --> src/aggregation.rs:15:5
+   |
+15 | use ark_ff::Field;
+   |     ^^^^^^^^^^^^^
+
+warning: unused import: `ark_groth16::Groth16`
+  --> src/aggregation.rs:16:5
+   |
+16 | use ark_groth16::Groth16;
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `ark_std::rand::RngCore`
+  --> src/aggregation.rs:21:5
+   |
+21 | use ark_std::rand::RngCore;
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `ark_ff::Field`
+ --> src/commitment.rs:8:5
+  |
+8 | use ark_ff::Field;
+  |     ^^^^^^^^^^^^^
+
+warning: unused import: `ark_r1cs_std::prelude`
+  --> src/aggregation.rs:17:5
+   |
+17 | use ark_r1cs_std::prelude::*;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `cluster_id_var`
+  --> src/aggregation.rs:89:13
+   |
+89 |         let cluster_id_var = cs.new_input_variable(|| Ok(self.cluster_id))?;
+   |             ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cluster_id_var`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `round_var`
+  --> src/aggregation.rs:90:13
+   |
+90 |         let round_var = cs.new_input_variable(|| Ok(self.round))?;
+   |             ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_round_var`
+
+warning: `hzka-prover` (lib) generated 8 warnings (run `cargo fix --lib -p hzka-prover` to apply 7 suggestions)
+    Finished `release` profile [optimized] target(s) in 51.43s
+     Running `target/release/build_agg --slots 15 --public-inputs commitment --out ../../result/circuit_20M/build_agg/`
+Building aggregation circuit:
+  slots (B_max):   15
+  public inputs:   commitment
+  estimated constraints: 20014400
+[keygen] completed in 451.55s
+  actual constraints:    20014400
+  keygen time:           451.55s
+  PK written to:         ../../result/circuit_20M/build_agg/agg_pk.bin
+  VK written to:         ../../result/circuit_20M/build_agg/agg_vk.bin
+
+Build complete.  Run `prove` to generate proofs.
+   Compiling either v1.18.0
+   Compiling num-traits v0.2.19
+   Compiling itertools v0.10.5
+   Compiling rayon v1.12.0
+   Compiling num-integer v0.1.47
+   Compiling ark-std v0.4.0
+   Compiling num-bigint v0.4.8
+   Compiling ark-serialize v0.4.2
+   Compiling ark-ff v0.4.2
+   Compiling ark-poly v0.4.2
+   Compiling ark-relations v0.4.0
+   Compiling ark-snark v0.4.0
+   Compiling ark-ec v0.4.2
+   Compiling ark-r1cs-std v0.4.0
+   Compiling ark-bn254 v0.4.0
+   Compiling ark-crypto-primitives v0.4.0
+   Compiling ark-groth16 v0.4.0
+   Compiling hzka-prover v0.1.0 (/datastore/uitchain/hzka_benchmark/H-ZKA/HZKA/scripts/circuit_20m)
+warning: unused import: `Bn254`
+  --> src/aggregation.rs:14:17
+   |
+14 | use ark_bn254::{Bn254, Fr};
+   |                 ^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `ark_ff::Field`
+  --> src/aggregation.rs:15:5
+   |
+15 | use ark_ff::Field;
+   |     ^^^^^^^^^^^^^
+
+warning: unused import: `ark_groth16::Groth16`
+  --> src/aggregation.rs:16:5
+   |
+16 | use ark_groth16::Groth16;
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `ark_std::rand::RngCore`
+  --> src/aggregation.rs:21:5
+   |
+21 | use ark_std::rand::RngCore;
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `ark_ff::Field`
+ --> src/commitment.rs:8:5
+  |
+8 | use ark_ff::Field;
+  |     ^^^^^^^^^^^^^
+
+warning: unused import: `ark_r1cs_std::prelude`
+  --> src/aggregation.rs:17:5
+   |
+17 | use ark_r1cs_std::prelude::*;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `cluster_id_var`
+  --> src/aggregation.rs:89:13
+   |
+89 |         let cluster_id_var = cs.new_input_variable(|| Ok(self.cluster_id))?;
+   |             ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cluster_id_var`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `round_var`
+  --> src/aggregation.rs:90:13
+   |
+90 |         let round_var = cs.new_input_variable(|| Ok(self.round))?;
+   |             ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_round_var`
+
+warning: `hzka-prover` (lib) generated 8 warnings (run `cargo fix --lib -p hzka-prover` to apply 7 suggestions)
+error[E0277]: `?` couldn't convert the error: `SerializationError: std::error::Error` is not satisfied
+  --> src/bin/verify.rs:42:84
+   |
+35 | fn main() -> color_eyre::Result<()> {
+   |              ---------------------- required `SerializationError: std::error::Error` because of this
+...
+42 |     let vk = ark_groth16::VerifyingKey::<Bn254>::deserialize_compressed(&*vk_bytes)?;
+   |              ----------------------------------------------------------------------^ the trait `std::error::Error` is not implemented for `SerializationError`
+   |              |
+   |              this has type `Result<_, SerializationError>`
+   |
+   = note: the question mark operation (`?`) implicitly performs a conversion on the error value using the `From` trait
+   = note: `SerializationError` implements similarly named trait `ark_std::error::Error`, but not `std::error::Error`
+   = note: required for `ErrReport` to implement `From<SerializationError>`
+
+error[E0277]: `?` couldn't convert the error: `SerializationError: std::error::Error` is not satisfied
+  --> src/bin/verify.rs:46:83
+   |
+35 | fn main() -> color_eyre::Result<()> {
+   |              ---------------------- required `SerializationError: std::error::Error` because of this
+...
+46 |     let proof = ark_groth16::Proof::<Bn254>::deserialize_compressed(&*proof_bytes)?;
+   |                 ------------------------------------------------------------------^ the trait `std::error::Error` is not implemented for `SerializationError`
+   |                 |
+   |                 this has type `Result<_, SerializationError>`
+   |
+   = note: the question mark operation (`?`) implicitly performs a conversion on the error value using the `From` trait
+   = note: `SerializationError` implements similarly named trait `ark_std::error::Error`, but not `std::error::Error`
+   = note: required for `ErrReport` to implement `From<SerializationError>`
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `hzka-prover` (bin "verify") due to 2 previous errors

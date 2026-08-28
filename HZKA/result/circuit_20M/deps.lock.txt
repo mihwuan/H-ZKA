@@ -1,0 +1,238 @@
+hzka-prover v0.1.0 (/datastore/uitchain/hzka_benchmark/H-ZKA/HZKA/scripts/circuit_20m)
+├── ark-bn254 v0.4.0
+│   ├── ark-ec v0.4.2
+│   │   ├── ark-ff v0.4.2
+│   │   │   ├── ark-ff-asm v0.4.2 (proc-macro)
+│   │   │   │   ├── quote v1.0.47
+│   │   │   │   │   └── proc-macro2 v1.0.107
+│   │   │   │   │       └── unicode-ident v1.0.24
+│   │   │   │   └── syn v1.0.109
+│   │   │   │       ├── proc-macro2 v1.0.107 (*)
+│   │   │   │       ├── quote v1.0.47 (*)
+│   │   │   │       └── unicode-ident v1.0.24
+│   │   │   ├── ark-ff-macros v0.4.2 (proc-macro)
+│   │   │   │   ├── num-bigint v0.4.8
+│   │   │   │   │   ├── num-integer v0.1.47
+│   │   │   │   │   │   └── num-traits v0.2.19
+│   │   │   │   │   │       [build-dependencies]
+│   │   │   │   │   │       └── autocfg v1.5.1
+│   │   │   │   │   └── num-traits v0.2.19 (*)
+│   │   │   │   ├── num-traits v0.2.19 (*)
+│   │   │   │   ├── proc-macro2 v1.0.107 (*)
+│   │   │   │   ├── quote v1.0.47 (*)
+│   │   │   │   └── syn v1.0.109 (*)
+│   │   │   ├── ark-serialize v0.4.2
+│   │   │   │   ├── ark-serialize-derive v0.4.2 (proc-macro)
+│   │   │   │   │   ├── proc-macro2 v1.0.107 (*)
+│   │   │   │   │   ├── quote v1.0.47 (*)
+│   │   │   │   │   └── syn v1.0.109 (*)
+│   │   │   │   ├── ark-std v0.4.0
+│   │   │   │   │   ├── num-traits v0.2.19 (*)
+│   │   │   │   │   └── rand v0.8.8
+│   │   │   │   │       ├── libc v0.2.189
+│   │   │   │   │       ├── rand_chacha v0.3.1
+│   │   │   │   │       │   ├── ppv-lite86 v0.2.21
+│   │   │   │   │       │   │   └── zerocopy v0.8.56
+│   │   │   │   │       │   └── rand_core v0.6.4
+│   │   │   │   │       │       └── getrandom v0.2.17
+│   │   │   │   │       │           ├── cfg-if v1.0.4
+│   │   │   │   │       │           └── libc v0.2.189
+│   │   │   │   │       └── rand_core v0.6.4 (*)
+│   │   │   │   ├── digest v0.10.7
+│   │   │   │   │   ├── block-buffer v0.10.4
+│   │   │   │   │   │   └── generic-array v0.14.7
+│   │   │   │   │   │       └── typenum v1.20.1
+│   │   │   │   │   │       [build-dependencies]
+│   │   │   │   │   │       └── version_check v0.9.5
+│   │   │   │   │   ├── crypto-common v0.1.7
+│   │   │   │   │   │   ├── generic-array v0.14.7 (*)
+│   │   │   │   │   │   └── typenum v1.20.1
+│   │   │   │   │   └── subtle v2.6.1
+│   │   │   │   └── num-bigint v0.4.8 (*)
+│   │   │   ├── ark-std v0.4.0 (*)
+│   │   │   ├── derivative v2.2.0 (proc-macro)
+│   │   │   │   ├── proc-macro2 v1.0.107 (*)
+│   │   │   │   ├── quote v1.0.47 (*)
+│   │   │   │   └── syn v1.0.109 (*)
+│   │   │   ├── digest v0.10.7 (*)
+│   │   │   ├── itertools v0.10.5
+│   │   │   │   └── either v1.18.0
+│   │   │   ├── num-bigint v0.4.8 (*)
+│   │   │   ├── num-traits v0.2.19 (*)
+│   │   │   ├── paste v1.0.15 (proc-macro)
+│   │   │   └── zeroize v1.9.0
+│   │   │       └── zeroize_derive v1.5.0 (proc-macro)
+│   │   │           ├── proc-macro2 v1.0.107 (*)
+│   │   │           ├── quote v1.0.47 (*)
+│   │   │           └── syn v2.0.119
+│   │   │               ├── proc-macro2 v1.0.107 (*)
+│   │   │               ├── quote v1.0.47 (*)
+│   │   │               └── unicode-ident v1.0.24
+│   │   │   [build-dependencies]
+│   │   │   └── rustc_version v0.4.1
+│   │   │       └── semver v1.0.28
+│   │   ├── ark-poly v0.4.2
+│   │   │   ├── ark-ff v0.4.2 (*)
+│   │   │   ├── ark-serialize v0.4.2 (*)
+│   │   │   ├── ark-std v0.4.0 (*)
+│   │   │   ├── derivative v2.2.0 (proc-macro) (*)
+│   │   │   └── hashbrown v0.13.2
+│   │   │       └── ahash v0.8.12
+│   │   │           ├── cfg-if v1.0.4
+│   │   │           ├── once_cell v1.21.4
+│   │   │           └── zerocopy v0.8.56
+│   │   │           [build-dependencies]
+│   │   │           └── version_check v0.9.5
+│   │   ├── ark-serialize v0.4.2 (*)
+│   │   ├── ark-std v0.4.0 (*)
+│   │   ├── derivative v2.2.0 (proc-macro) (*)
+│   │   ├── hashbrown v0.13.2 (*)
+│   │   ├── itertools v0.10.5 (*)
+│   │   ├── num-traits v0.2.19 (*)
+│   │   └── zeroize v1.9.0 (*)
+│   ├── ark-ff v0.4.2 (*)
+│   └── ark-std v0.4.0 (*)
+├── ark-crypto-primitives v0.4.0
+│   ├── ark-ec v0.4.2 (*)
+│   ├── ark-ff v0.4.2 (*)
+│   ├── ark-r1cs-std v0.4.0
+│   │   ├── ark-ec v0.4.2 (*)
+│   │   ├── ark-ff v0.4.2 (*)
+│   │   ├── ark-relations v0.4.0
+│   │   │   ├── ark-ff v0.4.2 (*)
+│   │   │   ├── ark-std v0.4.0 (*)
+│   │   │   └── tracing v0.1.44
+│   │   │       ├── pin-project-lite v0.2.17
+│   │   │       ├── tracing-attributes v0.1.31 (proc-macro)
+│   │   │       │   ├── proc-macro2 v1.0.107 (*)
+│   │   │       │   ├── quote v1.0.47 (*)
+│   │   │       │   └── syn v2.0.119 (*)
+│   │   │       └── tracing-core v0.1.36
+│   │   │           └── once_cell v1.21.4
+│   │   ├── ark-std v0.4.0 (*)
+│   │   ├── derivative v2.2.0 (proc-macro) (*)
+│   │   ├── num-bigint v0.4.8 (*)
+│   │   ├── num-integer v0.1.47 (*)
+│   │   ├── num-traits v0.2.19 (*)
+│   │   └── tracing v0.1.44 (*)
+│   ├── ark-relations v0.4.0 (*)
+│   ├── ark-serialize v0.4.2 (*)
+│   ├── ark-snark v0.4.0
+│   │   ├── ark-ff v0.4.2 (*)
+│   │   ├── ark-relations v0.4.0 (*)
+│   │   ├── ark-serialize v0.4.2 (*)
+│   │   └── ark-std v0.4.0 (*)
+│   ├── ark-std v0.4.0 (*)
+│   ├── blake2 v0.10.6
+│   │   └── digest v0.10.7 (*)
+│   ├── derivative v2.2.0 (proc-macro) (*)
+│   ├── digest v0.10.7 (*)
+│   ├── sha2 v0.10.9
+│   │   ├── cfg-if v1.0.4
+│   │   ├── cpufeatures v0.2.17
+│   │   └── digest v0.10.7 (*)
+│   └── tracing v0.1.44 (*)
+├── ark-ec v0.4.2 (*)
+├── ark-ff v0.4.2 (*)
+├── ark-groth16 v0.4.0
+│   ├── ark-crypto-primitives v0.4.0 (*)
+│   ├── ark-ec v0.4.2 (*)
+│   ├── ark-ff v0.4.2 (*)
+│   ├── ark-poly v0.4.2 (*)
+│   ├── ark-relations v0.4.0 (*)
+│   ├── ark-serialize v0.4.2 (*)
+│   └── ark-std v0.4.0 (*)
+├── ark-poly v0.4.2 (*)
+├── ark-r1cs-std v0.4.0 (*)
+├── ark-relations v0.4.0 (*)
+├── ark-serialize v0.4.2 (*)
+├── ark-snark v0.4.0 (*)
+├── ark-std v0.4.0 (*)
+├── clap v4.6.6
+│   ├── clap_builder v4.6.6
+│   │   ├── anstream v1.0.0
+│   │   │   ├── anstyle v1.0.14
+│   │   │   ├── anstyle-parse v1.0.0
+│   │   │   │   └── utf8parse v0.2.2
+│   │   │   ├── anstyle-query v1.1.5
+│   │   │   ├── colorchoice v1.0.5
+│   │   │   ├── is_terminal_polyfill v1.70.2
+│   │   │   └── utf8parse v0.2.2
+│   │   ├── anstyle v1.0.14
+│   │   ├── clap_lex v1.1.0
+│   │   └── strsim v0.11.1
+│   └── clap_derive v4.6.4 (proc-macro)
+│       ├── heck v0.5.0
+│       ├── proc-macro2 v1.0.107 (*)
+│       ├── quote v1.0.47 (*)
+│       └── syn v3.0.4
+│           ├── proc-macro2 v1.0.107 (*)
+│           ├── quote v1.0.47 (*)
+│           └── unicode-ident v1.0.24
+├── color-eyre v0.6.5
+│   ├── backtrace v0.3.76
+│   │   ├── addr2line v0.25.1
+│   │   │   └── gimli v0.32.3
+│   │   ├── cfg-if v1.0.4
+│   │   ├── libc v0.2.189
+│   │   ├── miniz_oxide v0.8.9
+│   │   │   └── adler2 v2.0.1
+│   │   ├── object v0.37.3
+│   │   │   └── memchr v2.8.3
+│   │   └── rustc-demangle v0.1.28
+│   ├── color-spantrace v0.3.0
+│   │   ├── once_cell v1.21.4
+│   │   ├── owo-colors v4.3.0
+│   │   ├── tracing-core v0.1.36 (*)
+│   │   └── tracing-error v0.2.1
+│   │       ├── tracing v0.1.44 (*)
+│   │       └── tracing-subscriber v0.3.23
+│   │           ├── matchers v0.2.0
+│   │           │   └── regex-automata v0.4.18
+│   │           │       └── regex-syntax v0.8.11
+│   │           ├── nu-ansi-term v0.50.3
+│   │           ├── once_cell v1.21.4
+│   │           ├── regex-automata v0.4.18 (*)
+│   │           ├── sharded-slab v0.1.7
+│   │           │   └── lazy_static v1.5.0
+│   │           ├── smallvec v1.15.2
+│   │           ├── thread_local v1.1.10
+│   │           │   └── cfg-if v1.0.4
+│   │           ├── tracing v0.1.44 (*)
+│   │           ├── tracing-core v0.1.36 (*)
+│   │           └── tracing-log v0.2.0
+│   │               ├── log v0.4.34
+│   │               ├── once_cell v1.21.4
+│   │               └── tracing-core v0.1.36 (*)
+│   ├── eyre v0.6.14
+│   │   ├── indenter v0.3.4
+│   │   └── once_cell v1.21.4
+│   │   [build-dependencies]
+│   │   └── autocfg v1.5.1
+│   ├── indenter v0.3.4
+│   ├── once_cell v1.21.4
+│   ├── owo-colors v4.3.0
+│   └── tracing-error v0.2.1 (*)
+├── rand v0.8.8 (*)
+├── rand_chacha v0.3.1 (*)
+├── rayon v1.12.0
+│   ├── either v1.18.0
+│   └── rayon-core v1.13.0
+│       ├── crossbeam-deque v0.8.7
+│       │   ├── crossbeam-epoch v0.9.20
+│       │   │   └── crossbeam-utils v0.8.22
+│       │   └── crossbeam-utils v0.8.22
+│       └── crossbeam-utils v0.8.22
+├── serde v1.0.229
+│   ├── serde_core v1.0.229
+│   └── serde_derive v1.0.229 (proc-macro)
+│       ├── proc-macro2 v1.0.107 (*)
+│       ├── quote v1.0.47 (*)
+│       └── syn v3.0.4 (*)
+├── serde_json v1.0.151
+│   ├── itoa v1.0.18
+│   ├── memchr v2.8.3
+│   ├── serde_core v1.0.229
+│   └── zmij v1.0.23
+├── tracing v0.1.44 (*)
+└── tracing-subscriber v0.3.23 (*)
