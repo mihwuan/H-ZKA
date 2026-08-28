@@ -14,6 +14,8 @@ use clap::Parser;
 use std::fs;
 use std::path::PathBuf;
 
+use hzka_prover::aggregation::{AggregationCircuit, AggregationConfig};
+use hzka_prover::poseidon_params::bn254_poseidon_config;
 use hzka_prover::utils::timed;
 
 #[derive(Parser, Debug)]
@@ -47,10 +49,15 @@ fn main() -> color_eyre::Result<()> {
 
     // Reconstruct the public inputs
     // In the commitment interface: [clusterCommitment, clusterId, round]
+    // Calculate the real expected commitment
+    let config = AggregationConfig { slots: 15, use_commitment: true };
+    let poseidon_config = bn254_poseidon_config();
+    let circuit = AggregationCircuit::new(config, poseidon_config);
+
     let public_inputs: Vec<Fr> = vec![
-        Fr::from(0u64),  // clusterCommitment (placeholder)
-        Fr::from(1u64),  // clusterId
-        Fr::from(42u64), // round
+        circuit.commitment, // REAL computed commitment
+        circuit.cluster_id,
+        circuit.round,
     ];
 
     let (result, elapsed) = timed("verification", || {

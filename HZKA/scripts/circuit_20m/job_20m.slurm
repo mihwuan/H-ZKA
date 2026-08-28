@@ -28,32 +28,6 @@ echo "Bắt đầu benchmark trên Compute Node: ${SLURMD_NODENAME:-Unknown}"
 echo "Số lượng CPU Threads (Rayon): $RAYON_NUM_THREADS"
 echo "=========================================================="
 
-# 3. VÁ LỖI MÃ NGUỒN RUST TỰ ĐỘNG
-# Đoạn Python này sẽ tìm và sửa lỗi lưu file (File trait bound) trên toàn bộ dự án
-echo "Đang vá lỗi (patching) mã nguồn Rust..."
-cat << 'EOF' > patch_rust.py
-import re
-import glob
-
-def patch_rust_files():
-    files = glob.glob('src/**/*.rs', recursive=True)
-    for path in files:
-        with open(path, 'r') as f:
-            c = f.read()
-        
-        # Tìm và sửa các đoạn code lưu file trực tiếp gặp lỗi trait
-        pattern = r'let mut ([a-zA-Z0-9_]+)_file = std::fs::File::create\((.*?)\)\?;\s*([a-zA-Z0-9_.]+)\.serialize_compressed\(&mut \1_file\)\?;'
-        replacement = r'let mut \1_bytes = Vec::new(); \3.serialize_compressed(&mut \1_bytes).map_err(|e| color_eyre::eyre::eyre!("{:?}", e))?; std::fs::write(\2, \1_bytes)?;\n'
-        
-        c = re.sub(pattern, replacement, c)
-        
-        with open(path, 'w') as f:
-            f.write(c)
-
-patch_rust_files()
-EOF
-python3 patch_rust.py
-echo "Vá lỗi code thành công."
 
 # 4. Tạo thư mục kết quả và xử lý file r1cs bị thiếu
 RESULT_DIR="../../result/circuit_20M"

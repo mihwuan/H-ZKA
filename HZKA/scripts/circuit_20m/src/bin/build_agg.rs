@@ -24,6 +24,7 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use hzka_prover::aggregation::{AggregationCircuit, AggregationConfig};
+use hzka_prover::poseidon_params::bn254_poseidon_config;
 use hzka_prover::utils::{ensure_dir, timed};
 
 #[derive(Parser, Debug)]
@@ -54,7 +55,8 @@ fn main() -> color_eyre::Result<()> {
         slots: args.slots,
         use_commitment,
     };
-    let circuit = AggregationCircuit::new(config.clone());
+    let poseidon_config = bn254_poseidon_config();
+    let circuit = AggregationCircuit::new(config.clone(), poseidon_config.clone());
 
     // Log estimated constraints
     let est = circuit.estimated_constraints();
@@ -68,7 +70,7 @@ fn main() -> color_eyre::Result<()> {
 
     // Generate Groth16 proving and verifying keys
     let (pk, vk, keygen_time) = {
-        let circuit_for_keygen = AggregationCircuit::new(config.clone());
+        let circuit_for_keygen = AggregationCircuit::new(config.clone(), poseidon_config.clone());
         let ((pk, vk), t) = timed("keygen", || {
             Groth16::<Bn254>::circuit_specific_setup(circuit_for_keygen, &mut rng)
                 .expect("Key generation failed")
@@ -79,7 +81,7 @@ fn main() -> color_eyre::Result<()> {
     // Count actual constraints
     let cs = ConstraintSystem::<Fr>::new_ref();
     cs.set_mode(ark_relations::r1cs::SynthesisMode::Setup);
-    let circuit_for_count = AggregationCircuit::new(config);
+    let circuit_for_count = AggregationCircuit::new(config, poseidon_config);
     circuit_for_count
         .generate_constraints(cs.clone())
         .expect("Constraint generation failed");
@@ -90,14 +92,16 @@ fn main() -> color_eyre::Result<()> {
 
     // Serialise proving key
     let pk_path = args.out.join("agg_pk.bin");
-    let mut pk_file = fs::File::create(&pk_path)?;
-    pk.serialize_compressed(&mut pk_file)?;
+    let mut pk_bytes = Vec::new();
+    pk.serialize_compressed(&mut pk_bytes).map_err(|e| color_eyre::eyre::eyre!("{:?}", e))?;
+    fs::write(&pk_path, pk_bytes)?;
     eprintln!("  PK written to:         {}", pk_path.display());
 
     // Serialise verifying key
     let vk_path = args.out.join("agg_vk.bin");
-    let mut vk_file = fs::File::create(&vk_path)?;
-    vk.serialize_compressed(&mut vk_file)?;
+    let mut vk_bytes = Vec::new();
+    vk.serialize_compressed(&mut vk_bytes).map_err(|e| color_eyre::eyre::eyre!("{:?}", e))?;
+    fs::write(&vk_path, vk_bytes)?;
     eprintln!("  VK written to:         {}", vk_path.display());
 
     // Write build log

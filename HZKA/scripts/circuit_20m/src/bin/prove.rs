@@ -17,6 +17,7 @@ use std::fs;
 use std::path::PathBuf;
 
 use hzka_prover::aggregation::{AggregationCircuit, AggregationConfig};
+use hzka_prover::poseidon_params::bn254_poseidon_config;
 use hzka_prover::utils::timed;
 
 #[derive(Parser, Debug)]
@@ -54,7 +55,8 @@ fn main() -> color_eyre::Result<()> {
         slots: 15,
         use_commitment: true,
     };
-    let circuit = AggregationCircuit::new(config);
+    let poseidon_config = bn254_poseidon_config();
+    let circuit = AggregationCircuit::new(config, poseidon_config);
 
     let mut rng = ChaCha20Rng::seed_from_u64(0x5678);
 

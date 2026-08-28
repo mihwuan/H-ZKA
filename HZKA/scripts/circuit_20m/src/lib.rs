@@ -13,3 +13,4 @@
 pub mod aggregation;
 pub mod commitment;
 pub mod utils;
+pub mod poseidon_params;

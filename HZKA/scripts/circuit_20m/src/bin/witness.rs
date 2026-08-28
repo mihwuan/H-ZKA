@@ -16,6 +16,7 @@ use std::fs;
 use std::path::PathBuf;
 
 use hzka_prover::aggregation::{AggregationCircuit, AggregationConfig};
+use hzka_prover::poseidon_params::bn254_poseidon_config;
 use hzka_prover::utils::timed;
 
 #[derive(Parser, Debug)]
@@ -65,16 +66,9 @@ fn main() -> color_eyre::Result<()> {
             slots,
             use_commitment: true,
         };
-        let mut circuit = AggregationCircuit::new(config);
+        let poseidon_config = bn254_poseidon_config();
+        let mut circuit = AggregationCircuit::new(config, poseidon_config);
 
-        // Populate with dummy inner proof public inputs
-        // In production, these come from actual chain state transitions
-        for i in 0..slots {
-            circuit.inner_public_inputs[i] = (
-                Fr::from((i * 2) as u64),     // old_root
-                Fr::from((i * 2 + 1) as u64), // new_root
-            );
-        }
         circuit.cluster_id = Fr::from(
             input_data["cluster_id"].as_u64().unwrap_or(1)
         );
@@ -86,13 +80,10 @@ fn main() -> color_eyre::Result<()> {
 
     // Serialise witness
     let mut witness_bytes = Vec::new();
-    // In a real implementation, the witness would be the full assignment
-    // vector from the constraint system.  For the scaffold, we serialise
-    // the circuit's private inputs.
-    for (old_root, new_root) in &witness.inner_public_inputs {
-        old_root.serialize_compressed(&mut witness_bytes)?;
-        new_root.serialize_compressed(&mut witness_bytes)?;
-    }
+    // For the scaffold, we serialise the circuit's public inputs and slot data
+    // so `prove` doesn't complain about witness mismatch (although `prove`
+    // simply regenerates the deterministic circuit).
+    witness.commitment.serialize_compressed(&mut witness_bytes)?;
     witness.cluster_id.serialize_compressed(&mut witness_bytes)?;
     witness.round.serialize_compressed(&mut witness_bytes)?;
 
