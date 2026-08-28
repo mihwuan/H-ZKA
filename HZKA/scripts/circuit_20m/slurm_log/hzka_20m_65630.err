@@ -1,0 +1,39 @@
+   Compiling hzka-prover v0.1.0 (/datastore/uitchain/hzka_benchmark/H-ZKA/HZKA/scripts/circuit_20m)
+    Finished `release` profile [optimized] target(s) in 22.52s
+     Running `target/release/build_agg --slots 15 --public-inputs commitment --out ../../result/circuit_20M/build_agg/`
+Building aggregation circuit:
+  slots (B_max):   15
+  public inputs:   commitment
+  estimated constraints: 20014400
+[keygen] completed in 105.12s
+  actual constraints:    20014400
+  keygen time:           105.12s
+  PK written to:         ../../result/circuit_20M/build_agg/agg_pk.bin
+  VK written to:         ../../result/circuit_20M/build_agg/agg_vk.bin
+
+Build complete.  Run `prove` to generate proofs.
+   Compiling either v1.18.0
+   Compiling num-traits v0.2.19
+   Compiling itertools v0.10.5
+   Compiling rayon v1.12.0
+   Compiling num-integer v0.1.47
+   Compiling ark-std v0.4.0
+   Compiling num-bigint v0.4.8
+   Compiling ark-serialize v0.4.2
+   Compiling ark-ff v0.4.2
+   Compiling ark-poly v0.4.2
+   Compiling ark-relations v0.4.0
+   Compiling ark-snark v0.4.0
+   Compiling ark-ec v0.4.2
+   Compiling ark-r1cs-std v0.4.0
+   Compiling ark-bn254 v0.4.0
+   Compiling ark-crypto-primitives v0.4.0
+   Compiling ark-groth16 v0.4.0
+   Compiling hzka-prover v0.1.0 (/datastore/uitchain/hzka_benchmark/H-ZKA/HZKA/scripts/circuit_20m)
+    Finished `release` profile [optimized] target(s) in 39.89s
+     Running `target/release/verify --vk ../../result/circuit_20M/build_agg/agg_vk.bin --proof ../../result/circuit_20M/proof_1.bin --public ../../result/circuit_20M/public_1.json`
+Loading verifying key from ../../result/circuit_20M/build_agg/agg_vk.bin...
+Loading proof from ../../result/circuit_20M/proof_1.bin...
+[verification] completed in 0.00s
+✓ Proof is VALID  (0.0040s)
+Public inputs written to ../../result/circuit_20M/public_1.json

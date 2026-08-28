@@ -10,5 +10,10 @@ zkCross_filemd/
 .cursor/
 .env/
 HZKA/result/**/build_agg/
-*.bin
+
 *.r1cs
+*agg_pk.bin
+*witness.bin
+
+!*proof_*.bin
+!*agg_vk.bin

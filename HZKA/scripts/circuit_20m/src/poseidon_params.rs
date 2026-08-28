@@ -29,7 +29,7 @@ pub fn bn254_poseidon_config() -> PoseidonConfig<Fr> {
 
     let (ark, mds) = find_poseidon_ark_and_mds::<Fr>(
         254,                  // BN254 scalar field bit size
-        rate as u64,          // rate
+        rate,          // rate
         full_rounds as u64,   // full rounds
         partial_rounds as u64, // partial rounds
         0,                    // skip_matrices

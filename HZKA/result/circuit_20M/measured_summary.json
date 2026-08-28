@@ -4,15 +4,15 @@
   "public_inputs": 3,
   "interface": "commitment",
   "security_level": "128-bit BN254",
-  "proving_time_mean_s": 8076.666666666667,
-  "proving_time_ci_s": 733.283067246961,
+  "proving_time_mean_s": 9457.0,
+  "proving_time_ci_s": 9744.494963865494,
   "proving_time_runs_s": [
-    8779.0,
-    7949.0,
-    7502.0
+    4412.0,
+    19400.0,
+    4559.0
   ],
-  "peak_rss_mean_kib": 48818924.0,
-  "peak_rss_mean_gib": 46.55735397338867,
-  "peak_rss_ci_kib": 8064.400727080303,
-  "witness_generation_s": 16.23
+  "peak_rss_mean_kib": 48845386.666666664,
+  "peak_rss_mean_gib": 46.58259073893229,
+  "peak_rss_ci_kib": 2618.897729384975,
+  "witness_generation_s": 15.11
 }
