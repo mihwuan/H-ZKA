@@ -4,15 +4,21 @@
   "public_inputs": 3,
   "interface": "commitment",
   "security_level": "128-bit BN254",
-  "proving_time_mean_s": 9457.0,
-  "proving_time_ci_s": 9744.494963865494,
+  "proving_time_mean_s": 122.53666666666668,
+  "proving_time_ci_s": 8.99879871225629,
   "proving_time_runs_s": [
+    120.89,
+    126.69,
+    120.03
+  ],
+  "wall_clock_runs_s": [
     4412.0,
     19400.0,
     4559.0
   ],
+  "wall_clock_note": "Wall clock includes cargo build and deserialisation of the 4.28 GB proving key; it is a cold-start cost, not proving time.",
   "peak_rss_mean_kib": 48845386.666666664,
   "peak_rss_mean_gib": 46.58259073893229,
-  "peak_rss_ci_kib": 2618.897729384975,
+  "peak_rss_ci_kib": 5749.085802056863,
   "witness_generation_s": 15.11
 }

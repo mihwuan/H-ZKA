@@ -40,13 +40,25 @@ RESULT_DIR_DEFAULT = os.path.join(
 
 
 def parse_time_v(path: str) -> Dict[str, float]:
-    """Extract wall-clock seconds and peak RSS (KiB) from /usr/bin/time -v."""
+    """Extract timings and peak RSS from a /usr/bin/time -v capture.
+
+    Three different quantities appear in these logs and they must not be
+    confused.  ``proving_s`` is the prover's own reported figure with the
+    proving key already resident, and it is the number the capacity model
+    needs.  ``wall_clock_s`` additionally includes cargo compilation and
+    deserialisation of the 4.28 GB proving key, which on a contended host
+    dominates everything else.  Reporting wall clock as proving time
+    overstates it by roughly two orders of magnitude.
+    """
     result: Dict[str, float] = {}
     try:
         with open(path, "r", encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 # Wall clock time: h:mm:ss or m:ss.ss
+                m2 = re.search(r"\[proving\] completed in ([0-9.]+)s", line)
+                if m2:
+                    result["proving_s"] = float(m2.group(1))
                 m = re.search(r"wall clock.*?:\s*(?:(\d+):)?(\d+):(\d+\.?\d*)", line)
                 if m:
                     hours = int(m.group(1) or 0)
@@ -71,7 +83,10 @@ def mean_ci(values: List[float]) -> Tuple[float, float]:
     if n == 1:
         return m, 0.0
     var = sum((x - m) ** 2 for x in values) / (n - 1)
-    ci = 1.96 * math.sqrt(var / n)
+    # Student's t, not the normal approximation: with n = 3 repetitions the
+    # normal quantile understates the interval by more than a factor of two.
+    t_crit = {2: 4.302653, 3: 3.182446, 4: 2.776445, 5: 2.570582}.get(n - 1, 1.96)
+    ci = t_crit * math.sqrt(var / n)
     return m, ci
 
 
@@ -144,12 +159,19 @@ def main() -> None:
 
     # Parse the three prove runs
     times: List[float] = []
+    wall_times: List[float] = []
     rss_values: List[float] = []
     for i in (1, 2, 3):
         path = os.path.join(result_dir, f"prove_{i}.time")
         parsed = parse_time_v(path)
-        if "wall_clock_s" in parsed:
+        # Prefer the prover's own reported proving time; fall back to wall
+        # clock only if the prover did not report one.
+        if "proving_s" in parsed:
+            times.append(parsed["proving_s"])
+        elif "wall_clock_s" in parsed:
             times.append(parsed["wall_clock_s"])
+        if "wall_clock_s" in parsed:
+            wall_times.append(parsed["wall_clock_s"])
         if "peak_rss_kib" in parsed:
             rss_values.append(parsed["peak_rss_kib"])
 
@@ -194,6 +216,11 @@ def main() -> None:
         "proving_time_mean_s": mean_time,
         "proving_time_ci_s": ci_time,
         "proving_time_runs_s": times,
+        "wall_clock_runs_s": wall_times,
+        "wall_clock_note": (
+            "Wall clock includes cargo build and deserialisation of the "
+            "4.28 GB proving key; it is a cold-start cost, not proving time."
+        ),
         "peak_rss_mean_kib": mean_rss,
         "peak_rss_mean_gib": rss_gib,
         "peak_rss_ci_kib": ci_rss,

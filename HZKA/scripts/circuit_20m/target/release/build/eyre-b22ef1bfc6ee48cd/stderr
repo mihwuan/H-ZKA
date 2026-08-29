@@ -1,9 +1,0 @@
-error[E0554]: `#![feature]` may not be used on the stable release channel
- --> /datastore/uitchain/hzka_benchmark/H-ZKA/HZKA/scripts/circuit_20m/target/release/build/eyre-b22ef1bfc6ee48cd/out/probe.rs:2:5
-  |
-2 |     #![feature(error_generic_member_access)]
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-error: aborting due to 1 previous error
-
-For more information about this error, try `rustc --explain E0554`.

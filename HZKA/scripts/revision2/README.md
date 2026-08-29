@@ -63,6 +63,40 @@ Everything is deterministic. The base seed is `20260822`; re-running with the
 same `--seed` reproduces every published number bit for bit. Each script also
 writes its full parameter set into its `*_summary.json`.
 
+## The 20M circuit was executed
+
+`result/circuit_20M/` holds the measured run: 20,014,400 constraints, three
+public inputs (commitment interface), real Poseidon state-transition and
+commitment-binding gadgets, AsusL40 with 16 Rayon threads, Rust/Arkworks with
+`parallel`.
+
+| Quantity | Measured |
+| --- | --- |
+| Proving time (3 runs) | 120.89, 126.69, 120.03 s → **122.54 ± 9.00 s** |
+| Peak resident memory | 46.58 GiB (2.33 GiB per million constraints) |
+| Setup time | 105.1 s |
+| Proving key | 4.28 GB |
+| Verification | 4.0 ms, VALID |
+
+**Read the timings carefully.** `/usr/bin/time -v` wall clock for these runs was
+1h13m, 5h23m, and 1h16m. That is *not* proving time: it is dominated by
+deserializing the 4.28 GB proving key on a contended shared host. The prover's
+own reported figure, with the key resident, is the 120–127 s above, and it is
+the number the capacity model needs. `parse_20m_results.py` originally reported
+the wall clock and has been corrected. The cold-start cost is a real deployment
+constraint in its own right: an aggregation worker must be a long-lived process.
+
+Against the three predictions: linear 90.2 s (error +35.8%), quasilinear
+108.3 s (**+13.1%**, closest), power law 79.3 s (+54.5%). The union interval's
+upper bound of 122.5 s was accurate to 0.04 s. The quasilinear form, which was
+argued for on FFT/MSM grounds, was right.
+
+One scope limit: the constraint load of the fifteen inner Groth16 verifications
+is represented by structurally equivalent constraints rather than a full
+non-native pairing implementation. The circuit is size- and interface-matched,
+which is sound for timing and memory, but it does not demonstrate that a
+complete recursive verifier of this size has been written.
+
 ## Corrections in this revision
 
 Four results changed materially after an Associate Editor review identified

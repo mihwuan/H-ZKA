@@ -43,11 +43,15 @@ from typing import Dict, List
 OUT = os.path.join(os.path.dirname(__file__), "..", "..", "result", "revision2")
 
 S_PSI = 55.8                    # measured, per-chain circuit
+S_AGG_MEASURED = 122.54         # measured, 20,014,400-constraint circuit
 GIB_PER_MCONSTRAINT = 24.0 / 8.0
 PSI_CONSTRAINTS_M = 11.763593
-AGG_CONSTRAINTS_M = 20.0
-MEM_PSI = PSI_CONSTRAINTS_M * GIB_PER_MCONSTRAINT      # 35.3 GiB
-MEM_AGG = AGG_CONSTRAINTS_M * GIB_PER_MCONSTRAINT      # 60.0 GiB
+AGG_CONSTRAINTS_M = 20.0144
+MEM_PSI = PSI_CONSTRAINTS_M * GIB_PER_MCONSTRAINT      # 35.3 GiB, RAM profile
+# Aggregation memory is the directly measured peak resident set of the 20M
+# circuit (result/circuit_20M), not the 3 GiB/M model, which over-predicted it
+# by 22%.  The two figures come from different harnesses and the paper says so.
+MEM_AGG = 46.58                                        # GiB, measured
 VCPU_PER_WORKER = 16
 
 # Measured network coordination (Table 13): total for the flat pattern and
@@ -135,7 +139,8 @@ def main() -> None:
     args = ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
 
-    scenarios = [("linear point", 90.2), ("quasilinear point", 108.3),
+    scenarios = [("measured", S_AGG_MEASURED),
+                 ("linear point", 90.2), ("quasilinear point", 108.3),
                  ("interval low", 54.6), ("interval high", 122.5)]
     rows: List[Dict] = []
     for label, s_agg in scenarios:
