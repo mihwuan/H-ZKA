@@ -1,0 +1,16 @@
+table_label,table_title,evidence_class,source_artifact,notes
+TN1,MF-PoP Reputation Convergence (RQ2),Simulation,scripts/revision2/exp_adaptive_adversary.py,Six consecutive confirmed safety faults trigger Trust Jail
+TN2,Audit Workload Reduction (RQ1),Theoretical,N/A,Chain reduction from k to sqrt(k) proofs per round
+TN3,Latency and Throughput (RQ4),Measurement,result/all_vms/vmX/,End-to-end audit latency across 100 chains
+TN4,Gas Consumption (RQ4),Measurement + Exact model,result/sepolia/sepolia_gas_report.json result/global_audit/global_audit_report.json,EVM gas schedule per-round verification cost
+TN6,Byzantine Resilience (RQ2),Simulation,scripts/revision2/exp_byzantine_churn.py,Audit accuracy within per-cluster BFT condition
+TN8,Fault ceiling and adaptive adversaries,Simulation,scripts/revision2/exp_adaptive_adversary.py,No strategy lands more than six confirmed safety faults
+TN8b,Corrections after Associate Editor review,Analysis,Multiple,Four result corrections documented: workers (55->58) gas (13.8x->10.0x) leakage (56.9x->3.0x) byzantine (50%->BFT-bounded)
+TN9,Byzantine ratio churn and partitions,Simulation,scripts/revision2/exp_byzantine_churn.py,Honest weight share convergence at every Byzantine ratio
+TN10,Coordinated collusion,Simulation,scripts/revision2/exp_adaptive_adversary.py,Capture rate strongly sub-proportional to population share
+TN11,Clustering ablation,Simulation,scripts/revision2/exp_clustering_ablation.py,Five clustering policies compared on RTT Tx-cut and coordination
+TN12,Audit-layer metadata leakage,Simulation,scripts/revision2/exp_leakage.py,Leakage reduction 3.0x-1000x for global chain observer 1.0x for DA roots
+TN13,Fault recovery and failure concentration,Simulation,scripts/revision2/exp_fault_recovery.py,Cluster-head failure impact on coordination and round loss
+TN14,Communication and storage,Calculation,scripts/revision2/exp_overhead_model.py,Per-round bytes and storage growth for flat vs H-ZKA
+Benchmark Regression,20M Constraint Circuit Measurement,Measurement,result/vm_benchmark/groth16_benchmark_extrapolation.json scripts/log_run_script/run_benchmark_all_RapidSNARK.log,Measured 122.54±9.00 s at deployed scale
+Capacity Model,Prover Worker Accounting,Calculation,scripts/revision2/exp_prover_pipeline.py,58 H-ZKA workers vs 47 flat at k=100 counting both proving stages

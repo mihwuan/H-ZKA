@@ -3,7 +3,8 @@
     "seeds": 30,
     "rounds": 500,
     "k": 100,
-    "seed": 20260822
+    "seed": 20260822,
+    "topology_file": null
   },
   "strategies": [
     {

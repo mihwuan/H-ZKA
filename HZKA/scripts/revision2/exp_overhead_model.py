@@ -26,7 +26,7 @@ import os
 from typing import Dict, List
 
 # Artefact sizes in bytes.
-PROOF_B = 127
+PROOF_B = 128
 ROOT_B = 32
 SIG_B = 65
 PUBIN_B = 32
@@ -34,6 +34,7 @@ HEADER_B = 96          # round header: height, timestamp, slot vector digest
 
 # Measured prover memory for the padded aggregation circuit (GiB per M
 # constraints), from the artefact's RAM profile: 24 GiB at 8M constraints.
+# This is a PREDICTED value; the measured peak at 20M constraints is 46.58 GiB.
 GIB_PER_MCONSTRAINT = 24.0 / 8.0
 AGG_CONSTRAINTS_M = 20.0
 CHAIN_CONSTRAINTS_M = 11.763593     # zkCross per-chain circuit

@@ -292,7 +292,7 @@ The repository keeps paper-relevant logs under `scripts/log_run_script/`:
 | --- | --- |
 | `scripts/revision2/hzka_protocol_sim.py` | Core discrete-round simulator: canonical MF-PoP transition, capacitated k-medoid formation, capped VRF election, calibrated audit-layer network model |
 | `scripts/revision2/exp_byzantine_churn.py` | E1: Byzantine ratio, churn, outage length, latency and loss sweeps; partition study |
-| `scripts/revision2/exp_adaptive_adversary.py` | E2: six adversarial strategies, fault ceiling, coordinated collusion |
+| `scripts/revision2/exp_adaptive_adversary.py` | E2: six adversarial strategies, fault ceiling |
 | `scripts/revision2/exp_clustering_ablation.py` | E3: eta sweep and five-policy clustering ablation |
 | `scripts/revision2/exp_leakage.py` | E4: audit-layer metadata leakage (mutual information, adversary advantage) |
 | `scripts/revision2/exp_fault_recovery.py` | E5: cluster-head failure, blast radius, failover cost |
@@ -377,12 +377,14 @@ by round.
 ### Benchmark Regression and Capacity Model
 
 - The paper's benchmark regression uses nine measured circuits up to 11.5 million constraints.
-- The 20-million-constraint recursive proof is predicted at 90.2 s (linear fit)
-  with a 95% prediction interval of [74.9, 105.4] s; across three model forms
-  the union interval is [54.6, 122.5] s.
+- A size- and interface-matched profiling circuit at the deployed scale of 20,014,400 constraints
+  measures $122.54\pm9.00$ s, which falls at the top of the $[54.6, 122.5]$ s interval predicted
+  across three model forms. The inner-verification constraint load is represented rather than
+  fully implemented, so this bounds resource provisioning rather than demonstrating a complete
+  recursive verifier.
 - Under a 120 s audit cadence and counting **both** proving stages, H-ZKA needs
-  55 workers at k=100 against the flat baseline's 47: the same 47 inner-proof
-  workers plus 8 aggregation workers. The earlier "8 instead of 47" comparison
+  58 workers at k=100 against the flat baseline's 47: the same 47 inner-proof
+  workers plus 11 aggregation workers. The earlier "8 instead of 47" comparison
   omitted the k per-chain proofs that H-ZKA also requires. See
   `scripts/revision2/exp_prover_pipeline.py`.
 - The artifact set for these runs is stored under `result/vm_benchmark/`, `result/ram_benchmark/`, and `scripts/log_run_script/`.
@@ -405,8 +407,8 @@ by round.
 | TN2 | 10x proof reduction at k=100 |
 | TN3 | 12.1x speedup at k=100 |
 | TN4 | 10.0x on-chain verification gas reduction at k=100 (exact gas model) |
-| Benchmark regression | 20M proof in [54.6, 122.5] s across three model forms |
-| Capacity | 55 H-ZKA workers vs 47 flat at k=100, counting both proving stages |
+| Benchmark regression | 20M proof measured at $122.54\pm9.00$ s; predicted interval [54.6, 122.5] s |
+| Capacity | 58 H-ZKA workers vs 47 flat at k=100, counting both proving stages |
 | TN6 | 100% final accuracy within the per-cluster BFT condition |
 
 ---
@@ -446,7 +448,7 @@ earlier state can see what changed.
 
 | Quantity | Earlier | Corrected | Cause |
 | --- | --- | --- | --- |
-| Prover workers at k=100 | 8 vs 47 (83% fewer) | 55 vs 47 (17% more) | The earlier model omitted the k per-chain proofs H-ZKA also requires |
+| Prover workers at k=100 | 8 vs 47 (83% fewer) | 58 vs 47 (23% more) | The earlier model omitted the k per-chain proofs H-ZKA also requires |
 | On-chain gas reduction | 13.8x (measured) | 10.0x (exact model) | The measured run had `enableMockVerifier()` active, so no proof was verified |
 | Metadata leakage reduction | 56.9x | 3.0x worst case | The flat baseline had a variable-size circuit, which Groth16 does not permit |
 | Byzantine recovery | full at 50% | conditioned on the per-cluster BFT bound | Captured clusters were not modelled and can censor adjudication |
@@ -473,7 +475,7 @@ committers were jailed and zero honest stake was slashed. Election ineligibility
 exactly 69 consecutive missed rounds at the default `r_0 = 0.5` and 76 for an
 established committer; one valid submission restores it in every case.
 
-### TN10 - Coordinated collusion
+### TN10 - Collusion
 
 | Colluders | Population share | Head-capture rate |
 | --- | --- | --- |
@@ -508,9 +510,12 @@ A balanced random partition is dominated on every axis.
 All arms use a fixed-shape circuit and a constant 127-byte proof, so timing and
 artifact size are identical by construction. Chance is 0.500. Hierarchical
 aggregation with per-chain public inputs leaks exactly as much as flat
-publication; only the constant-size cluster commitment changes anything. The
-reduction ranges from 3.0x (sparse activity, small clusters) to three orders of
-magnitude (dense activity), so the worst case is the figure claimed.
+publication; only the constant-size cluster commitment changes anything.
+
+**Leakage boundary:** The reduction ranges from $3.0\times$ to $10^3\times$ for an observer
+reading the global chain, but is $1.0\times$ for an observer reading data-availability roots.
+The worst-case reduction claimed in the abstract is therefore $3.0\times$, which holds
+for sparse activity and small clusters.
 
 ### TN13 - Fault recovery and failure concentration
 

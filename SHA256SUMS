@@ -1,0 +1,143 @@
+# SHA256 checksums for H-ZKA key artifacts
+# Computed with: PowerShell certutil -hashfile
+# Format: <SHA256_HASH>  <relative_path>
+#
+# Verification: certutil -hashfile <file> SHA256
+# Or in bash: sha256sum -c SHA256SUMS
+#
+# All result files from revision2 experiments (E1-E12):
+# - E1: Byzantine ratio, churn, partition experiments
+# - E2: Adaptive adversary strategies and collusion (NEW: per-round traces)
+# - E3: Clustering ablation
+# - E4: Metadata leakage measurements
+# - E5: Fault recovery and failure concentration
+# - E6: Communication and storage accounting
+# - E7-E12: Additional analysis and sensitivity studies
+#
+# To regenerate checksums:
+# ```powershell
+# cd HZKA
+# Get-ChildItem -Path result -Recurse -Include *.json,*.csv | `
+#   Sort-Object FullName | ForEach-Object { `
+#   "$($(certutil -hashfile $_.FullName SHA256)[1] -replace ' ', '')  $($_.FullName)" `
+#   } | Out-File -Encoding UTF8 "..\SHA256SUMS.new"
+# ```
+#
+# agg.r1cs special case:
+# This file is intentionally empty (0 bytes).
+# Its SHA-256 hash is the hash of an empty string:
+# e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+#
+# ============================================================================
+# ARTIFACT CHECKSUMS (110 files from HZKA/result/)
+# ============================================================================
+7352c12ee92c8e675339f8f249476dbd1dac4ac00c4efc522562668c6fa2ca8c  result\all_vms\summary.json
+27b1b25696899804b1e1efc92bdbe1e140fbdfbcbdfa2683ba540fc818f7da81  result\all_vms\vm1\exp1_zkp_timing.json
+ce70473e2fdb3544e463b9c7366589d0e25a754591ded7706b7e742fc6ca120a  result\all_vms\vm1\exp2_latency_throughput.json
+9fae2d4978eab55bf7e42dfc0319c25cb496b52f8e1ea0853dd50e0884f53949  result\all_vms\vm1\exp3_gas_consumption.json
+15652341d0e01da144db621bc25f7987c077a7d53cf3d8910b9292a6ba0793c6  result\all_vms\vm1\exp4_audit_performance.json
+4926b11af9dab826cb811bf099eba0b8c4bac807f26db6d40c4f91f2489754ec  result\all_vms\vm1\exp5_research_gap.json
+ba4c45f6fc23deaf49179bd490a34b8c4e7efa77d124b1abf4cc5e738c2f76f1  result\all_vms\vm1\experiment_summary.json
+7da16fbf286735b89b379fc75b81ea0860e0948f1716afbd160db0d8f5a2606a  result\all_vms\vm1\network_info.json
+7c7e47113a6221e6e826ff3290ca1a72c6efa48ab8a53ca2517eba1b58aaad7b  result\all_vms\vm10\experiment_summary.json
+b0c685122c2fa3939cf0e3bbbe3ee701562dac5524deba4200a63ba5fe4ede5d  result\all_vms\vm10\network_info.json
+27b1b25696899804b1e1efc92bdbe1e140fbdfbcbdfa2683ba540fc818f7da81  result\all_vms\vm2\exp1_zkp_timing.json
+ce70473e2fdb3544e463b9c7366589d0e25a754591ded7706b7e742fc6ca120a  result\all_vms\vm2\exp2_latency_throughput.json
+9fae2d4978eab55bf7e42dfc0319c25cb496b52f8e1ea0853dd50e0884f53949  result\all_vms\vm2\exp3_gas_consumption.json
+15652341d0e01da144db621bc25f7987c077a7d53cf3d8910b9292a6ba0793c6  result\all_vms\vm2\exp4_audit_performance.json
+4926b11af9dab826cb811bf099eba0b8c4bac807f26db6d40c4f91f2489754ec  result\all_vms\vm2\exp5_research_gap.json
+7e9577648f2ee2f4235297577fd71c2a0963a7d43bd6b3930e5b0171f471323a  result\all_vms\vm2\experiment_summary.json
+910c026792be0bac26a03e3484c0e7f3bf9ca4ac07b387d5604b1692d9601eb8  result\all_vms\vm2\network_info.json
+e2c4368d387b0cb0bebbf2d78b834942644c7661d3496ff6b1c6396d0c51121e  result\all_vms\vm3\experiment_summary.json
+a6b8dd9728d8d2ad7e0ce910199f8c8699abdaaafd4bde5c126e1585836cc499  result\all_vms\vm3\network_info.json
+d86ecaac8718ad0c69c233144869eba8f60e8bc96e83a61b722848f45c138673  result\all_vms\vm4\experiment_summary.json
+e00b68619a60b6021ff243116960bf41255b6ae552b0c099c3ac976d51fcd3fb  result\all_vms\vm4\network_info.json
+4fb5e9924a7b842e2ddd1383c6eaaad32624f349b49fbdc1d03746b19b1a3a58  result\all_vms\vm5\experiment_summary.json
+4cd5899016d8f470bf3eab334c944b7edd99641f17d739bf8980582fb3c22a99  result\all_vms\vm5\network_info.json
+90892be68e18611ef3e231ca45f14e45149138128d9465097d384d287c0c66e8  result\all_vms\vm6\experiment_summary.json
+61d0c94ce2c49876efae81ef627b61a2c2102ea02170fb8d4d3f8786f66ecaf5  result\all_vms\vm6\network_info.json
+2dcf3b23a1f8a32a15ce7de897b964edfbcfe4a0764464d0e51a1f8a0da0b952  result\all_vms\vm7\experiment_summary.json
+60fb3ba331c556d1a52109d47db8afe6837ec91ba9e5d3286049980943323797  result\all_vms\vm7\network_info.json
+33dbf0e823b9f2c77e2b5e8108c749d68eafb7ed7a639b88ae6e42cbdf540ca4  result\all_vms\vm8\experiment_summary.json
+a566a57b0289d6348363442d2fe2b27952df0dfcd741abbd0b44257eaa50333c  result\all_vms\vm8\network_info.json
+3c7227c501276d88d5e33473521ffb143ae045544bc9286402684d9070beed93  result\all_vms\vm9\experiment_summary.json
+1d7b29ad4453cc2b6906eb33cbe576e8fad63aa6e517b8fc8bc3dfb1f2e3c894  result\all_vms\vm9\network_info.json
+ca82986ea6a7de9765fb1eca59542f263478ffef1416e1878982c1f9baa20c4e  result\azure_latency\latency_0ms.json
+de26d6fa7788698d10a9f483cf8e5e45974ac6933422e66d740392f98c3a1c64  result\azure_latency\latency_150ms.json
+6b3b6d1c04f1d906e9e795b1ebd41c398cc081cfea91c28f40038aae4ec8d100  result\azure_latency\latency_300ms.json
+ce206794bf0beb355f873226c75635d357e5809b4b234dedf55e37e6bd65380b  result\azure_latency\latency_50ms.json
+181735a7cfafdf041437f7bf6ea591fbd7f6024b2bde3eddb5ad721e9ea06faa  result\azure_latency_nonfix_TPS\latency_0ms.json
+a5e626e474386257909de9f3c0219170e9afd2be1e14a8e95b2b51f77069a42c  result\azure_latency_nonfix_TPS\latency_150ms.json
+41dd94448a0120995f3855a55b9f605006a3022c40a3c9fa8b095fb6786204d1  result\azure_latency_nonfix_TPS\latency_300ms.json
+33c6870e2fc87fd727ff2bc0adae2583a2505f3447bd79f94e1436c5abca7199  result\azure_latency_nonfix_TPS\latency_50ms.json
+d4231d5d7a47f66f6a585c92a0603b1d86cea4f2c56f3b548d4f9755c129a9e2  result\circuit_20M\e8_pipeline_measured.csv
+8e7119ad4cd0b4e9e822f8d28285ccda7303f57eb750f94a53055eb1119abf6e  result\circuit_20M\measured_summary.json
+8c20d745ad705ceb4702f5b6b7a24692a09642e581634f14e40a496eac435da9  result\circuit_20M\model_validation.csv
+3401852c68ef9708cbc59a9a96c3bd2d134b2970e82268700bf9057c4b2e5b64  result\circuit_20M\public_1.json
+e1780af0a9bdac8a4dcaf12d486133bf462190a198a00ed16e9ad68f53cc70fd  result\global_audit\deployment_global_audit.json
+22e3e09d7503281f20bcac1faaa7ce89051e09080610374887fc0154e0f99f34  result\global_audit\global_audit_report.json
+1dea1251b5b7c7c224e74458a34e1e6956ff3a1433079002abcdb8f5e87a10d9  result\global_audit\global_audit_rounds.csv
+377dac09e86f122ee69e126039b35b8372cf79453807c3f83bdde90df9e69099  result\network_latency\baseline.json
+258e76ada8b3ce0309703920cab4c57159e27b17035801a07b95aa5e1728ddad  result\network_latency\latency_150ms.json
+c0391bce8e17ac8c6be7798518230cdfd9537cc5d01ec25bd8c2a753bd60ab9e  result\network_latency\latency_300ms.json
+c0dce7778d0d0ef850b272aa5117424576002dbcfc2365a2e27752f8075cccb9  result\network_latency\latency_50ms.json
+2faffc7bcdb4a20c9ee26208151b89f687bab772cf4f43d5e9220bf9448ae8ae  result\network_latency\proof_timing_150ms.json
+abe789bd30cc7d309ed309ca18544944abf789fb1e6648d249185f39948f391b  result\network_latency\proof_timing_300ms.json
+e7cd9bae2df63f57444304d662144d32a09e4ff8ac1ec5ab2ba2f26ed6bc73ef  result\network_latency\proof_timing_50ms.json
+e1817e67ee84ea11c56c17cf49cea40af2b4deca7fa5608d1ae21938950a9634  result\network_latency\summary.json
+2b2387bb4753c48367094a106c87ebaac348860148327b02425705eb45b62d62  result\ram_benchmark\groth16_ram_report.csv
+6b27600e8bb57a350f79f7574dd1a4aff4d81134b1e5504ae9de6141d2cd5eb1  result\ram_benchmark\groth16_ram_report.json
+e47f4b3c21ef2e3072b9e898d4656ab7587a06f7df21fb0673983d8b5e603d1c  result\revision2\e1_byzantine_recovery.csv
+7a50a12585bb9f4cbef63378eb5ab09e818842a51673a11291ecff7bccb11bf3  result\revision2\e1_churn_grid.csv
+4e0a09ec42acc80361478211aa0530b9a50344f99557a74ed98acb6fac506fd4  result\revision2\e1_partition.csv
+7ad5f041b2a0b26424123fb3cf98b0715484bc0dc8ab95e2bc1b2460b7856b2d  result\revision2\e1_summary.json
+f573b9dd256b5c32ef3c733b361b028d473b26f13914cc2b7d9a2bf125a352bf  result\revision2\e10_burstiness.csv
+2ec26158811118dc38557a892bfe595b43efcf29429218a947868512cd806605  result\revision2\e10_cluster_config.csv
+0799e68a1c9abaca7a4eac0be221f890993c87a8bd7fe11ecb43d89b66906348  result\revision2\e10_summary.json
+514ec5c2c03d39bd13efa02acccd960db461af4b88712d26403112d92aa00689  result\revision2\e11_nova_backend.csv
+570a50cab139d80d8573b0644eeefe2597474964f8b5e3eeaef6fb53f38d53e3  result\revision2\e11_round_level.csv
+83a28574d07dea48296360e527d30a6ae7703a94a37d506b5a184add3ceb7d4b  result\revision2\e11_summary.json
+76df24ae91839766d8c115b2a2dceab4058e1887ab1f6f9a7a5c23fa9de6e7be  result\revision2\e12_population.csv
+9cab0ee192c866d68270c96997ea6aec9cbf70d38b67b78a0d5f566923f3dbb5  result\revision2\e12_reputation_dos.csv
+6c6faf33b7964a9b69da4a6ca0f622712b4a46c8df181688ec3384ccf74edbce  result\revision2\e12_summary.json
+e553d59e9e24dc058c5a2acc7eddc5e1573fad0e3eb90810b853dce1e38c91ac  result\revision2\e2_collusion.csv
+d07826600eaba5284809deb58c79e9ac54b45e286d40bc59d14fa4b3a9e9ca8d  result\revision2\e2_strategies.csv
+b1c7f1a764f7b6939cc9aef5058a7428c29d71977a67cf4a8e1e58dfba34fe84  result\revision2\e2_summary.json
+ed692bac9afca137c120314568f1fa84f6ffee101f9968ca0f4a5a629171bb53  result\revision2\e2_trace_always_invalid.csv
+7fe6f2be751ab8d5fbac95d9a7735d1fd2d5952773cf14d1388aad5ad3562ed2  result\revision2\e2_trace_farm_then_betray.csv
+539910ce98cac04bb3ba04cdeb43e411e27ffdd3483b143e99d2648885bfbe4b  result\revision2\e2_trace_omission_only.csv
+f81b482eae0b7e8960b73f073ca593dada8e229c99df95fca3fe8791063cb5a0  result\revision2\e2_trace_periodic_(n=20).csv
+82af08dfa901e8b31495f5de01d9417bace5d15b6bdc36d294bd30bde23b5f3d  result\revision2\e2_trace_periodic_(n=6).csv
+d96f10ef6f6d3ba61f150a664ae73b5ca0b124afb72522842bbae83156e38e7f  result\revision2\e2_trace_threshold-adaptive.csv
+87f86c995576373ebcf1d00c2e700911b3bca153e2e3593a9af3954f421b0385  result\revision2\e3_end_to_end.csv
+433b86e8944ac5df2f90ef9797412a969b100b395fbe3a6eb8a4e4634fde894b  result\revision2\e3_eta_sweep.csv
+226cffc917e06416db789d2dda9c60168ffc830fdbf372bf69272fa999735e4b  result\revision2\e3_policy_comparison.csv
+f4d855275571fdd1b5072a3d9e42e218fc035b06f87d927c5b158b8bea3c6a22  result\revision2\e3_summary.json
+094a39e6ce9fd12ff5aea375e3a15077e11506e043c43c5e09fe9196ff82ccec  result\revision2\e4_leakage.csv
+557b527166f8c035dfd7a116c09232764635b1d9e3b03fb64011226de31cb001  result\revision2\e4_sensitivity.csv
+d07083699e0f937334074f391d795731b4f525c0a215169194bc0167efa57a5a  result\revision2\e4_summary.json
+dbdf852fb50f084b16013b66d5718cddc58b55e3ba5d79513302489e142d12af  result\revision2\e5_fault_recovery.csv
+26cd1cd5ee510eebf2ec077771bc6b7ded0fd24cd0c4e65ed91d2bae4d5f3663  result\revision2\e5_summary.json
+183dd826738589b86032d4876e48096ca98a1ff4806669a64d277c2aef0ec335  result\revision2\e6_overhead.csv
+3acdec23d6536abb6ab257cd697639fcf0878355eca01962a966990e3dde91ac  result\revision2\e6_summary.json
+c25915835cad70005e49339a0c31cdae963402097e1c54f35bcfba02b878f2fa  result\revision2\e7_onchain_cost.csv
+f10b84d88a2ebdaacc02a11ba23989846ec11bdfafd0c39bf7e8825d6f2e07ee  result\revision2\e7_summary.json
+f37cc9021782dff87137b4fcaf4edcaff00191415f6bccea38f32b11afa52af2  result\revision2\e7_tx_breakdown.csv
+22e4852f7cf44b5944dd559e06352aa3277ff472d817b6559ba7ad8b5567bfdd  result\revision2\e8_pipeline.csv
+b53cb4b37ceba1eb61b86642524ea9094e0851ceb26b695c18dbbf9f0d3e096e  result\revision2\e8_summary.json
+a37ad08ae49d7d26238d78a848e3de33c24b488c321545380f35710284ea7ad9  result\revision2\e9_bft_occupancy.csv
+b1550eeb349444ba3148e70877aae91a21233699c14769fed81e8e76d2411cb8  result\revision2\e9_capture.csv
+34739a34661fc5191cc580e672d6db66660d2cb330dd0bf13143695d047553a0  result\revision2\e9_epoch_healing.csv
+81c6e3c7ba5f58292730f7b1f6e491e1becabb2468eca03c0af16d5907d69b42  result\revision2\e9_summary.json
+b2bf4b0dffc52e4a07cd0c0a63e6dd232a936b62b6f0e9ad2b58522ffe424dee  result\sepolia\sepolia_gas_report.json
+0a0319d56e96d085f690301adf64ea84ebb7449cab4b8873aee2cb16bae5282d  result\simulation\raw_analysis.csv
+2edadbde98fd8d4992c040284a506483d1ccf6ad6fa5113a06f1940a483a0acd  result\simulation\raw_convergence.csv
+10726a066077128a5cf1ac983f3ae0cf4d64060435791a3d78f9554959ed0640  result\simulation\raw_convergence.json
+3470cfca0d39c992f0292510fffebff85c99a98e4d6c47c8acedaeb394badcc5  result\simulation\raw_mfpop_analysis.csv
+d1761f72eb9f30d89637610665a8ebce2554065773256da43467f91c5c9d78c0  result\simulation\raw_mfpop_analysis.json
+d92ef8ceea8b9268934943d305c0e976c8c55e2179cbebdac8abb9c54ad2852a  result\simulation\raw_slowloris.csv
+e88739ead7a34b8f898b287d16c21d2a49cfb9188d08801a2a17f9104397fcb9  result\simulation\raw_slowloris_patch.csv
+10642d067aae010776e569f94bbc514e108d27a38f127cc8bb90f650cf37005e  result\simulation\raw_slowloris_patch.json
+7c92a63c4ecbaf224cdbf7b0f69f38a08a08933935eeeb5e8db628fc5bad6085  result\vm_benchmark\Azure_groth16_bench.json
+34455000271c61bb76559e886c31565753504cc629e216f4137ed891e77db69b  result\vm_benchmark\groth16_benchmark_extrapolation.json
+ca893cc9fed4402f120c942afe16a5f6c1ce699d92c413b8c4edaee3d295501d  result\vm_benchmark\local_bench.json

@@ -113,6 +113,8 @@ def run_strategy(adv: Adversary, rounds: int) -> Dict:
         "baseline_final_reputation": base.raw_reputation,
         "baseline_eligible": base.eligible,
         "baseline_weight_ratio": base.election_weight() / max(1e-12, reference.election_weight()),
+        "weight_ratio_trace": weight_ratio,
+        "schedule": schedule,
     }
 
 
@@ -232,12 +234,34 @@ def main() -> None:
     os.makedirs(OUT, exist_ok=True)
 
     strat_rows: List[Dict] = []
+    strat_traces: Dict[str, List[Dict]] = {}
     for name, adv in STRATEGIES:
         r = run_strategy(adv, args.rounds)
+        weight_trace = r.pop("weight_ratio_trace")
+        schedule = r.pop("schedule")
         r["strategy"] = name
         strat_rows.append({"strategy": name, **{k: v for k, v in r.items()
                                                 if k != "strategy"}})
+        # Export per-round trace for this strategy
+        trace_rows = []
+        for t, (w_ratio, action) in enumerate(zip(weight_trace, schedule), 1):
+            trace_rows.append({
+                "round": t,
+                "weight_ratio": w_ratio,
+                "action": action,
+            })
+        strat_traces[name] = trace_rows
+    
     write_csv(os.path.join(OUT, "e2_strategies.csv"), strat_rows)
+    
+    # Write per-round traces for each strategy
+    for name, traces in strat_traces.items():
+        trace_path = os.path.join(OUT, f"e2_trace_{name.replace(' ', '_').lower()}.csv")
+        trace_cols = ["round", "weight_ratio", "action"]
+        with open(trace_path, "w", encoding="utf-8") as fh:
+            fh.write(",".join(trace_cols) + "\n")
+            for r in traces:
+                fh.write(f"{r['round']},{r['weight_ratio']:.9f},{r['action']}\n")
 
     ceiling = fault_ceiling()
     coll = collusion_sweep(args.seeds, min(args.rounds, 300), args.k, args.seed,
