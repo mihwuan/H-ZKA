@@ -1,5 +1,7 @@
 # H-ZKA: A Hierarchical Zero-Knowledge Architecture for Byzantine-Resilient Cross-Chain Auditing
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22236880.svg)](https://doi.org/10.5281/zenodo.22236880)
+
 > Hierarchical ZK-SNARK audit framework with canonical MF-PoP reputation, VRF cluster shuffling, and $O(\sqrt{k})$ global audit workload reduction.
 
 ## Table of Contents
