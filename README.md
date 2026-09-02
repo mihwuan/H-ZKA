@@ -442,6 +442,26 @@ See `scripts/revision2/README.md` for the full parameter set.
 - Replayed against a convex-only update with no safety multiplier, the same
   periodic schedule leaves the attacker at 82.0% of honest election weight.
 
+The sixth fault sits close to the threshold, so the per-event sequence is
+exported rather than summarized. `result/revision2/e2_ceiling_reputation_trace.csv`
+records the raw reputation at every event of the ceiling schedule, and
+`result/revision2/e2_ceiling_recovery.csv` records the honest rounds that
+follow the final fault:
+
+| Event | Raw reputation | Election eligible |
+| --- | --- | --- |
+| Sixth confirmed fault (round 164) | 0.015000794 | yes |
+| First valid round after it | 0.014995032 | no |
+| Second valid round | 0.014994086 | no |
+| Third valid round | 0.014996463 | no |
+| Fourth valid round | 0.015001118 | yes |
+
+The fault clears `R_jail = 0.015` by 7.9e-07. The invalid event contracts the
+history term, so the raw reputation keeps falling for two more rounds before it
+recovers; the strategy is election ineligible for three rounds and eligible
+again at the fourth. The dip does not jail the committer, because the jail is
+evaluated only on a confirmed invalid event.
+
 ### TN8b - Corrections applied after Associate Editor review
 
 Four results published in an earlier state of this repository were corrected.
@@ -457,6 +477,20 @@ earlier state can see what changed.
 
 See `HZKA/scripts/revision2/README.md` for the reproduction commands behind
 each corrected value.
+
+### TN8c - Claims narrowed in the third revision
+
+| Quantity | Earlier | Narrowed to | Cause |
+| --- | --- | --- | --- |
+| BN254 security level | 128-bit | approximately 100-bit | The extended tower number field sieve (Kim and Barbulescu, CRYPTO 2016) lowered the target-group discrete-logarithm difficulty; current CFRG pairing-curve guidance places BN254 near 100 bits |
+| Metadata leakage scope | all observers | global-chain observers only | The protocol publishes per-chain roots to its data-availability layer, so an observer reading those roots recovers the activity bit exactly, giving a 1.0x reduction |
+| 20M model discrimination | discriminates model forms | ranks model forms | The measured confidence interval [113.5, 131.5] s overlaps the power-law prediction interval [54.6, 115.2] s on [113.5, 115.2] s, so the power-law form is not excluded at the 95% level |
+| Coalition study | coordinated collusion | coalition-size sweep | The simulator's colluder branch does not alter behavior, so the sweep varies coalition size without modelling coordination |
+
+Every measurement, gas figure, and constraint count in this repository is a
+BN254 result at approximately 100-bit security. Nothing in the architecture
+depends on the curve; a deployment that requires a true 128-bit target should
+instantiate the same construction over BLS12-381 and repeat the profiling.
 
 ### TN9 - Byzantine ratio, churn, and partitions
 

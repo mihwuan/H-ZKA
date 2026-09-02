@@ -1,0 +1,24 @@
+{
+  "title": "H-ZKA: Reproducibility Package for Hierarchical Zero-Knowledge Cross-Chain Auditing",
+  "description": "Reproducibility package for the H-ZKA manuscript: the protocol simulator and its experiment drivers, the Solidity contracts and transition tests, the Rust/Arkworks benchmarking harness, the tc/netem and Docker topology descriptions, and the raw per-seed CSV and JSON outputs behind every derived table. All cryptographic measurements are BN254 results at approximately 100-bit security under exTNFS.",
+  "upload_type": "software",
+  "license": "cc-by-4.0",
+  "access_right": "open",
+  "creators": [
+    {"name": "Tran, Tuan-Dung", "affiliation": "University of Information Technology, VNU-HCM"},
+    {"name": "Phung-Van, Nam-Anh", "affiliation": "University of Information Technology, VNU-HCM"},
+    {"name": "Dang, Minh-Quan", "affiliation": "University of Information Technology, VNU-HCM"},
+    {"name": "Pham, Van-Hau", "affiliation": "University of Information Technology, VNU-HCM"}
+  ],
+  "keywords": [
+    "cross-chain auditing",
+    "zero-knowledge proofs",
+    "recursive proof aggregation",
+    "Byzantine fault tolerance",
+    "reputation systems",
+    "blockchain interoperability"
+  ],
+  "related_identifiers": [
+    {"identifier": "https://github.com/mihwuan/H-ZKA", "relation": "isSupplementTo", "scheme": "url"}
+  ]
+}

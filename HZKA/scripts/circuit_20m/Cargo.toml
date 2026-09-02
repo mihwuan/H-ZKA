@@ -19,7 +19,7 @@ parallel = [
 ]
 
 [dependencies]
-# Core Arkworks libraries (BN254 / 128-bit security)
+# Core Arkworks libraries (BN254; approximately 100-bit security under exTNFS)
 ark-ff           = { version = "0.4", default-features = false }
 ark-ec           = { version = "0.4", default-features = false }
 ark-poly         = { version = "0.4", default-features = false }
@@ -30,7 +30,7 @@ ark-relations    = { version = "0.4", default-features = false }
 # Groth16 proving system
 ark-groth16      = { version = "0.4", default-features = false }
 
-# BN254 curve (128-bit security, EVM-compatible precompiles)
+# BN254 curve (approximately 100-bit security under exTNFS, EVM-compatible precompiles)
 ark-bn254        = { version = "0.4", default-features = false, features = ["curve"] }
 
 # R1CS constraint system and standard gadgets

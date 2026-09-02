@@ -123,24 +123,44 @@ def run_strategy(adv: Adversary, rounds: int) -> Dict:
 # ---------------------------------------------------------------------------
 
 
-def fault_ceiling(max_farm: int = 4000) -> Dict:
+def fault_ceiling(max_farm: int = 4000,
+                  recovery_rounds: int = 8) -> Dict:
     """Largest confirmed-fault count reachable by any evasion schedule.
 
     The attacker is granted an unbounded honest-farming budget between faults
     and full knowledge of its own state, which upper-bounds every adaptive
     policy.  It attacks whenever the projected post-fault raw reputation
     exceeds the jail threshold, and otherwise farms reputation.
+
+    The per-event raw reputation is recorded so that the near-threshold
+    sequence around the final fault can be checked directly rather than
+    inferred from the summary values.
     """
     st = MFPoP()
     faults = 0
     farm_cost: List[int] = []
     spent = 0
+    t = 0
+    trace: List[Dict] = []
+
+    def record(round_no: int, action: str, fault_no: int) -> None:
+        trace.append({
+            "round": round_no,
+            "action": action,
+            "fault_index": fault_no,
+            "raw_reputation": st.raw_reputation,
+            "eligible": st.eligible,
+            "jailed": st.jailed,
+        })
+
     while True:
         if st.r_base * st.phi * Q_S > R_JAIL:
             st.step(INVALID)
             faults += 1
+            t += 1
             farm_cost.append(spent)
             spent = 0
+            record(t, INVALID, faults)
             if st.jailed:
                 break
             continue
@@ -148,21 +168,112 @@ def fault_ceiling(max_farm: int = 4000) -> Dict:
         before = st.r_base
         st.step(VALID)
         spent += 1
+        t += 1
         if spent > max_farm or st.r_base - before < 1e-12:
+            record(t, VALID, faults)
             break
+        record(t, VALID, faults)
     # the ceiling: one further fault is always fatal because r_base <= 1
     fatal = MFPoP()
     fatal.r_base = 1.0
     fatal.phi = Q_S ** faults
     fatal.step(INVALID)
+
+    # Replay the honest rounds that immediately follow the final fault.  The
+    # invalid event contracts the history term, so raw reputation keeps
+    # falling for a round or two before it recovers; the manuscript quotes
+    # this sequence, and these are the values it quotes.
+    rec = _rerun_to_ceiling(max_farm)
+    at_ceiling = rec.raw_reputation
+    recovery: List[Dict] = []
+    ineligible_rounds = 0
+    recovered_at = None
+    for i in range(1, recovery_rounds + 1):
+        rec.step(VALID)
+        recovery.append({
+            "valid_round_after_final_fault": i,
+            "raw_reputation": rec.raw_reputation,
+            "eligible": rec.eligible,
+        })
+        if rec.eligible and recovered_at is None:
+            recovered_at = i
+        if not rec.eligible and recovered_at is None:
+            ineligible_rounds += 1
+
     return {
         "max_faults_before_jail": faults,
         "jailed_at_next_fault": fatal.jailed,
         "farm_rounds_per_fault": farm_cost,
+        "raw_reputation_at_final_fault": at_ceiling,
+        "jail_margin_at_final_fault": at_ceiling - R_JAIL,
+        "recovery_after_final_fault": recovery,
+        "rounds_ineligible_after_final_fault": ineligible_rounds,
+        "eligible_again_at_valid_round": recovered_at,
         "post_ceiling_raw_reputation": st.r_base * st.phi,
         "eligible_after_ceiling": st.r_base * st.phi > R_ELIG,
         "analytic_bound": int(math.floor(math.log(R_JAIL) / math.log(Q_S))),
+        "ceiling_trace": trace,
     }
+
+
+def _rerun_to_ceiling(max_farm: int = 4000) -> MFPoP:
+    """Replay the ceiling schedule and stop on the final confirmed fault.
+
+    The schedule of :func:`fault_ceiling` keeps farming after its last fault,
+    so its terminal state is the saturated one rather than the state at the
+    fault itself.  This replay stops on the last INVALID event, which is the
+    point the manuscript quotes.
+    """
+    st = MFPoP()
+    spent = 0
+    while True:
+        if st.r_base * st.phi * Q_S > R_JAIL:
+            st.step(INVALID)
+            spent = 0
+            if st.jailed:
+                break
+            continue
+        before = st.r_base
+        st.step(VALID)
+        spent += 1
+        if spent > max_farm or st.r_base - before < 1e-12:
+            break
+
+    # Rebuild the same schedule and stop immediately after the final fault.
+    total_faults = 0
+    probe = MFPoP()
+    spent = 0
+    while True:
+        if probe.r_base * probe.phi * Q_S > R_JAIL:
+            probe.step(INVALID)
+            total_faults += 1
+            spent = 0
+            if probe.jailed:
+                break
+            continue
+        before = probe.r_base
+        probe.step(VALID)
+        spent += 1
+        if spent > max_farm or probe.r_base - before < 1e-12:
+            break
+
+    out = MFPoP()
+    seen = 0
+    spent = 0
+    while seen < total_faults:
+        if out.r_base * out.phi * Q_S > R_JAIL:
+            out.step(INVALID)
+            seen += 1
+            spent = 0
+            if out.jailed:
+                break
+            continue
+        before = out.r_base
+        out.step(VALID)
+        spent += 1
+        if spent > max_farm or out.r_base - before < 1e-12:
+            break
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -264,13 +375,34 @@ def main() -> None:
                 fh.write(f"{r['round']},{r['weight_ratio']:.9f},{r['action']}\n")
 
     ceiling = fault_ceiling()
+
+    # Per-event raw-reputation trace for the fault ceiling.  The manuscript
+    # quotes the value at the final fault and the recovery walk that follows
+    # it; both are written here so they can be checked without rerunning.
+    with open(os.path.join(OUT, "e2_ceiling_reputation_trace.csv"), "w",
+              encoding="utf-8") as fh:
+        fh.write("round,action,fault_index,raw_reputation,eligible,jailed\n")
+        for r in ceiling["ceiling_trace"]:
+            fh.write(f"{r['round']},{r['action']},{r['fault_index']},"
+                     f"{r['raw_reputation']:.9f},{int(r['eligible'])},"
+                     f"{int(r['jailed'])}\n")
+
+    with open(os.path.join(OUT, "e2_ceiling_recovery.csv"), "w",
+              encoding="utf-8") as fh:
+        fh.write("valid_round_after_final_fault,raw_reputation,eligible\n")
+        for r in ceiling["recovery_after_final_fault"]:
+            fh.write(f"{r['valid_round_after_final_fault']},"
+                     f"{r['raw_reputation']:.9f},{int(r['eligible'])}\n")
+
     coll = collusion_sweep(args.seeds, min(args.rounds, 300), args.k, args.seed,
                             topology_file=args.topology_file)
     write_csv(os.path.join(OUT, "e2_collusion.csv"), coll)
 
     with open(os.path.join(OUT, "e2_summary.json"), "w", encoding="utf-8") as fh:
+        ceiling_summary = {k: v for k, v in ceiling.items()
+                           if k != "ceiling_trace"}
         json.dump({"config": vars(args), "strategies": strat_rows,
-                   "ceiling": ceiling, "collusion": coll}, fh, indent=2)
+                   "ceiling": ceiling_summary, "collusion": coll}, fh, indent=2)
 
     print("E2 complete.")
     for r in strat_rows:
@@ -282,6 +414,11 @@ def main() -> None:
     print(f"  ceiling: {ceiling['max_faults_before_jail']} faults, "
           f"farm cost per fault {ceiling['farm_rounds_per_fault']}, "
           f"next fault jails = {ceiling['jailed_at_next_fault']}")
+    print(f"  at final fault: raw={ceiling['raw_reputation_at_final_fault']:.9f} "
+          f"(margin {ceiling['jail_margin_at_final_fault']:.3e}); "
+          f"ineligible {ceiling['rounds_ineligible_after_final_fault']} rounds, "
+          f"eligible again at valid round "
+          f"{ceiling['eligible_again_at_valid_round']}")
     for r in coll:
         print(f"  colluders={r['colluders']:<3} capture={r['head_capture_rate_mean']:.4f} "
               f"(proportional {r['proportional_share']:.2f})")

@@ -6,7 +6,7 @@ This directory stores the measured 20M-constraint run that must match the manusc
 
 1. Statement: verify B_max = 15 inner Groth16 proofs and per-slot state transition.
 2. Public inputs: exactly 3 (cluster commitment, cluster id, round).
-3. Security: BN254, 128-bit target.
+3. Security: BN254. The extended tower number field sieve places this curve near 100 bits, not the 128 bits it was once assumed to provide; every number here is a BN254 result at approximately 100-bit security.
 4. Toolchain: Rust/Arkworks with feature parallel.
 5. Host: AsusL40 class node (Xeon Gold 6538Y+, 16 vCPU, 200 GiB), with >=128 GiB free before run.
 

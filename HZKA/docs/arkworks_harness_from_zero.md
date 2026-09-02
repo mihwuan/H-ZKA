@@ -62,7 +62,7 @@ source "$HOME/.cargo/env"
 Requirements to lock:
 
 1. Curve: BN254.
-2. Security target: 128-bit equivalent assumptions used by Groth16 on BN254.
+2. Security level: Groth16 over BN254, approximately 100 bits under exTNFS.
 3. Parallel build feature enabled.
 4. Locked dependency graph.
 

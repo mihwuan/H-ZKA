@@ -1,16 +1,32 @@
-table_label,table_title,evidence_class,source_artifact,notes
-TN1,MF-PoP Reputation Convergence (RQ2),Simulation,scripts/revision2/exp_adaptive_adversary.py,Six consecutive confirmed safety faults trigger Trust Jail
-TN2,Audit Workload Reduction (RQ1),Theoretical,N/A,Chain reduction from k to sqrt(k) proofs per round
-TN3,Latency and Throughput (RQ4),Measurement,result/all_vms/vmX/,End-to-end audit latency across 100 chains
-TN4,Gas Consumption (RQ4),Measurement + Exact model,result/sepolia/sepolia_gas_report.json result/global_audit/global_audit_report.json,EVM gas schedule per-round verification cost
-TN6,Byzantine Resilience (RQ2),Simulation,scripts/revision2/exp_byzantine_churn.py,Audit accuracy within per-cluster BFT condition
-TN8,Fault ceiling and adaptive adversaries,Simulation,scripts/revision2/exp_adaptive_adversary.py,No strategy lands more than six confirmed safety faults
-TN8b,Corrections after Associate Editor review,Analysis,Multiple,Four result corrections documented: workers (55->58) gas (13.8x->10.0x) leakage (56.9x->3.0x) byzantine (50%->BFT-bounded)
-TN9,Byzantine ratio churn and partitions,Simulation,scripts/revision2/exp_byzantine_churn.py,Honest weight share convergence at every Byzantine ratio
-TN10,Coordinated collusion,Simulation,scripts/revision2/exp_adaptive_adversary.py,Capture rate strongly sub-proportional to population share
-TN11,Clustering ablation,Simulation,scripts/revision2/exp_clustering_ablation.py,Five clustering policies compared on RTT Tx-cut and coordination
-TN12,Audit-layer metadata leakage,Simulation,scripts/revision2/exp_leakage.py,Leakage reduction 3.0x-1000x for global chain observer 1.0x for DA roots
-TN13,Fault recovery and failure concentration,Simulation,scripts/revision2/exp_fault_recovery.py,Cluster-head failure impact on coordination and round loss
-TN14,Communication and storage,Calculation,scripts/revision2/exp_overhead_model.py,Per-round bytes and storage growth for flat vs H-ZKA
-Benchmark Regression,20M Constraint Circuit Measurement,Measurement,result/vm_benchmark/groth16_benchmark_extrapolation.json scripts/log_run_script/run_benchmark_all_RapidSNARK.log,Measured 122.54±9.00 s at deployed scale
-Capacity Model,Prover Worker Accounting,Calculation,scripts/revision2/exp_prover_pipeline.py,58 H-ZKA workers vs 47 flat at k=100 counting both proving stages
+latex_label,paper_table,title,evidence_class,source_artifact,notes
+tab:multi_n_slowloris,7,Slowloris isolation across N,Simulation,scripts/revision2/exp_adaptive_adversary.py,Valid rounds do not reset the safety state
+tab:workload,8,Audit workload reduction,Calculation,scripts/revision2/exp_prover_pipeline.py,Chain reduction from k to sqrt(k) proofs per round
+tab:latency,9,End-to-end latency,Measurement,"result/all_vms/, result/network_latency/",Audit latency across 100 chains
+tab:worker-count-all-k,10,Two-stage prover accounting,Calculation,scripts/revision2/exp_prover_pipeline.py,"58 H-ZKA workers vs 47 flat at k=100, counting both proving stages"
+tab:prover-provisioning,11,Prover memory provisioning,Calculation,scripts/revision2/exp_prover_pipeline.py,Aggregate provisioned memory 1659 -> 2171 GiB at k=100
+tab:onchain-cost,12,On-chain cost model,Measurement + exact model,scripts/revision2/exp_onchain_cost.py,EVM gas schedule per-round verification cost
+tab:gas,13,Gas consumption,Measurement + exact model,"result/sepolia/sepolia_gas_report.json, result/global_audit/global_audit_report.json",10.0x reduction at k=100 under the exact model
+tab:extrapolation,14,Circuit regression,Measurement,result/vm_benchmark/,Nine measured circuits up to 11.5M constraints
+tab:measured-20m,15,20M circuit measurement,Measurement,result/circuit_20M/,"122.54 +/- 9.00 s, peak RSS 46.58 GiB, three repetitions"
+tab:model-form,16,Model-form comparison,Measurement + regression,result/circuit_20M/model_validation.csv,"Measured CI [113.5,131.5] s ranks the model forms; it does not exclude the power law"
+tab:hetnet,17,Heterogeneous network,Measurement,result/network_latency/,Latency under heterogeneous inter-region delay
+tab:byzantine-measured,18,Byzantine resilience,Simulation,scripts/revision2/exp_byzantine_churn.py,Audit accuracy within the per-cluster BFT condition
+tab:bft-capture,19,Per-cluster BFT bound,Simulation,scripts/revision2/exp_bft_bound.py,Binding constraint: 1.8 of 10 clusters break the bound at a 20% global ratio
+tab:churn,20,Node churn,Simulation,scripts/revision2/exp_byzantine_churn.py,900 churn runs; zero honest committers jailed
+tab:partition,21,Network partition,Simulation,scripts/revision2/exp_byzantine_churn.py,720 partition runs including 120-round outages
+tab:adaptive,22,Adaptive adversaries and fault ceiling,Simulation,scripts/revision2/exp_adaptive_adversary.py,No strategy lands more than six confirmed safety faults; see e2_ceiling_reputation_trace.csv
+tab:collusion,23,Coalition-size sweep,Simulation,scripts/revision2/exp_adaptive_adversary.py,"Capture is sub-proportional to coalition share; the sweep varies size, not coordination"
+tab:eta-sweep,24,Clustering eta sweep,Simulation,scripts/revision2/exp_clustering_ablation.py,Sensitivity of the clustering objective weight
+tab:cluster-policy,25,Clustering ablation,Simulation,scripts/revision2/exp_clustering_ablation.py,"Five clustering policies on RTT, Tx-cut, and coordination"
+tab:leakage,26,Audit-layer metadata leakage,Simulation,scripts/revision2/exp_leakage.py,3.0x to 1000x for a global-chain observer; 1.0x for an observer reading DA roots
+tab:leakage-sensitivity,27,Leakage sensitivity,Simulation,scripts/revision2/exp_leakage.py,Reduction as a function of chain activity sparsity
+tab:fault-recovery,28,Fault recovery,Simulation,scripts/revision2/exp_fault_recovery.py,Cluster-head failure impact on coordination and round loss
+tab:cluster-config,29,Cluster configuration sensitivity,Simulation,scripts/revision2/exp_config_sensitivity.py,Round cost across cluster counts
+tab:burstiness,30,Arrival burstiness,Simulation,scripts/revision2/exp_config_sensitivity.py,3.4x failure-burst amplification is reported as a structural cost
+tab:unified-complexity,31,Unified per-stage complexity,Analysis + calculation,scripts/revision2/exp_overhead_model.py,"Compute, communication, and storage per protocol stage"
+tab:overhead,32,Communication and storage accounting,Calculation,scripts/revision2/exp_overhead_model.py,PROOF_B = 128 B; 25796 -> 2686 B and 3.92 -> 0.40 GiB/yr at k=100
+tab:params,33,Common parameter configuration,Configuration,scripts/revision2/hzka_protocol_sim.py,Values that hold unless an experiment states otherwise
+tab:param-deviations,34,Per-experiment deviations,Configuration,scripts/revision2/,Every experiment that departs from the common configuration
+tab:manifest,35,Artifact manifest,Documentation,this file,Each derived table and the driver that produces it
+tab:comparison-scope,36,Comparison scope,Analysis,N/A,What a cross-system claim would still require
+eq:reputation-dos,Eq. (46),Reputation DoS bound,Simulation,scripts/revision2/exp_reputation_dos.py,Cost of driving an honest committer below eligibility

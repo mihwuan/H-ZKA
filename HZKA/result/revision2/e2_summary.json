@@ -121,6 +121,52 @@
       0,
       158
     ],
+    "raw_reputation_at_final_fault": 0.01500079430376005,
+    "jail_margin_at_final_fault": 7.943037600502412e-07,
+    "recovery_after_final_fault": [
+      {
+        "valid_round_after_final_fault": 1,
+        "raw_reputation": 0.014995031594899889,
+        "eligible": false
+      },
+      {
+        "valid_round_after_final_fault": 2,
+        "raw_reputation": 0.01499408608938149,
+        "eligible": false
+      },
+      {
+        "valid_round_after_final_fault": 3,
+        "raw_reputation": 0.014996463211951385,
+        "eligible": false
+      },
+      {
+        "valid_round_after_final_fault": 4,
+        "raw_reputation": 0.015001117550560163,
+        "eligible": true
+      },
+      {
+        "valid_round_after_final_fault": 5,
+        "raw_reputation": 0.0150073180947512,
+        "eligible": true
+      },
+      {
+        "valid_round_after_final_fault": 6,
+        "raw_reputation": 0.015014553902735182,
+        "eligible": true
+      },
+      {
+        "valid_round_after_final_fault": 7,
+        "raw_reputation": 0.015022468068541418,
+        "eligible": true
+      },
+      {
+        "valid_round_after_final_fault": 8,
+        "raw_reputation": 0.015030811499219754,
+        "eligible": true
+      }
+    ],
+    "rounds_ineligible_after_final_fault": 3,
+    "eligible_again_at_valid_round": 4,
     "post_ceiling_raw_reputation": 0.014995031594899889,
     "eligible_after_ceiling": false,
     "analytic_bound": 6

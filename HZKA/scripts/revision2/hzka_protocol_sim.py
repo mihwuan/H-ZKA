@@ -791,9 +791,16 @@ class HZKASimulation:
                 if self.committers[j].online else 0.0
                 for j in members], dtype=float)
             if self.cfg.collusion_size > 0:
-                # Colluders concentrate their VRF participation: they always
-                # stand for election, which is the strongest permitted
-                # coordination under a public, weight-proportional lottery.
+                # NOTE: this branch does not change any election weight.  A
+                # public, weight-proportional VRF lottery leaves a coalition
+                # no move beyond standing for election, which every eligible
+                # committer already does, so an eligible colluder's weight is
+                # already its honest weight and an ineligible one stays at
+                # zero.  The sweep therefore measures how head capture scales
+                # with coalition SIZE, not with coordination; the manuscript
+                # labels it that way.  The branch is retained so that the
+                # absence of an effect is visible in the source rather than
+                # inferred from its omission.
                 for i, j in enumerate(members):
                     if self.committers[j].colluder and weights[i] == 0.0:
                         weights[i] = 0.0

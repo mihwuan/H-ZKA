@@ -212,7 +212,10 @@ def main() -> None:
         "b_max": 15,
         "public_inputs": 3,
         "interface": "commitment",
-        "security_level": "128-bit BN254",
+        "security_level": (
+            "BN254, approximately 100-bit under exTNFS "
+            "(Kim and Barbulescu, CRYPTO 2016; draft-irtf-cfrg-pairing-friendly-curves)"
+        ),
         "proving_time_mean_s": mean_time,
         "proving_time_ci_s": ci_time,
         "proving_time_runs_s": times,

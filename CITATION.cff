@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this artifact, please cite it using the metadata below."
+title: "H-ZKA: Reproducibility Package for Hierarchical Zero-Knowledge Cross-Chain Auditing"
+type: software
+license: CC-BY-4.0
+repository-code: "https://github.com/mihwuan/H-ZKA"
+doi: 10.5281/zenodo.22236880
+authors:
+  - family-names: Tran
+    given-names: Tuan-Dung
+    affiliation: "University of Information Technology, VNU-HCM"
+    email: dungtrt@uit.edu.vn
+  - family-names: Phung-Van
+    given-names: Nam-Anh
+    affiliation: "University of Information Technology, VNU-HCM"
+  - family-names: Dang
+    given-names: Minh-Quan
+    affiliation: "University of Information Technology, VNU-HCM"
+  - family-names: Pham
+    given-names: Van-Hau
+    affiliation: "University of Information Technology, VNU-HCM"
+keywords:
+  - cross-chain auditing
+  - zero-knowledge proofs
+  - recursive proof aggregation
+  - Byzantine fault tolerance
+  - reputation systems

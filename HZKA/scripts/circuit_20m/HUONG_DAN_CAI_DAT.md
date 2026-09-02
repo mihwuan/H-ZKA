@@ -97,7 +97,7 @@ Trong file `Cargo.toml` của project, các dependency chính là:
 | `ark-ec` | Elliptic curve operations (phép toán đường cong) |
 | `ark-poly` | Polynomial operations |
 | `ark-groth16` | Groth16 proving system (tạo và verify ZKP) |
-| `ark-bn254` | Đường cong BN254 (128-bit security, tương thích EVM) |
+| `ark-bn254` | Đường cong BN254 (khoảng 100-bit security do exTNFS, tương thích EVM) |
 | `ark-r1cs-std` | Gadgets cho hệ ràng buộc R1CS |
 | `ark-crypto-primitives` | Hash functions (Poseidon), commitment schemes |
 | `ark-std` | Utilities (RNG, parallelism) |

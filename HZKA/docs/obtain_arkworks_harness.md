@@ -16,7 +16,7 @@ The harness is acceptable only if all checks below pass:
 2. It supports feature parallel and can build with:
    cargo build --release --features parallel --bins --locked
 3. build_agg exposes commitment public-input mode for 3 public inputs.
-4. Curve/security matches BN254 / 128-bit target in manuscript context.
+4. Curve matches BN254 as used in the manuscript. Its security level is approximately 100 bits under exTNFS, not 128.
 5. You can produce agg.r1cs, agg_pk.bin, agg_vk.bin, witness.bin, proof_i.bin and verify them.
 
 ## 1) Preferred path: recover the original harness used for nine measured points

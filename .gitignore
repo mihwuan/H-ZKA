@@ -17,3 +17,6 @@ HZKA/result/**/build_agg/
 
 !*proof_*.bin
 !*agg_vk.bin
+
+__pycache__/
+*.pyc
