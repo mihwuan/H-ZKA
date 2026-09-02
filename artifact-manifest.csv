@@ -1,5 +1,5 @@
 latex_label,paper_table,title,evidence_class,source_artifact,notes
-tab:multi_n_slowloris,7,Slowloris isolation across N,Simulation,scripts/revision2/exp_adaptive_adversary.py,Valid rounds do not reset the safety state
+tab:multi_n_slowloris,7,Slowloris isolation across N,Simulation,scripts/slowloris_simulation.py,Valid rounds do not reset the safety state; per-seed records in result/simulation/raw_slowloris*.csv
 tab:workload,8,Audit workload reduction,Calculation,scripts/revision2/exp_prover_pipeline.py,Chain reduction from k to sqrt(k) proofs per round
 tab:latency,9,End-to-end latency,Measurement,"result/all_vms/, result/network_latency/",Audit latency across 100 chains
 tab:worker-count-all-k,10,Two-stage prover accounting,Calculation,scripts/revision2/exp_prover_pipeline.py,"58 H-ZKA workers vs 47 flat at k=100, counting both proving stages"

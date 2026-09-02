@@ -31,6 +31,8 @@
       "hzka_storage_gib_per_year": 0.19824877381324768,
       "flat_prover_peak_gib": 35.290779,
       "hzka_prover_peak_gib": 60.0,
+      "prover_peak_basis": "predicted (linear in constraints, from 24 GiB at 8M)",
+      "hzka_prover_peak_gib_measured_20m": 46.58,
       "hzka_concurrent_prover_gib": 300.0,
       "flat_concurrent_prover_gib": 882.269475
     },
@@ -54,6 +56,8 @@
       "hzka_storage_gib_per_year": 0.3171980381011963,
       "flat_prover_peak_gib": 35.290779,
       "hzka_prover_peak_gib": 60.0,
+      "prover_peak_basis": "predicted (linear in constraints, from 24 GiB at 8M)",
+      "hzka_prover_peak_gib_measured_20m": 46.58,
       "hzka_concurrent_prover_gib": 480.0,
       "flat_concurrent_prover_gib": 1764.53895
     },
@@ -77,6 +81,8 @@
       "hzka_storage_gib_per_year": 0.39649754762649536,
       "flat_prover_peak_gib": 35.290779,
       "hzka_prover_peak_gib": 60.0,
+      "prover_peak_basis": "predicted (linear in constraints, from 24 GiB at 8M)",
+      "hzka_prover_peak_gib_measured_20m": 46.58,
       "hzka_concurrent_prover_gib": 600.0,
       "flat_concurrent_prover_gib": 3529.0779
     },
@@ -100,6 +106,8 @@
       "hzka_storage_gib_per_year": 0.515446811914444,
       "flat_prover_peak_gib": 35.290779,
       "hzka_prover_peak_gib": 60.0,
+      "prover_peak_basis": "predicted (linear in constraints, from 24 GiB at 8M)",
+      "hzka_prover_peak_gib_measured_20m": 46.58,
       "hzka_concurrent_prover_gib": 780.0,
       "flat_concurrent_prover_gib": 5293.61685
     },
@@ -123,6 +131,8 @@
       "hzka_storage_gib_per_year": 0.594746321439743,
       "flat_prover_peak_gib": 35.290779,
       "hzka_prover_peak_gib": 60.0,
+      "prover_peak_basis": "predicted (linear in constraints, from 24 GiB at 8M)",
+      "hzka_prover_peak_gib_measured_20m": 46.58,
       "hzka_concurrent_prover_gib": 900.0,
       "flat_concurrent_prover_gib": 7058.1558
     }

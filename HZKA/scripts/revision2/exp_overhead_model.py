@@ -83,6 +83,12 @@ def per_round(k: int, b_max: int) -> Dict[str, float]:
         "hzka_storage_gib_per_year": hzka_storage * (365 * 24 * 3600 / 120.0) / 2**30,
         "flat_prover_peak_gib": flat_prover_gib,
         "hzka_prover_peak_gib": hzka_prover_gib,
+        # The two fields above are linear-extrapolation PREDICTIONS from the
+        # 8M-constraint RAM profile, not measurements.  The measured peak for
+        # the 20M aggregation circuit is carried alongside so that a reader of
+        # this file alone cannot mistake 60.0 for an observed number.
+        "prover_peak_basis": "predicted (linear in constraints, from 24 GiB at 8M)",
+        "hzka_prover_peak_gib_measured_20m": 46.58,
         "hzka_concurrent_prover_gib": hzka_prover_gib * m,
         "flat_concurrent_prover_gib": flat_prover_gib * k,
     }
@@ -120,7 +126,8 @@ def main() -> None:
               f"{r['hzka_onchain_bytes']:>6.0f} B ({r['onchain_bytes_reduction']:.1f}x)  "
               f"storage/yr {r['flat_storage_gib_per_year']:.2f} -> "
               f"{r['hzka_storage_gib_per_year']:.2f} GiB  "
-              f"prover peak {r['hzka_prover_peak_gib']:.0f} GiB")
+              f"prover peak {r['hzka_prover_peak_gib']:.0f} GiB predicted "
+              f"(measured 46.58 GiB at 20M)")
 
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "..", "result", "revision2")

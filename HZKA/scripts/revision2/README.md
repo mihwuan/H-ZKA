@@ -36,16 +36,20 @@ Three kinds of evidence live here and the manuscript labels each one:
 
 | Script | Manuscript | Question |
 |---|---|---|
-| `exp_byzantine_churn.py` | Tables 23, 26, 27 | Recovery under Byzantine ratio, churn, outage length, latency, loss; empirical location of the omission-ineligibility boundary |
-| `exp_adaptive_adversary.py` | Tables 28–29 | Six adversarial strategies, the strategy-independent fault ceiling, coordinated collusion and cluster-head capture |
-| `exp_clustering_ablation.py` | Tables 30–31 | η sweep and five-policy clustering ablation |
-| `exp_leakage.py` | Tables 32–33 | Metadata leakage under matched fixed-shape baselines, with prior and cluster-size sensitivity |
-| `exp_fault_recovery.py` | Table 34 | Cluster-head failure: blast radius, burst amplification, failover cost |
-| `exp_overhead_model.py` | Tables 37–38 | Per-stage computation, communication, storage, and prover memory |
-| `exp_onchain_cost.py` | Tables 16–17 | Exact on-chain verification gas from the EVM schedule, for both public-input interfaces |
-| `exp_prover_pipeline.py` | Tables 14–15, 41 | Two-stage prover accounting: k inner proofs plus M aggregations, on one system boundary |
-| `exp_bft_bound.py` | Tables 24–25 | How often the per-cluster BFT condition fails, and what a captured cluster can do |
-| `exp_config_sensitivity.py` | Tables 35–36 | Cluster-count trade-off and bursty-arrival sensitivity |
+| `exp_byzantine_churn.py` | Tables 18, 20, 21 | Recovery under Byzantine ratio, churn, outage length, latency, loss; empirical location of the omission-ineligibility boundary |
+| `exp_bft_bound.py` | Table 19 | How often the per-cluster BFT condition fails, and what a captured cluster can do |
+| `exp_adaptive_adversary.py` | Tables 22, 23 | Six adversarial strategies, the strategy-independent fault ceiling and its per-event reputation trace, and cluster-head capture across coalition sizes |
+| `exp_clustering_ablation.py` | Tables 24, 25 | Eta sweep and five-policy clustering ablation |
+| `exp_leakage.py` | Tables 26, 27 | Metadata leakage under matched fixed-shape baselines, with prior and cluster-size sensitivity |
+| `exp_fault_recovery.py` | Table 28 | Cluster-head failure: blast radius, burst amplification, failover cost |
+| `exp_config_sensitivity.py` | Tables 29, 30 | Cluster-count trade-off and bursty-arrival sensitivity |
+| `exp_overhead_model.py` | Tables 31, 32 | Per-stage computation, communication, storage, and prover memory |
+| `exp_onchain_cost.py` | Tables 12, 13 | Exact on-chain verification gas from the EVM schedule, for both public-input interfaces |
+| `exp_prover_pipeline.py` | Tables 8, 10, 11 | Two-stage prover accounting: k inner proofs plus M aggregations, on one system boundary |
+| `exp_reputation_dos.py` | Eq. (46) | Cost of driving an honest committer below the eligibility threshold |
+
+Table numbers refer to the round-3 manuscript. `artifact-manifest.csv` at the
+repository root carries the same mapping keyed by LaTeX label.
 
 ## Reproducing
 

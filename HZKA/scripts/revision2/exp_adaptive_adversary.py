@@ -13,7 +13,8 @@ attack schedules confirms the analytic ceiling: no schedule lands more than
 seven confirmed safety faults, because the safety multiplier is non-resetting
 and the base reputation is bounded above by one.
 
-Part C -- coordinated collusion.  c colluding committers are placed in the
+Part C -- coalition-size sweep.  c committers labelled as a coalition are
+placed in the
 population and the empirical cluster-head capture rate is compared with the
 capped single-round selection bound of Eq. (22).
 
@@ -277,7 +278,11 @@ def _rerun_to_ceiling(max_farm: int = 4000) -> MFPoP:
 
 
 # ---------------------------------------------------------------------------
-# Part C: coordinated collusion and cluster-head capture
+# Part C: coalition size and cluster-head capture
+#
+# The sweep varies coalition SIZE.  A public, weight-proportional VRF lottery
+# leaves a coalition no move beyond standing for election, so no coordination
+# is modelled; see the note in hzka_protocol_sim._elect_heads.
 # ---------------------------------------------------------------------------
 
 
